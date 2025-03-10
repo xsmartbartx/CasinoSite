@@ -83,7 +83,7 @@ export function NavBar() {
                 <DropdownMenuContent className="bg-neutral-dark border-neutral-medium">
                   <DropdownMenuLabel>Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="cursor-pointer" onClick={() => { window.location.href = "/statistics"; }}>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => { navigate("/statistics"); }}>
                     Statistics
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={logout}>

@@ -24,7 +24,7 @@ const formSchema = insertUserSchema.extend({
 
 export default function Register() {
   const { register: registerUser } = useAuth();
-  const [, navigate] = useNavigate();
+  const [location, navigate] = useLocation();
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   
