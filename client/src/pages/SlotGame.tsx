@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { SlotMachine } from "@/components/ui/slot-machine";
+import { SlotMachine, SlotResults, WinLine } from "@/components/ui/slot-machine";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,7 +20,7 @@ export default function SlotGame() {
   
   const [bet, setBet] = useState("50.00");
   const [spinning, setSpinning] = useState(false);
-  const [results, setResults] = useState<string[] | undefined>(undefined);
+  const [results, setResults] = useState<SlotResults | undefined>(undefined);
   const [lastWin, setLastWin] = useState<number | null>(null);
   
   // Fetch game info
@@ -45,7 +45,11 @@ export default function SlotGame() {
     },
     onSuccess: (data) => {
       // Update the results from the server response
-      setResults(data.reels);
+      setResults({
+        gridSymbols: data.gridSymbols,
+        winningLines: data.winningLines,
+        totalMultiplier: data.totalMultiplier
+      });
       setLastWin(data.payout);
       
       // Update user balance
@@ -57,10 +61,19 @@ export default function SlotGame() {
       queryClient.invalidateQueries({ queryKey: ['/api/history'] });
       
       // Show toast for big wins
-      if (data.payout > bet * 5) {
+      if (data.payout > parseFloat(bet) * 5) {
         toast({
           title: "Big Win!",
           description: `You won ${formatCurrency(data.payout)}!`,
+          variant: "default",
+        });
+      }
+      
+      // For multiple winning lines, show a special message
+      if (data.winningLines && data.winningLines.length > 1) {
+        toast({
+          title: "Multiple Winning Lines!",
+          description: `You hit ${data.winningLines.length} winning combinations!`,
           variant: "default",
         });
       }
@@ -73,10 +86,8 @@ export default function SlotGame() {
       });
     },
     onSettled: () => {
-      // Stop spinning animation
-      setTimeout(() => {
-        setSpinning(false);
-      }, 3000); // Wait for the animation to complete
+      // Stop spinning animation is now handled by the SlotMachine component
+      // when it finishes displaying the results
     }
   });
   
@@ -158,6 +169,7 @@ export default function SlotGame() {
                     symbols={symbols}
                     spinning={spinning}
                     results={results}
+                    onSpinEnd={() => setSpinning(false)}
                     className="mb-4"
                   />
                   
@@ -213,9 +225,9 @@ export default function SlotGame() {
               <div className="w-full lg:w-80 bg-primary rounded-lg p-4">
                 <h3 className="font-display font-semibold mb-3">Game Information</h3>
                 
-                {/* Paytable */}
+                {/* Symbol Paytable */}
                 <div className="mb-4">
-                  <h4 className="text-sm font-medium text-neutral-light mb-2">Paytable</h4>
+                  <h4 className="text-sm font-medium text-neutral-light mb-2">Symbol Values</h4>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center">
@@ -257,11 +269,103 @@ export default function SlotGame() {
                       </div>
                       <span className="font-mono">x8</span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center">
-                        <span className="text-sm text-neutral-light">Any two matching symbols</span>
+                  </div>
+                </div>
+                
+                {/* Win Patterns */}
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-neutral-light mb-2">Win Patterns</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <div className="text-xs text-neutral-light mb-1">Horizontal Lines (x1)</div>
+                      <div className="grid grid-cols-3 gap-1 mb-1">
+                        <div className="bg-blue-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-blue-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-blue-500 bg-opacity-50 h-5 rounded"></div>
                       </div>
-                      <span className="font-mono">x0.5</span>
+                      <div className="grid grid-cols-3 gap-1 mb-1">
+                        <div className="bg-green-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-green-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-green-500 bg-opacity-50 h-5 rounded"></div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-1">
+                        <div className="bg-red-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-red-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-red-500 bg-opacity-50 h-5 rounded"></div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="text-xs text-neutral-light mb-1">Vertical Lines (x1)</div>
+                      <div className="grid grid-cols-3 gap-1">
+                        <div className="bg-yellow-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-purple-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-pink-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-yellow-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-purple-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-pink-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-yellow-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-purple-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-pink-500 bg-opacity-50 h-5 rounded"></div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="text-xs text-neutral-light mb-1">Diagonal Lines (x1.5)</div>
+                      <div className="grid grid-cols-3 gap-1 mb-1">
+                        <div className="bg-orange-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-orange-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-orange-500 bg-opacity-50 h-5 rounded"></div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-1">
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-cyan-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-cyan-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-cyan-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="text-xs text-neutral-light mb-1">V-Shapes (x2)</div>
+                      <div className="grid grid-cols-3 gap-1 mb-1">
+                        <div className="bg-indigo-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-indigo-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-indigo-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-1">
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-amber-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-amber-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-amber-500 bg-opacity-50 h-5 rounded"></div>
+                      </div>
+                    </div>
+                    
+                    <div className="text-xs text-neutral-light">
+                      <p>• Three matching symbols in a line = Full win</p>
+                      <p>• Two matching high-value symbols in a line = Half win</p>
+                      <p>• Multiple winning lines combine their values!</p>
                     </div>
                   </div>
                 </div>
