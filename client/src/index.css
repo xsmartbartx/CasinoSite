@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Animations */
 @keyframes slot-spin {
   0% {
     transform: translateY(-50px);
@@ -26,6 +27,53 @@
   }
 }
 
+@keyframes glowing {
+  0% {
+    box-shadow: 0 0 5px rgba(var(--primary-rgb), 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.8);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(var(--primary-rgb), 0.5);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Custom Animation Classes */
 .animate-slot-spin-fast {
   animation: slot-spin 0.2s linear infinite;
 }
@@ -42,12 +90,180 @@
   animation: winning-pulse 1.5s ease-in-out infinite;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
+.animate-glow {
+  animation: glowing 2s ease-in-out infinite;
+}
 
-  body {
-    @apply font-sans antialiased bg-background text-foreground;
-  }
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.5s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Page Transitions */
+.page-enter {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.page-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.page-exit-active {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Custom Classes */
+.glass-effect {
+  backdrop-filter: blur(10px);
+  background: rgba(23, 25, 35, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-card {
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(23, 23, 23, 0.2);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(39, 39, 42, 0.4);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.game-card {
+  transition: all 0.3s ease;
+}
+
+.game-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+/* Typography */
+.gradient-text {
+  background: linear-gradient(90deg, hsl(230, 100%, 65%), hsl(260, 100%, 70%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-gold {
+  background: linear-gradient(90deg, hsl(45, 100%, 72%), hsl(36, 100%, 55%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Card effects */
+.card-hover {
+  transition-property: all;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: scale(1.02);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+/* Casino specific elements */
+.casino-chip {
+  position: relative;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, hsl(230, 100%, 65%), hsl(240, 70%, 40%));
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 
+              inset 0 -2px 4px rgba(0, 0, 0, 0.2), 
+              inset 0 2px 4px rgba(255, 255, 255, 0.1);
+}
+
+.casino-chip::before {
+  content: '';
+  position: absolute;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9999px;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+}
+
+.casino-chip::after {
+  content: '';
+  position: absolute;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  background-color: rgba(23, 23, 23, 0.6);
+}
+
+/* Base styles */
+:root {
+  --primary-rgb: 82, 109, 254;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  background-image: 
+    radial-gradient(circle at 15% 25%, rgba(76, 29, 149, 0.15) 0%, transparent 35%),
+    radial-gradient(circle at 85% 75%, rgba(59, 130, 246, 0.1) 0%, transparent 45%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232563eb' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-attachment: fixed;
+  background-size: 100% 100%, 100% 100%, auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.025em;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgba(23, 23, 23, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(161, 161, 170, 0.2);
+  border-radius: 9999px;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(161, 161, 170, 0.4);
 }
