@@ -4,6 +4,9 @@ import {
   gameHistory, type GameHistory, type InsertGameHistory,
   educationalContent, type EducationalContent, type InsertEducationalContent
 } from "@shared/schema";
+import { eq, and, desc, sql } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 
 export interface IStorage {
   // User methods
@@ -110,7 +113,13 @@ export class MemStorage implements IStorage {
   
   async createGame(insertGame: InsertGame): Promise<Game> {
     const id = this.gameIdCounter++;
-    const game: Game = { ...insertGame, id };
+    // Ensure required fields are non-null
+    const game: Game = { 
+      ...insertGame, 
+      id,
+      popular: insertGame.popular ?? false, 
+      difficulty: insertGame.difficulty ?? 'beginner' 
+    };
     this.games.set(id, game);
     return game;
   }
@@ -140,7 +149,12 @@ export class MemStorage implements IStorage {
   async createGameHistory(insertHistory: InsertGameHistory): Promise<GameHistory> {
     const id = this.gameHistoryIdCounter++;
     const createdAt = new Date();
-    const history: GameHistory = { ...insertHistory, id, createdAt };
+    const history: GameHistory = { 
+      ...insertHistory, 
+      id, 
+      createdAt,
+      details: insertHistory.details ?? null 
+    };
     this.gameHistories.set(id, history);
     return history;
   }
@@ -272,4 +286,244 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class PgStorage implements IStorage {
+  private db: ReturnType<typeof drizzle>;
+
+  constructor() {
+    // Create a postgres client
+    const client = postgres(process.env.DATABASE_URL as string);
+    // Create a drizzle instance using the postgres client
+    this.db = drizzle(client);
+  }
+
+  async getUser(id: number): Promise<User | undefined> {
+    const result = await this.db.select()
+      .from(users)
+      .where(eq(users.id, id))
+      .limit(1);
+    return result[0];
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const result = await this.db.select()
+      .from(users)
+      .where(eq(users.username, username))
+      .limit(1);
+    return result[0];
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    const result = await this.db.insert(users)
+      .values({
+        ...user,
+        balance: 10000
+      })
+      .returning();
+    return result[0];
+  }
+
+  async updateUserBalance(id: number, amount: number): Promise<User | undefined> {
+    const user = await this.getUser(id);
+    if (!user) return undefined;
+    
+    const result = await this.db.update(users)
+      .set({ balance: user.balance + amount })
+      .where(eq(users.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async getAllGames(): Promise<Game[]> {
+    return this.db.select().from(games);
+  }
+
+  async getGame(id: number): Promise<Game | undefined> {
+    const result = await this.db.select()
+      .from(games)
+      .where(eq(games.id, id))
+      .limit(1);
+    return result[0];
+  }
+
+  async getGamesByType(type: string): Promise<Game[]> {
+    return this.db.select()
+      .from(games)
+      .where(eq(games.type, type));
+  }
+
+  async createGame(game: InsertGame): Promise<Game> {
+    const result = await this.db.insert(games)
+      .values(game)
+      .returning();
+    return result[0];
+  }
+
+  async getGameHistory(userId: number, limit = 10, offset = 0): Promise<GameHistory[]> {
+    return this.db.select()
+      .from(gameHistory)
+      .where(eq(gameHistory.userId, userId))
+      .orderBy(desc(gameHistory.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
+
+  async getGameHistoryByGame(userId: number, gameId: number, limit = 10, offset = 0): Promise<GameHistory[]> {
+    return this.db.select()
+      .from(gameHistory)
+      .where(
+        and(
+          eq(gameHistory.userId, userId),
+          eq(gameHistory.gameId, gameId)
+        )
+      )
+      .orderBy(desc(gameHistory.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
+
+  async createGameHistory(history: InsertGameHistory): Promise<GameHistory> {
+    const result = await this.db.insert(gameHistory)
+      .values(history)
+      .returning();
+    return result[0];
+  }
+
+  async getAllEducationalContent(): Promise<EducationalContent[]> {
+    return this.db.select().from(educationalContent);
+  }
+
+  async getEducationalContent(id: number): Promise<EducationalContent | undefined> {
+    const result = await this.db.select()
+      .from(educationalContent)
+      .where(eq(educationalContent.id, id))
+      .limit(1);
+    return result[0];
+  }
+
+  async getEducationalContentByCategory(category: string): Promise<EducationalContent[]> {
+    return this.db.select()
+      .from(educationalContent)
+      .where(eq(educationalContent.category, category));
+  }
+
+  async createEducationalContent(content: InsertEducationalContent): Promise<EducationalContent> {
+    const result = await this.db.insert(educationalContent)
+      .values(content)
+      .returning();
+    return result[0];
+  }
+
+  async getUserStatistics(userId: number): Promise<any> {
+    // Get all user game history
+    const history = await this.db.select()
+      .from(gameHistory)
+      .where(eq(gameHistory.userId, userId));
+    
+    // Calculate basic stats
+    const totalWagered = history.reduce((sum, h) => sum + h.bet, 0);
+    const totalWon = history.reduce((sum, h) => sum + h.payout, 0);
+    const profitLoss = totalWon - totalWagered;
+    const rtp = totalWagered > 0 ? (totalWon / totalWagered) * 100 : 0;
+    const gamesPlayed = history.length;
+    const avgBet = gamesPlayed > 0 ? totalWagered / gamesPlayed : 0;
+    
+    // Get game types with a join query
+    const gameStats = await this.db.execute(sql`
+      SELECT 
+        g.type, 
+        SUM(gh.bet) as "totalBet", 
+        SUM(gh.payout) as "totalPayout",
+        SUM(gh.payout) - SUM(gh.bet) as "profit",
+        CASE 
+          WHEN SUM(gh.bet) > 0 THEN (SUM(gh.payout) / SUM(gh.bet)) * 100 
+          ELSE 0 
+        END as "rtp",
+        COUNT(*) as "count"
+      FROM 
+        game_history gh
+      JOIN 
+        games g ON gh.game_id = g.id
+      WHERE 
+        gh.user_id = ${userId}
+      GROUP BY 
+        g.type
+    `);
+    
+    return {
+      totalWagered,
+      totalWon,
+      profitLoss,
+      rtp,
+      gamesPlayed,
+      avgBet,
+      gameStats: gameStats
+    };
+  }
+
+  // Method to seed the database with initial data
+  async seedInitialData(): Promise<void> {
+    // Check if games already exist
+    const existingGames = await this.getAllGames();
+    if (existingGames.length === 0) {
+      // Create default games
+      await this.createGame({
+        name: "Slots",
+        description: "Learn about probability distributions and random number generation.",
+        rtp: 96.5,
+        type: "slot",
+        popular: true,
+        difficulty: "intermediate"
+      });
+      
+      await this.createGame({
+        name: "Roulette",
+        description: "Explore probability, expected value, and betting strategies.",
+        rtp: 97.3,
+        type: "roulette",
+        popular: false,
+        difficulty: "educational"
+      });
+      
+      await this.createGame({
+        name: "Dice",
+        description: "Understand fundamental probability with dice combinations.",
+        rtp: 98.5,
+        type: "dice",
+        popular: false,
+        difficulty: "beginner"
+      });
+    }
+    
+    // Check if educational content already exists
+    const existingContent = await this.getAllEducationalContent();
+    if (existingContent.length === 0) {
+      // Create default educational content
+      await this.createEducationalContent({
+        title: "Probability Basics",
+        content: "Learn the fundamental concepts of probability theory that underlie all casino games.",
+        category: "probability",
+        readTime: 5,
+        icon: "fa-calculator"
+      });
+      
+      await this.createEducationalContent({
+        title: "Expected Value",
+        content: "Understand how to calculate the average outcome of a random variable over many trials.",
+        category: "expected_value",
+        readTime: 8,
+        icon: "fa-chart-line"
+      });
+      
+      await this.createEducationalContent({
+        title: "Random Number Generation",
+        content: "Explore how computers generate random numbers and why true randomness matters in games.",
+        category: "rng",
+        readTime: 10,
+        icon: "fa-random"
+      });
+    }
+  }
+}
+
+// Initialize storage
+export const storage = new PgStorage();

@@ -12,6 +12,7 @@ export interface WinLine {
   positions: number[]; // Array of positions (0-8) that form a winning line
   multiplier: number; // Multiplier for this winning line
   color?: string; // Optional color for visual representation
+  name?: string; // Name of the winning pattern (e.g., "Horizontal", "Diagonal", "V-Shape")
 }
 
 export interface SlotResults {
