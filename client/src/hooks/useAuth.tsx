@@ -8,6 +8,10 @@ interface User {
   username: string;
   balance: number;
   createdAt: string;
+  role: 'user' | 'admin' | 'superadmin';
+  email?: string;
+  lastLogin?: string;
+  isActive?: boolean;
 }
 
 interface AuthContextType {
@@ -34,26 +38,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
   
   // Check if user is already logged in
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<User | null>({
     queryKey: ['/api/auth/me'],
     retry: false,
-    onSuccess: (data) => {
-      setUser(data);
-    },
-    onError: () => {
-      setUser(null);
-    },
+    staleTime: 60 * 1000, // 1 minute
+    gcTime: 5 * 60 * 1000, // 5 minutes
   });
   
   useEffect(() => {
     if (data) {
       setUser(data);
+    } else {
+      setUser(null);
     }
   }, [data]);
   
   // Register mutation
-  const registerMutation = useMutation({
-    mutationFn: async (credentials: { username: string; password: string }) => {
+  const registerMutation = useMutation<User, Error, { username: string; password: string }>({
+    mutationFn: async (credentials) => {
       const res = await apiRequest("POST", "/api/auth/register", credentials);
       return await res.json();
     },
@@ -75,8 +77,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
   
   // Login mutation
-  const loginMutation = useMutation({
-    mutationFn: async (credentials: { username: string; password: string }) => {
+  const loginMutation = useMutation<User, Error, { username: string; password: string }>({
+    mutationFn: async (credentials) => {
       const res = await apiRequest("POST", "/api/auth/login", credentials);
       return await res.json();
     },
@@ -98,7 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
   
   // Logout mutation
-  const logoutMutation = useMutation({
+  const logoutMutation = useMutation<{message: string}, Error, void>({
     mutationFn: async () => {
       const res = await apiRequest("POST", "/api/auth/logout", {});
       return await res.json();

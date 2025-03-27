@@ -1,19 +1,29 @@
-import { pgTable, text, serial, integer, boolean, timestamp, doublePrecision } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, doublePrecision, pgEnum } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+
+// User roles enum
+export const userRoles = pgEnum("user_role", ["user", "admin", "superadmin"]);
 
 // Users table
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+  email: text("email"),
   balance: doublePrecision("balance").notNull().default(10000),
+  role: userRoles("role").default("user").notNull(),
+  lastLogin: timestamp("last_login"),
+  isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
+  email: true,
+  role: true,
+  isActive: true,
 });
 
 // Games table
@@ -88,5 +98,58 @@ export type InsertGame = z.infer<typeof insertGameSchema>;
 export type GameHistory = typeof gameHistory.$inferSelect;
 export type InsertGameHistory = z.infer<typeof insertGameHistorySchema>;
 
+// Game settings for admin control
+export const gameSettings = pgTable("game_settings", {
+  id: serial("id").primaryKey(),
+  gameId: integer("game_id").notNull().references(() => games.id),
+  minBet: doublePrecision("min_bet").notNull().default(1),
+  maxBet: doublePrecision("max_bet").notNull().default(1000),
+  houseEdge: doublePrecision("house_edge").notNull().default(0.05),
+  maxWin: doublePrecision("max_win").notNull().default(10000),
+  isEnabled: boolean("is_enabled").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertGameSettingsSchema = createInsertSchema(gameSettings).pick({
+  gameId: true,
+  minBet: true,
+  maxBet: true,
+  houseEdge: true,
+  maxWin: true,
+  isEnabled: true,
+});
+
 export type EducationalContent = typeof educationalContent.$inferSelect;
 export type InsertEducationalContent = z.infer<typeof insertEducationalContentSchema>;
+
+// Analytics data for dashboard
+export const analytics = pgTable("analytics", {
+  id: serial("id").primaryKey(),
+  date: timestamp("date").defaultNow().notNull(),
+  totalUsers: integer("total_users").notNull().default(0),
+  activeUsers: integer("active_users").notNull().default(0),
+  totalBets: integer("total_bets").notNull().default(0),
+  totalWagered: doublePrecision("total_wagered").notNull().default(0),
+  totalPayout: doublePrecision("total_payout").notNull().default(0),
+  houseProfit: doublePrecision("house_profit").notNull().default(0),
+  gameBreakdown: text("game_breakdown"), // JSON string with per-game stats
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertAnalyticsSchema = createInsertSchema(analytics).pick({
+  date: true,
+  totalUsers: true,
+  activeUsers: true,
+  totalBets: true,
+  totalWagered: true,
+  totalPayout: true,
+  houseProfit: true,
+  gameBreakdown: true,
+});
+
+export type GameSettings = typeof gameSettings.$inferSelect;
+export type InsertGameSettings = z.infer<typeof insertGameSettingsSchema>;
+
+export type Analytics = typeof analytics.$inferSelect;
+export type InsertAnalytics = z.infer<typeof insertAnalyticsSchema>;

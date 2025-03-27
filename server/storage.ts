@@ -2,9 +2,12 @@ import {
   users, type User, type InsertUser,
   games, type Game, type InsertGame,
   gameHistory, type GameHistory, type InsertGameHistory,
-  educationalContent, type EducationalContent, type InsertEducationalContent
+  educationalContent, type EducationalContent, type InsertEducationalContent,
+  gameSettings, type GameSettings, type InsertGameSettings,
+  analytics, type Analytics, type InsertAnalytics,
+  userRoles
 } from "@shared/schema";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, gte, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
@@ -15,11 +18,22 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   updateUserBalance(id: number, amount: number): Promise<User | undefined>;
   
+  // Admin User methods
+  getAllUsers(limit?: number, offset?: number): Promise<User[]>;
+  updateUserRole(id: number, role: string): Promise<User | undefined>;
+  updateUserStatus(id: number, isActive: boolean): Promise<User | undefined>;
+  
   // Game methods
   getAllGames(): Promise<Game[]>;
   getGame(id: number): Promise<Game | undefined>;
   getGamesByType(type: string): Promise<Game[]>;
   createGame(game: InsertGame): Promise<Game>;
+  updateGame(id: number, game: Partial<InsertGame>): Promise<Game | undefined>;
+  
+  // Game settings methods
+  getGameSettings(gameId: number): Promise<GameSettings | undefined>;
+  createGameSettings(settings: InsertGameSettings): Promise<GameSettings>;
+  updateGameSettings(id: number, settings: Partial<InsertGameSettings>): Promise<GameSettings | undefined>;
   
   // Game history methods
   getGameHistory(userId: number, limit?: number, offset?: number): Promise<GameHistory[]>;
@@ -32,8 +46,14 @@ export interface IStorage {
   getEducationalContentByCategory(category: string): Promise<EducationalContent[]>;
   createEducationalContent(content: InsertEducationalContent): Promise<EducationalContent>;
   
+  // Analytics methods
+  getLatestAnalytics(): Promise<Analytics | undefined>;
+  getDailyAnalytics(startDate: Date, endDate: Date): Promise<Analytics[]>;
+  createAnalyticsSnapshot(): Promise<Analytics>;
+  
   // Statistics methods
   getUserStatistics(userId: number): Promise<any>;
+  getGlobalStatistics(): Promise<any>;
 }
 
 export class MemStorage implements IStorage {
@@ -79,7 +99,11 @@ export class MemStorage implements IStorage {
       ...insertUser, 
       id, 
       balance: 10000,
-      createdAt
+      createdAt,
+      role: insertUser.role || 'user',
+      lastLogin: null,
+      isActive: true,
+      email: insertUser.email || null
     };
     this.users.set(id, user);
     return user;
@@ -92,6 +116,45 @@ export class MemStorage implements IStorage {
     const updatedUser = { 
       ...user, 
       balance: user.balance + amount
+    };
+    this.users.set(id, updatedUser);
+    return updatedUser;
+  }
+  
+  async getAllUsers(limit = 50, offset = 0): Promise<User[]> {
+    const users = Array.from(this.users.values())
+      .sort((a, b) => {
+        if (!a.createdAt || !b.createdAt) return 0;
+        return b.createdAt.getTime() - a.createdAt.getTime();
+      });
+    
+    return users.slice(offset, offset + limit);
+  }
+  
+  async updateUserRole(id: number, role: string): Promise<User | undefined> {
+    const user = await this.getUser(id);
+    if (!user) return undefined;
+    
+    // Validate role
+    if (!['user', 'admin', 'superadmin'].includes(role)) {
+      throw new Error("Invalid role");
+    }
+    
+    const updatedUser = { 
+      ...user, 
+      role: role as 'user' | 'admin' | 'superadmin'
+    };
+    this.users.set(id, updatedUser);
+    return updatedUser;
+  }
+  
+  async updateUserStatus(id: number, isActive: boolean): Promise<User | undefined> {
+    const user = await this.getUser(id);
+    if (!user) return undefined;
+    
+    const updatedUser = { 
+      ...user, 
+      isActive
     };
     this.users.set(id, updatedUser);
     return updatedUser;
@@ -228,6 +291,144 @@ export class MemStorage implements IStorage {
       avgBet,
       gameStats
     };
+  }
+  
+  async getGlobalStatistics(): Promise<any> {
+    const allHistory = Array.from(this.gameHistories.values());
+    const allUsers = Array.from(this.users.values());
+    
+    // General platform stats
+    const totalUsers = allUsers.length;
+    const activeUsers = allUsers.filter(u => u.isActive !== false).length; // If isActive is undefined, consider it true
+    const totalWagered = allHistory.reduce((sum, h) => sum + h.bet, 0);
+    const totalWon = allHistory.reduce((sum, h) => sum + h.payout, 0);
+    const platformProfit = totalWagered - totalWon;
+    const overallRtp = totalWagered > 0 ? (totalWon / totalWagered) * 100 : 0;
+    const totalGamesPlayed = allHistory.length;
+    
+    // Game-specific stats
+    const gameTypes = Array.from(new Set(this.games.values().map(g => g.type)));
+    const gameStats = gameTypes.map(type => {
+      const gameHistories = allHistory.filter(h => {
+        const game = this.games.get(h.gameId);
+        return game && game.type === type;
+      });
+      
+      const totalBet = gameHistories.reduce((sum, h) => sum + h.bet, 0);
+      const totalPayout = gameHistories.reduce((sum, h) => sum + h.payout, 0);
+      const profit = totalBet - totalPayout;
+      const gameRtp = totalBet > 0 ? (totalPayout / totalBet) * 100 : 0;
+      const count = gameHistories.length;
+      
+      return {
+        type,
+        totalBet,
+        totalPayout,
+        profit,
+        rtp: gameRtp,
+        count
+      };
+    });
+    
+    return {
+      totalUsers,
+      activeUsers,
+      totalWagered,
+      totalWon,
+      platformProfit,
+      overallRtp,
+      totalGamesPlayed,
+      gameStats
+    };
+  }
+  
+  async getGameSettings(gameId: number): Promise<GameSettings | undefined> {
+    // Since MemStorage doesn't persistently store game settings,
+    // we'll return a default settings object
+    return {
+      id: 1,
+      gameId,
+      houseEdge: 0.03,
+      minBet: 1,
+      maxBet: 1000,
+      maxWin: 10000,
+      isEnabled: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
+  
+  async createGameSettings(settings: InsertGameSettings): Promise<GameSettings> {
+    // For MemStorage, just return a mock settings object
+    return {
+      id: 1,
+      ...settings,
+      minBet: settings.minBet ?? 1,
+      maxBet: settings.maxBet ?? 1000,
+      houseEdge: settings.houseEdge ?? 0.03,
+      maxWin: settings.maxWin ?? 10000,
+      isEnabled: settings.isEnabled ?? true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
+  
+  async updateGameSettings(id: number, settings: Partial<InsertGameSettings>): Promise<GameSettings | undefined> {
+    // For MemStorage, return an updated mock settings object
+    return {
+      id,
+      gameId: settings.gameId || 1,
+      houseEdge: settings.houseEdge ?? 0.03,
+      minBet: settings.minBet ?? 1,
+      maxBet: settings.maxBet ?? 1000,
+      maxWin: settings.maxWin ?? 10000,
+      isEnabled: settings.isEnabled ?? true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
+  
+  async getLatestAnalytics(): Promise<Analytics | undefined> {
+    // For MemStorage, create a mock analytics snapshot
+    return this.createAnalyticsSnapshot();
+  }
+  
+  async createAnalyticsSnapshot(): Promise<Analytics> {
+    // Generate snapshot based on current state
+    const stats = await this.getGlobalStatistics();
+    const dailyActiveUsers = Math.floor(stats.activeUsers * 0.6); // Simulate daily active users
+    
+    return {
+      id: 1,
+      totalUsers: stats.totalUsers,
+      activeUsers: stats.activeUsers,
+      totalBets: stats.totalGamesPlayed,
+      totalWagered: stats.totalWagered,
+      totalPayout: stats.totalWon,
+      houseProfit: stats.platformProfit,
+      gameBreakdown: JSON.stringify(stats.gameStats),
+      createdAt: new Date(),
+      date: new Date()
+    };
+  }
+  
+  async getDailyAnalytics(startDate: Date, endDate: Date): Promise<Analytics[]> {
+    // Generate a mock analytics snapshot for memory storage
+    const snapshot = await this.createAnalyticsSnapshot();
+    return [snapshot];
+  }
+  
+  async updateGame(id: number, game: Partial<InsertGame>): Promise<Game | undefined> {
+    const existingGame = await this.getGame(id);
+    if (!existingGame) return undefined;
+    
+    const updatedGame: Game = {
+      ...existingGame,
+      ...game
+    };
+    
+    this.games.set(id, updatedGame);
+    return updatedGame;
   }
   
   private initializeDefaultData() {
@@ -461,6 +662,188 @@ export class PgStorage implements IStorage {
   }
 
   // Method to seed the database with initial data
+  async getAllUsers(limit = 50, offset = 0): Promise<User[]> {
+    return this.db.select()
+      .from(users)
+      .orderBy(desc(users.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
+  
+  async updateUserRole(id: number, role: string): Promise<User | undefined> {
+    // Validate role
+    if (!['user', 'admin', 'superadmin'].includes(role)) {
+      throw new Error("Invalid role");
+    }
+    
+    const typedRole = role as 'user' | 'admin' | 'superadmin';
+    
+    const result = await this.db.update(users)
+      .set({ role: typedRole })
+      .where(eq(users.id, id))
+      .returning();
+    
+    return result[0];
+  }
+  
+  async updateUserStatus(id: number, isActive: boolean): Promise<User | undefined> {
+    const result = await this.db.update(users)
+      .set({ isActive })
+      .where(eq(users.id, id))
+      .returning();
+    
+    return result[0];
+  }
+  
+  async updateGame(id: number, game: Partial<InsertGame>): Promise<Game | undefined> {
+    const result = await this.db.update(games)
+      .set(game)
+      .where(eq(games.id, id))
+      .returning();
+    
+    return result[0];
+  }
+  
+  async getGameSettings(gameId: number): Promise<GameSettings | undefined> {
+    const result = await this.db.select()
+      .from(gameSettings)
+      .where(eq(gameSettings.gameId, gameId))
+      .limit(1);
+    
+    return result[0];
+  }
+  
+  async createGameSettings(settings: InsertGameSettings): Promise<GameSettings> {
+    const result = await this.db.insert(gameSettings)
+      .values(settings)
+      .returning();
+    
+    return result[0];
+  }
+  
+  async updateGameSettings(id: number, settings: Partial<InsertGameSettings>): Promise<GameSettings | undefined> {
+    const result = await this.db.update(gameSettings)
+      .set(settings)
+      .where(eq(gameSettings.id, id))
+      .returning();
+    
+    return result[0];
+  }
+  
+  async getGlobalStatistics(): Promise<any> {
+    // General platform stats
+    const usersResult = await this.db.select({ 
+      count: sql`count(*)`,
+      activeCount: sql`count(*) filter (where is_active = true)` 
+    }).from(users);
+    
+    const totalUsers = parseInt(usersResult[0].count.toString());
+    const activeUsers = parseInt(usersResult[0].activeCount.toString());
+    
+    // Game stats
+    const gameStats = await this.db.execute(sql`
+      SELECT 
+        g.type, 
+        SUM(gh.bet) as "totalBet", 
+        SUM(gh.payout) as "totalPayout",
+        SUM(gh.bet) - SUM(gh.payout) as "profit",
+        CASE 
+          WHEN SUM(gh.bet) > 0 THEN (SUM(gh.payout) / SUM(gh.bet)) * 100 
+          ELSE 0 
+        END as "rtp",
+        COUNT(*) as "count"
+      FROM 
+        game_history gh
+      JOIN 
+        games g ON gh.game_id = g.id
+      GROUP BY 
+        g.type
+    `);
+    
+    // Calculate totals
+    const totalStats = await this.db.execute(sql`
+      SELECT 
+        SUM(bet) as "totalWagered",
+        SUM(payout) as "totalWon",
+        COUNT(*) as "totalGamesPlayed"
+      FROM 
+        game_history
+    `);
+    
+    const totalWagered = parseFloat(totalStats[0].totalWagered || 0);
+    const totalWon = parseFloat(totalStats[0].totalWon || 0);
+    const platformProfit = totalWagered - totalWon;
+    const overallRtp = totalWagered > 0 ? (totalWon / totalWagered) * 100 : 0;
+    const totalGamesPlayed = parseInt(totalStats[0].totalGamesPlayed || 0);
+    
+    return {
+      totalUsers,
+      activeUsers,
+      totalWagered,
+      totalWon,
+      platformProfit,
+      overallRtp,
+      totalGamesPlayed,
+      gameStats
+    };
+  }
+  
+  async getLatestAnalytics(): Promise<Analytics | undefined> {
+    const result = await this.db.select()
+      .from(analytics)
+      .orderBy(desc(analytics.date))
+      .limit(1);
+    
+    return result[0];
+  }
+  
+  async createAnalyticsSnapshot(): Promise<Analytics> {
+    // Generate snapshot based on current statistics
+    const stats = await this.getGlobalStatistics();
+    
+    // Get daily active users (simplified approach)
+    const oneDayAgo = new Date();
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+    
+    const dailyUsers = await this.db.execute(sql`
+      SELECT COUNT(DISTINCT user_id) as "dailyActiveUsers"
+      FROM game_history
+      WHERE created_at >= ${oneDayAgo.toISOString()}
+    `);
+    
+    // Type-safe conversion
+    const dailyActiveUsersValue = dailyUsers && dailyUsers[0] && 
+      typeof dailyUsers[0].dailyActiveUsers === 'string' ? 
+      parseInt(dailyUsers[0].dailyActiveUsers) : 0;
+    
+    // Create a valid analytics record
+    const result = await this.db.insert(analytics)
+      .values({
+        totalBets: stats.totalGamesPlayed,
+        totalWagered: stats.totalWagered,
+        totalPayout: stats.totalWon,
+        houseProfit: stats.platformProfit,
+        gameBreakdown: JSON.stringify(stats.gameStats),
+        activeUsers: stats.activeUsers,
+        date: new Date()
+      })
+      .returning();
+    
+    return result[0];
+  }
+  
+  async getDailyAnalytics(startDate: Date, endDate: Date): Promise<Analytics[]> {
+    return this.db.select()
+      .from(analytics)
+      .where(
+        and(
+          gte(analytics.date, startDate),
+          lte(analytics.date, endDate)
+        )
+      )
+      .orderBy(analytics.date);
+  }
+  
   async seedInitialData(): Promise<void> {
     // Check if games already exist
     const existingGames = await this.getAllGames();

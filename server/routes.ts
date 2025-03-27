@@ -343,6 +343,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     next();
   };
+
+  // Admin middleware - checks if user has admin role
+  const adminMiddleware = async (req: Request, res: Response, next: Function) => {
+    if (!req.session.userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    try {
+      const user = await storage.getUser(req.session.userId);
+      if (!user) {
+        return res.status(401).json({ message: "User not found" });
+      }
+      
+      if (user.role !== 'admin' && user.role !== 'superadmin') {
+        return res.status(403).json({ message: "Forbidden: Admin access required" });
+      }
+      
+      next();
+    } catch (error) {
+      console.error("Admin middleware error:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  };
   
   // Auth routes
   app.post('/api/auth/register', async (req, res) => {
@@ -1261,6 +1284,168 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Start the first game after 5 seconds
   setTimeout(startCrashGame, 5000);
+
+  // Admin routes - protected by admin middleware
+  app.get('/api/admin/users', adminMiddleware, async (req, res) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
+      const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
+      
+      const users = await storage.getAllUsers(limit, offset);
+      
+      // Exclude passwords from response
+      const usersWithoutPassword = users.map(user => {
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+      });
+      
+      res.status(200).json(usersWithoutPassword);
+    } catch (error) {
+      console.error("Admin users route error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  app.post('/api/admin/users/:id/role', adminMiddleware, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { role } = req.body;
+      
+      if (!userId || isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      if (!role || !['user', 'admin', 'superadmin'].includes(role)) {
+        return res.status(400).json({ message: "Invalid role" });
+      }
+      
+      const user = await storage.updateUserRole(userId, role);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Exclude password from response
+      const { password, ...userWithoutPassword } = user;
+      
+      res.status(200).json({ 
+        ...userWithoutPassword,
+        message: `User role updated to ${role}`
+      });
+    } catch (error) {
+      console.error("Update user role error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  app.post('/api/admin/users/:id/status', adminMiddleware, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { isActive } = req.body;
+      
+      if (!userId || isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      if (typeof isActive !== 'boolean') {
+        return res.status(400).json({ message: "isActive must be a boolean" });
+      }
+      
+      const user = await storage.updateUserStatus(userId, isActive);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Exclude password from response
+      const { password, ...userWithoutPassword } = user;
+      
+      res.status(200).json({
+        ...userWithoutPassword,
+        message: `User status updated to ${isActive ? 'active' : 'inactive'}`
+      });
+    } catch (error) {
+      console.error("Update user status error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  app.get('/api/admin/games', adminMiddleware, async (req, res) => {
+    try {
+      const games = await storage.getAllGames();
+      res.status(200).json(games);
+    } catch (error) {
+      console.error("Admin games route error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  app.post('/api/admin/games/:id/settings', adminMiddleware, async (req, res) => {
+    try {
+      const gameId = parseInt(req.params.id);
+      
+      if (!gameId || isNaN(gameId)) {
+        return res.status(400).json({ message: "Invalid game ID" });
+      }
+      
+      // Get existing settings or create new ones
+      let gameSettings = await storage.getGameSettings(gameId);
+      
+      if (!gameSettings) {
+        // Create new settings
+        gameSettings = await storage.createGameSettings({
+          gameId,
+          isEnabled: req.body.isEnabled === undefined ? true : req.body.isEnabled,
+          houseEdge: req.body.houseEdge === undefined ? 0.03 : req.body.houseEdge,
+          minBet: req.body.minBet === undefined ? 1 : req.body.minBet,
+          maxBet: req.body.maxBet === undefined ? 1000 : req.body.maxBet,
+          maxWin: req.body.maxWin === undefined ? 10000 : req.body.maxWin
+        });
+      } else {
+        // Update existing settings
+        gameSettings = await storage.updateGameSettings(gameSettings.id, {
+          isEnabled: req.body.isEnabled,
+          houseEdge: req.body.houseEdge,
+          minBet: req.body.minBet,
+          maxBet: req.body.maxBet,
+          maxWin: req.body.maxWin
+        });
+      }
+      
+      res.status(200).json({
+        ...gameSettings,
+        message: "Game settings updated successfully"
+      });
+    } catch (error) {
+      console.error("Update game settings error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  app.get('/api/admin/analytics', adminMiddleware, async (req, res) => {
+    try {
+      const analytics = await storage.getLatestAnalytics();
+      
+      // If no analytics exist, create a snapshot
+      if (!analytics) {
+        const newAnalytics = await storage.createAnalyticsSnapshot();
+        res.status(200).json(newAnalytics);
+      } else {
+        res.status(200).json(analytics);
+      }
+    } catch (error) {
+      console.error("Admin analytics route error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  app.get('/api/admin/statistics/global', adminMiddleware, async (req, res) => {
+    try {
+      const statistics = await storage.getGlobalStatistics();
+      res.status(200).json(statistics);
+    } catch (error) {
+      console.error("Global statistics route error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
   
   return httpServer;
 }

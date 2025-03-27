@@ -13,7 +13,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { formatCurrency } from "@/lib/gameUtils";
-import { ChevronDown, Home, BarChart2, BookOpen, Menu, X, LogOut, User, DollarSign, Gamepad2, Zap } from "lucide-react";
+import { ChevronDown, Home, BarChart2, BookOpen, Menu, X, LogOut, User, DollarSign, Gamepad2, Zap, ShieldCheck } from "lucide-react";
 
 export function NavBar() {
   const [location] = useLocation();
@@ -137,6 +137,16 @@ export function NavBar() {
                       </a>
                     </Link>
                   </DropdownMenuItem>
+                  {user.role === 'admin' || user.role === 'superadmin' ? (
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin">
+                        <a className="flex cursor-pointer items-center">
+                          <ShieldCheck className="mr-2 h-4 w-4" />
+                          <span>Admin Panel</span>
+                        </a>
+                      </Link>
+                    </DropdownMenuItem>
+                  ) : null}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive" onClick={logout}>
                     <LogOut className="mr-2 h-4 w-4" />
@@ -264,6 +274,17 @@ export function NavBar() {
                         <span>Statistics</span>
                       </a>
                     </Link>
+                    {user.role === 'admin' || user.role === 'superadmin' ? (
+                      <Link href="/admin">
+                        <a 
+                          className="flex items-center px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:text-foreground hover:bg-muted transition-colors duration-150"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <ShieldCheck className="mr-2 h-4 w-4" />
+                          <span>Admin Panel</span>
+                        </a>
+                      </Link>
+                    ) : null}
                     <button
                       className="flex w-full items-center px-3 py-2 rounded-md text-base font-medium text-destructive hover:bg-destructive/10 transition-colors duration-150"
                       onClick={() => {

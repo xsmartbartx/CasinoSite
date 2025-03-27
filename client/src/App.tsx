@@ -18,6 +18,7 @@ import DiceGame from "@/pages/DiceGame";
 import CrashGame from "@/pages/CrashGame";
 import Statistics from "@/pages/Statistics";
 import Education from "@/pages/Education";
+import Admin from "@/pages/Admin";
 
 // Page transition variants
 const pageVariants = {
@@ -126,6 +127,11 @@ function Router() {
               <Education />
             </AnimatedPage>
           )}
+        </Route>
+        <Route path="/admin">
+          <AnimatedPage>
+            <Admin />
+          </AnimatedPage>
         </Route>
         {/* Fallback to 404 */}
         <Route>
