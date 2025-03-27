@@ -492,6 +492,15 @@ export class PgStorage implements IStorage {
         popular: false,
         difficulty: "beginner"
       });
+      
+      await this.createGame({
+        name: "Crash",
+        description: "Test your risk management skills in this thrilling multiplier game with realtime decisions.",
+        rtp: 97.0,
+        type: "crash",
+        popular: true,
+        difficulty: "intermediate"
+      });
     }
     
     // Check if educational content already exists
@@ -520,6 +529,22 @@ export class PgStorage implements IStorage {
         category: "rng",
         readTime: 10,
         icon: "fa-random"
+      });
+      
+      await this.createEducationalContent({
+        title: "Verifiable Randomness",
+        content: "Learn how cryptographic techniques can be used to create provably fair and verifiable random results in games.",
+        category: "provable_fairness",
+        readTime: 7,
+        icon: "fa-shield-alt"
+      });
+      
+      await this.createEducationalContent({
+        title: "Risk Management",
+        content: "Understand how to manage risk in games of chance, particularly those with multipliers like Crash.",
+        category: "strategy",
+        readTime: 5,
+        icon: "fa-chart-bar"
       });
     }
   }

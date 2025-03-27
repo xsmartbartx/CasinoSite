@@ -13,6 +13,7 @@ import Login from "@/pages/Login";
 import SlotGame from "@/pages/SlotGame";
 import RouletteGame from "@/pages/RouletteGame";
 import DiceGame from "@/pages/DiceGame";
+import CrashGame from "@/pages/CrashGame";
 import Statistics from "@/pages/Statistics";
 import Education from "@/pages/Education";
 
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/games/slots/:id" component={SlotGame} />
       <Route path="/games/roulette/:id" component={RouletteGame} />
       <Route path="/games/dice/:id" component={DiceGame} />
+      <Route path="/games/crash/:id" component={CrashGame} />
       <Route path="/statistics" component={Statistics} />
       <Route path="/education" component={Education} />
       <Route path="/education/:id" component={Education} />

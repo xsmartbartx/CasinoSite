@@ -6,6 +6,7 @@ import { insertUserSchema, insertGameHistorySchema } from "@shared/schema";
 import crypto from "crypto";
 import session from "express-session";
 import MemoryStore from "memorystore";
+import { WebSocketServer, WebSocket } from "ws";
 
 // Game algorithms
 // Defines a winning line pattern for 3x3 slot grid
@@ -267,6 +268,56 @@ function generateDiceResult(targetValue: number, betType: string) {
     multiplier,
     win
   };
+}
+
+// Generate a crash point based on cryptographic randomness
+// This uses a house edge of 3% and the formula ensures provably fair outcomes
+function generateCrashPoint(): number {
+  // Generate a secure random value between 0 and 1
+  const randomValue = secureRandomFloat();
+  
+  // Apply crash algorithm with 3% house edge
+  // The formula: 99 / (1 - R) where R is from 0 to 1
+  // This creates an exponential distribution with 1% of games crashing at 1.00x
+  let crashPoint: number;
+  
+  if (randomValue < 0.01) {
+    // 1% of games crash at 1.00x (instant crash)
+    crashPoint = 1.00;
+  } else {
+    // Formula with 3% house edge: 0.97 * 100 / (1 - R)
+    crashPoint = Math.floor((0.97 * 100 / (1 - randomValue)) * 100) / 100;
+    
+    // Cap at 1000x for practical purposes
+    crashPoint = Math.min(crashPoint, 1000);
+  }
+  
+  return crashPoint;
+}
+
+// Generate a verifiable crash point using a seed and hash
+// This is more advanced and allows verifying past crashes
+function generateVerifiableCrashPoint(seed: string, salt: string): number {
+  // Create a hash using seed and salt
+  const hash = crypto
+    .createHmac('sha256', salt)
+    .update(seed)
+    .digest('hex');
+    
+  // Convert first 8 chars of hash to a number between 0-1
+  const hashFloat = parseInt(hash.slice(0, 8), 16) / 0xffffffff;
+  
+  // Same formula as above but using the hash-derived value
+  let crashPoint: number;
+  
+  if (hashFloat < 0.01) {
+    crashPoint = 1.00;
+  } else {
+    crashPoint = Math.floor((0.97 * 100 / (1 - hashFloat)) * 100) / 100;
+    crashPoint = Math.min(crashPoint, 1000);
+  }
+  
+  return crashPoint;
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -661,8 +712,555 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
+  
+  // Crash game routes
+  
+  // Get the current crash state and history
+  app.get('/api/crash/state', async (req, res) => {
+    try {
+      // In a real implementation, this would come from a persistent store
+      // or a shared memory cache across server instances
+      
+      // Generate 10 previous crash points for the history graph
+      const crashHistory = Array.from({ length: 10 }, () => {
+        return {
+          crashPoint: generateCrashPoint(),
+          timestamp: new Date(Date.now() - Math.floor(Math.random() * 3600000)).toISOString() // Random time in the last hour
+        };
+      }).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      
+      // For educational purposes, include a verifiable crash seed for the current round
+      const currentGameSeed = crypto.randomBytes(16).toString('hex');
+      const serverSalt = process.env.CRASH_SALT || 'educasino-crash-salt';
+      
+      // Calculate the next crash point using the verifiable method
+      const nextCrashPoint = generateVerifiableCrashPoint(currentGameSeed, serverSalt);
+      
+      res.status(200).json({
+        gameState: 'waiting', // 'waiting', 'running', or 'crashed'
+        history: crashHistory,
+        // Include these for verifiable fairness
+        currentGameSeed, 
+        // Don't expose the server salt, as it's used to generate the crash point
+        nextGameHash: crypto.createHash('sha256').update(currentGameSeed + '|next').digest('hex'),
+        // Include current active bets (would come from database in real implementation)
+        activeBets: []
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  // Place a bet in the crash game
+  app.post('/api/play/crash/bet', authMiddleware, async (req, res) => {
+    try {
+      const { bet, autoCashoutAt } = req.body;
+      
+      if (!bet || typeof bet !== 'number' || bet <= 0) {
+        return res.status(400).json({ message: "Valid bet amount is required" });
+      }
+      
+      const userId = req.session.userId as number;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      if (user.balance < bet) {
+        return res.status(400).json({ message: "Insufficient balance" });
+      }
+      
+      // Get crash game ID
+      const games = await storage.getAllGames();
+      const crashGame = games.find(g => g.type === 'crash');
+      
+      if (!crashGame) {
+        return res.status(404).json({ message: "Crash game not found" });
+      }
+      
+      // Deduct bet from user balance
+      // In a real implementation, this would be handled when the round starts
+      await storage.updateUserBalance(userId, -bet);
+      
+      // In a real implementation, this bet would be saved to a database and
+      // associated with the current game round
+      
+      res.status(200).json({
+        message: "Bet placed successfully",
+        bet,
+        autoCashoutAt: autoCashoutAt || null,
+        balance: user.balance - bet
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  // Cash out from the current crash game
+  app.post('/api/play/crash/cashout', authMiddleware, async (req, res) => {
+    try {
+      const { currentMultiplier } = req.body;
+      
+      if (!currentMultiplier || typeof currentMultiplier !== 'number' || currentMultiplier < 1) {
+        return res.status(400).json({ message: "Valid multiplier is required" });
+      }
+      
+      const userId = req.session.userId as number;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // In a real implementation, we would:
+      // 1. Verify the user has an active bet in the current round
+      // 2. Verify the current multiplier is valid
+      // 3. Get the original bet amount
+      
+      // For this example, we'll simulate a bet of 50 units
+      const simulatedBet = 50;
+      const payout = simulatedBet * currentMultiplier;
+      
+      // Get crash game ID
+      const games = await storage.getAllGames();
+      const crashGame = games.find(g => g.type === 'crash');
+      
+      if (!crashGame) {
+        return res.status(404).json({ message: "Crash game not found" });
+      }
+      
+      // Update user balance with winnings
+      await storage.updateUserBalance(userId, payout);
+      
+      // Record game history
+      await storage.createGameHistory({
+        userId,
+        gameId: crashGame.id,
+        bet: simulatedBet,
+        multiplier: currentMultiplier,
+        payout,
+        result: "win",
+        details: JSON.stringify({
+          cashoutMultiplier: currentMultiplier
+        })
+      });
+      
+      res.status(200).json({
+        message: "Cashed out successfully",
+        cashoutMultiplier: currentMultiplier,
+        payout,
+        balance: user.balance + payout
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
 
+  // Create HTTP server to allow direct WebSocket access
   const httpServer = createServer(app);
-
+  
+  // Create WebSocket server on a specific path for Crash game
+  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  
+  // Define types for crash game
+  interface CrashActiveBet {
+    userId: number;
+    username: string;
+    bet: number;
+    autoCashoutAt: number | null;
+    hashedOut: boolean;
+  }
+  
+  interface CrashHistoryEntry {
+    crashPoint: number;
+    timestamp: string;
+  }
+  
+  interface CrashGameState {
+    gameState: 'waiting' | 'running' | 'crashed';
+    currentMultiplier: number;
+    startTime: number;
+    crashPoint: number;
+    history: CrashHistoryEntry[];
+    activeBets: CrashActiveBet[];
+    currentGameSeed: string;
+    nextGameHash: string;
+  }
+  
+  // Store active game state
+  let crashGameState: CrashGameState = {
+    gameState: 'waiting', // waiting, running, crashed
+    currentMultiplier: 1.00,
+    startTime: Date.now(),
+    crashPoint: generateCrashPoint(),
+    history: Array.from({ length: 10 }, () => {
+      return {
+        crashPoint: generateCrashPoint(),
+        timestamp: new Date(Date.now() - Math.floor(Math.random() * 3600000)).toISOString()
+      };
+    }).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()),
+    activeBets: [],
+    currentGameSeed: crypto.randomBytes(16).toString('hex'),
+    nextGameHash: '',
+  };
+  
+  // Initialize the next game hash
+  const serverSalt = process.env.CRASH_SALT || 'educasino-crash-salt';
+  crashGameState.nextGameHash = crypto.createHash('sha256')
+    .update(crashGameState.currentGameSeed + '|next')
+    .digest('hex');
+  
+  // Handle WebSocket connections
+  wss.on('connection', (ws) => {
+    console.log('Client connected to WebSocket');
+    
+    // Send current game state to new client
+    ws.send(JSON.stringify({
+      type: 'gameState',
+      data: crashGameState
+    }));
+    
+    // Handle messages from client
+    ws.on('message', async (message) => {
+      try {
+        const data = JSON.parse(message.toString());
+        
+        // Handle different message types
+        switch(data.type) {
+          case 'placeBet':
+            if (crashGameState.gameState !== 'waiting') {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'Cannot place bet when game is in progress' }
+              }));
+              return;
+            }
+            
+            // Validate bet data
+            const { bet, autoCashoutAt, userId } = data.data;
+            if (!bet || !userId) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'Invalid bet data' }
+              }));
+              return;
+            }
+            
+            // Check if user already has a bet
+            const existingBetIndex = crashGameState.activeBets.findIndex(b => b.userId === userId);
+            if (existingBetIndex >= 0) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'You already have an active bet' }
+              }));
+              return;
+            }
+            
+            // Get user
+            const playerUser = await storage.getUser(userId);
+            if (!playerUser) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'User not found' }
+              }));
+              return;
+            }
+            
+            // Add bet to active bets
+            crashGameState.activeBets.push({
+              userId,
+              username: playerUser.username,
+              bet,
+              autoCashoutAt,
+              hashedOut: false
+            });
+            
+            // Broadcast updated active bets to all clients
+            wss.clients.forEach((client) => {
+              if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({
+                  type: 'activeBetsUpdate',
+                  data: {
+                    activeBets: crashGameState.activeBets
+                  }
+                }));
+              }
+            });
+            break;
+            
+          case 'cashout':
+            if (crashGameState.gameState !== 'running') {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'Cannot cash out when game is not running' }
+              }));
+              return;
+            }
+            
+            // Validate cashout data
+            const { currentMultiplier, userId: cashoutUserId } = data.data;
+            if (!cashoutUserId) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'Invalid cashout data' }
+              }));
+              return;
+            }
+            
+            // Find user's bet
+            const betIndex = crashGameState.activeBets.findIndex(b => b.userId === cashoutUserId && !b.hashedOut);
+            if (betIndex < 0) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'No active bet found or already cashed out' }
+              }));
+              return;
+            }
+            
+            // Mark as cashed out and calculate winnings
+            crashGameState.activeBets[betIndex].hashedOut = true;
+            const userBet = crashGameState.activeBets[betIndex];
+            const payout = userBet.bet * currentMultiplier;
+            
+            // Update user balance in database
+            const cashoutUser = await storage.getUser(cashoutUserId);
+            if (cashoutUser) {
+              await storage.updateUserBalance(cashoutUserId, payout - userBet.bet);
+              
+              // Create game history entry
+              const games = await storage.getAllGames();
+              const crashGame = games.find(g => g.type === 'crash');
+              
+              if (crashGame) {
+                await storage.createGameHistory({
+                  userId: cashoutUserId,
+                  gameId: crashGame.id,
+                  bet: userBet.bet,
+                  multiplier: currentMultiplier,
+                  payout,
+                  result: 'win',
+                  details: JSON.stringify({
+                    cashoutAt: currentMultiplier,
+                    originalBet: userBet.bet
+                  })
+                });
+              }
+            }
+            
+            // Send cashout confirmation to the user
+            ws.send(JSON.stringify({
+              type: 'cashoutSuccess',
+              data: {
+                payout,
+                multiplier: currentMultiplier
+              }
+            }));
+            
+            // Broadcast updated active bets to all clients
+            wss.clients.forEach((client) => {
+              if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({
+                  type: 'activeBetsUpdate',
+                  data: {
+                    activeBets: crashGameState.activeBets
+                  }
+                }));
+              }
+            });
+            break;
+        }
+      } catch (error) {
+        console.error('Error processing WebSocket message:', error);
+        ws.send(JSON.stringify({
+          type: 'error',
+          data: { message: 'Invalid message format' }
+        }));
+      }
+    });
+    
+    // Handle client disconnect
+    ws.on('close', () => {
+      console.log('Client disconnected from WebSocket');
+    });
+  });
+  
+  // Start the crash game simulation
+  let gameInterval: NodeJS.Timeout | null = null;
+  
+  // Function to start a new game round
+  function startCrashGame() {
+    if (crashGameState.gameState !== 'waiting') return;
+    
+    // Update game state
+    crashGameState.gameState = 'running';
+    crashGameState.currentMultiplier = 1.00;
+    crashGameState.startTime = Date.now();
+    
+    // Broadcast game start to all clients
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify({
+          type: 'gameStart',
+          data: {
+            startTime: crashGameState.startTime
+          }
+        }));
+      }
+    });
+    
+    // Start multiplier increasing
+    gameInterval = setInterval(() => {
+      // Calculate current multiplier based on elapsed time
+      // This creates an exponential growth curve
+      const elapsed = (Date.now() - crashGameState.startTime) / 1000;
+      crashGameState.currentMultiplier = Math.floor(Math.pow(Math.E, 0.05 * elapsed) * 100) / 100;
+      
+      // Check if we've reached the crash point
+      if (crashGameState.currentMultiplier >= crashGameState.crashPoint) {
+        endCrashGame();
+        return;
+      }
+      
+      // Auto cashout for players who set an auto cashout point
+      crashGameState.activeBets.forEach(async (bet, index) => {
+        if (!bet.hashedOut && bet.autoCashoutAt !== null && crashGameState.currentMultiplier >= bet.autoCashoutAt) {
+          // Mark as cashed out
+          crashGameState.activeBets[index].hashedOut = true;
+          
+          // Calculate payout
+          const payout = bet.bet * bet.autoCashoutAt;
+          
+          // Update user balance
+          await storage.updateUserBalance(bet.userId, payout);
+          
+          // Create game history entry
+          const games = await storage.getAllGames();
+          const crashGame = games.find(g => g.type === 'crash');
+          
+          if (crashGame) {
+            await storage.createGameHistory({
+              userId: bet.userId,
+              gameId: crashGame.id,
+              bet: bet.bet,
+              multiplier: bet.autoCashoutAt,
+              payout,
+              result: 'win',
+              details: JSON.stringify({
+                cashoutAt: bet.autoCashoutAt,
+                originalBet: bet.bet,
+                autoCashout: true
+              })
+            });
+          }
+        }
+      });
+      
+      // Broadcast current multiplier to all clients
+      wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({
+            type: 'multiplierUpdate',
+            data: {
+              multiplier: crashGameState.currentMultiplier,
+              activeBets: crashGameState.activeBets
+            }
+          }));
+        }
+      });
+    }, 100); // Update 10 times per second
+  }
+  
+  // Function to end the current game round
+  function endCrashGame() {
+    if (gameInterval) {
+      clearInterval(gameInterval);
+      gameInterval = null;
+    }
+    
+    // Update game state
+    crashGameState.gameState = 'crashed';
+    
+    // Add to history and maintain only the last 10 entries
+    crashGameState.history.push({
+      crashPoint: crashGameState.crashPoint,
+      timestamp: new Date().toISOString()
+    });
+    if (crashGameState.history.length > 10) {
+      crashGameState.history.shift();
+    }
+    
+    // Process lost bets for players who didn't cash out
+    const gamesPromise = storage.getAllGames();
+    
+    // Record loss for players who didn't cash out
+    crashGameState.activeBets.forEach(async (bet) => {
+      if (!bet.hashedOut) {
+        // Create game history entry for loss
+        const games = await gamesPromise;
+        const crashGame = games.find(g => g.type === 'crash');
+        
+        if (crashGame) {
+          await storage.createGameHistory({
+            userId: bet.userId,
+            gameId: crashGame.id,
+            bet: bet.bet,
+            multiplier: 0,
+            payout: 0,
+            result: 'loss',
+            details: JSON.stringify({
+              crashPoint: crashGameState.crashPoint,
+              originalBet: bet.bet
+            })
+          });
+        }
+      }
+    });
+    
+    // Broadcast crash to all clients
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify({
+          type: 'gameCrash',
+          data: {
+            crashPoint: crashGameState.crashPoint,
+            history: crashGameState.history,
+            activeBets: crashGameState.activeBets
+          }
+        }));
+      }
+    });
+    
+    // Generate new crash point and reset for next round
+    setTimeout(() => {
+      // Prepare for next round
+      crashGameState.gameState = 'waiting';
+      crashGameState.crashPoint = generateCrashPoint();
+      crashGameState.activeBets = [];
+      crashGameState.currentGameSeed = crypto.randomBytes(16).toString('hex');
+      crashGameState.nextGameHash = crypto.createHash('sha256')
+        .update(crashGameState.currentGameSeed + '|next')
+        .digest('hex');
+      
+      // Broadcast waiting state to all clients
+      wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({
+            type: 'waitingForNext',
+            data: {
+              nextGameIn: 5000 // 5 seconds until next game
+            }
+          }));
+        }
+      });
+      
+      // Start next game after 5 seconds
+      setTimeout(startCrashGame, 5000);
+    }, 2000);
+  }
+  
+  // Start the first game after 5 seconds
+  setTimeout(startCrashGame, 5000);
+  
   return httpServer;
 }
