@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { Dice } from "@/components/ui/dice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -31,9 +30,8 @@ export default function DiceGame() {
   const [bet, setBet] = useState("50.00");
   const [rolling, setRolling] = useState(false);
   const [betType, setBetType] = useState<BetType>("over");
-  const [targetValue, setTargetValue] = useState<number>(7);
-  const [dice, setDice] = useState<number[]>([1, 1]);
-  const [lastSum, setLastSum] = useState<number | null>(null);
+  const [targetValue, setTargetValue] = useState<number>(50);
+  const [lastRoll, setLastRoll] = useState<number | null>(null);
   const [lastWin, setLastWin] = useState<number | null>(null);
   
   // Fetch game info
@@ -44,56 +42,40 @@ export default function DiceGame() {
   
   // Calculate probability and payout based on bet type and target
   const getProbabilityAndMultiplier = () => {
-    // Possible dice sums and their frequencies
-    // Sum:         2  3  4  5  6  7  8  9 10 11 12
-    // Frequency:   1  2  3  4  5  6  5  4  3  2  1
-    const totalOutcomes = 36; // 6×6 possible dice combinations
-    
-    let favorableOutcomes = 0;
+    let probability = 0;
     let multiplier = 0;
     
     switch (betType) {
       case "over":
-        // Sum > target
-        for (let sum = target + 1; sum <= 12; sum++) {
-          favorableOutcomes += getFrequency(sum);
-        }
-        multiplier = favorableOutcomes > 0 ? (12 - targetValue) / 3 : 0;
+        // For "over", probability is (100 - targetValue)/100
+        probability = (100 - targetValue) / 100;
+        // Fair multiplier with 1.5% house edge
+        multiplier = probability > 0 ? (1 / probability) * 0.985 : 0;
         break;
       case "under":
-        // Sum < target
-        for (let sum = 2; sum < target; sum++) {
-          favorableOutcomes += getFrequency(sum);
-        }
-        multiplier = favorableOutcomes > 0 ? targetValue / 3 : 0;
+        // For "under", probability is targetValue/100
+        probability = targetValue / 100;
+        // Fair multiplier with 1.5% house edge
+        multiplier = probability > 0 ? (1 / probability) * 0.985 : 0;
         break;
       case "exact":
-        // Sum = target
-        favorableOutcomes = getFrequency(target);
-        // Set multiplier based on the probability
-        if (target === 2 || target === 12) multiplier = 35;
-        else if (target === 3 || target === 11) multiplier = 17;
-        else if (target === 4 || target === 10) multiplier = 11;
-        else if (target === 5 || target === 9) multiplier = 8;
-        else if (target === 6 || target === 8) multiplier = 6;
-        else if (target === 7) multiplier = 5;
+        // For "exact", probability is 1/100
+        probability = 0.01;
+        // Fair multiplier with 1.5% house edge
+        multiplier = 98.5; // (1/0.01) * 0.985
         break;
     }
     
-    const probability = (favorableOutcomes / totalOutcomes) * 100;
+    // Convert to percentage and round to 2 decimal places
+    probability = Math.round(probability * 10000) / 100;
+    multiplier = Math.round(multiplier * 100) / 100;
     
     return { probability, multiplier };
   };
   
-  // Get frequency of a dice sum (how many ways to get this sum)
-  const getFrequency = (sum: number) => {
-    if (sum < 2 || sum > 12) return 0;
-    return sum <= 7 ? sum - 1 : 13 - sum;
-  };
-  
   const { probability, multiplier } = getProbabilityAndMultiplier();
   
-  // The target value for the slider (depends on bet type)
+  // The target value for the slider
   const target = targetValue;
   
   // Roll mutation
@@ -104,8 +86,7 @@ export default function DiceGame() {
     },
     onSuccess: (data) => {
       // Update the results from the server response
-      setDice(data.dice);
-      setLastSum(data.sum);
+      setLastRoll(data.diceRoll);
       setLastWin(data.payout);
       
       // Update user balance
@@ -120,8 +101,14 @@ export default function DiceGame() {
       if (data.win) {
         toast({
           title: "You Won!",
-          description: `Dice sum: ${data.sum}. You won ${formatCurrency(data.payout)}!`,
+          description: `Dice roll: ${data.diceRoll}. You won ${formatCurrency(data.payout)}!`,
           variant: "default",
+        });
+      } else {
+        toast({
+          title: "You Lost",
+          description: `Dice roll: ${data.diceRoll}. Better luck next time!`,
+          variant: "destructive",
         });
       }
     },
@@ -136,7 +123,7 @@ export default function DiceGame() {
       // Stop rolling animation
       setTimeout(() => {
         setRolling(false);
-      }, 1500); // Wait for the animation to complete
+      }, 1000); 
     }
   });
   
@@ -190,9 +177,9 @@ export default function DiceGame() {
     setBetType(value as BetType);
     
     // Reset target value to appropriate default
-    if (value === "over") setTargetValue(7);
-    else if (value === "under") setTargetValue(7);
-    else setTargetValue(7);
+    if (value === "over") setTargetValue(50);
+    else if (value === "under") setTargetValue(50);
+    else setTargetValue(50);
   };
   
   const handleTargetChange = (value: number[]) => {
@@ -230,25 +217,20 @@ export default function DiceGame() {
               {/* Game display area */}
               <div className="flex-grow mb-6 lg:mb-0 lg:mr-6">
                 <div className="bg-primary p-4 rounded-lg">
-                  {/* Dice display */}
+                  {/* Dice roll display */}
                   <div className="flex items-center justify-center mb-6 py-8">
-                    <div className="flex space-x-6">
-                      <Dice 
-                        value={dice[0]} 
-                        rolling={rolling}
-                        size="lg"
-                      />
-                      <Dice 
-                        value={dice[1]} 
-                        rolling={rolling}
-                        size="lg"
-                      />
+                    <div className="bg-neutral-dark rounded-md p-6 text-center w-full max-w-xs">
+                      <div className="text-sm text-neutral-light mb-2">Dice Roll (1-100)</div>
+                      {rolling ? (
+                        <div className="font-mono text-4xl font-bold text-accent-green animate-pulse">
+                          ...
+                        </div>
+                      ) : (
+                        <div className="font-mono text-4xl font-bold text-accent-green">
+                          {lastRoll !== null ? lastRoll : "?"}
+                        </div>
+                      )}
                     </div>
-                    {lastSum !== null && (
-                      <div className="ml-4 bg-neutral-dark px-4 py-2 rounded text-accent-green font-mono text-xl">
-                        {lastSum}
-                      </div>
-                    )}
                   </div>
                   
                   {/* Betting controls */}
@@ -307,17 +289,17 @@ export default function DiceGame() {
                     </div>
                     <Slider
                       value={[targetValue]}
-                      min={2}
-                      max={12}
+                      min={1}
+                      max={99}
                       step={1}
                       onValueChange={handleTargetChange}
                       disabled={rolling}
                       className="mb-1"
                     />
                     <div className="flex justify-between text-xs text-neutral-light">
-                      <span>2</span>
-                      <span>7</span>
-                      <span>12</span>
+                      <span>1</span>
+                      <span>50</span>
+                      <span>99</span>
                     </div>
                   </div>
                   
@@ -352,27 +334,24 @@ export default function DiceGame() {
               <div className="w-full lg:w-80 bg-primary rounded-lg p-4">
                 <h3 className="font-display font-semibold mb-3">Game Information</h3>
                 
-                {/* Dice combinations */}
+                {/* Dice Rules */}
                 <div className="mb-4">
-                  <h4 className="text-sm font-medium text-neutral-light mb-2">Dice Combinations</h4>
+                  <h4 className="text-sm font-medium text-neutral-light mb-2">Game Rules</h4>
                   <div className="bg-neutral-dark p-3 rounded-md mb-3">
-                    <div className="text-xs text-neutral-light mb-2">Ways to get each sum:</div>
-                    <div className="grid grid-cols-11 gap-1 text-center">
-                      {Array.from({ length: 11 }, (_, i) => i + 2).map(sum => (
-                        <div key={sum} className="text-xs">
-                          <div className="font-bold">{sum}</div>
-                          <div className="text-accent-green">{getFrequency(sum)}</div>
-                        </div>
-                      ))}
-                    </div>
+                    <ul className="text-xs text-gray-400 space-y-2">
+                      <li>• A random number between 1-100 is generated</li>
+                      <li>• <b>Over:</b> You win if the roll is higher than your target</li>
+                      <li>• <b>Under:</b> You win if the roll is lower than your target</li>
+                      <li>• <b>Exact:</b> You win if the roll matches your target exactly</li>
+                    </ul>
                   </div>
                 </div>
                 
                 {/* Educational information */}
                 <div className="mb-4">
-                  <h4 className="text-sm font-medium text-neutral-light mb-2">Did You Know?</h4>
+                  <h4 className="text-sm font-medium text-neutral-light mb-2">Win Probability</h4>
                   <p className="text-sm text-gray-400 mb-3">
-                    The most common dice sum is 7, with 6 different ways to roll it. The least common are 2 and 12, with only 1 way each.
+                    The probability of winning changes as you adjust your target value.
                   </p>
                   <TooltipProvider>
                     <Tooltip>
@@ -380,15 +359,19 @@ export default function DiceGame() {
                         <div className="bg-neutral-dark p-3 rounded-md mb-3 cursor-help">
                           <h5 className="text-xs font-medium text-neutral-light mb-1">Probability Formula</h5>
                           <div className="bg-black bg-opacity-30 p-2 rounded font-mono text-xs">
-                            P(sum=7) = 6/36 = 1/6 = 16.67%
+                            {betType === "over" ? `P(win) = (100 - ${target})/100 = ${probability}%` : 
+                             betType === "under" ? `P(win) = ${target}/100 = ${probability}%` : 
+                             `P(win) = 1/100 = 1%`}
                           </div>
                         </div>
                       </TooltipTrigger>
                       <TooltipContent className="w-80 bg-neutral-dark">
                         <p className="text-xs">
-                          With two dice, there are 36 possible combinations (6 × 6).
-                          The sum 7 can be achieved with: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1).
-                          That's 6 ways out of 36 possible outcomes, giving a probability of 6/36 = 1/6 ≈ 16.67%.
+                          {betType === "over" 
+                            ? `For "Over ${target}" bets, you win when the dice rolls ${target+1} through 100. That's ${100-target} favorable outcomes out of 100 possible outcomes, giving a probability of ${probability}%.`
+                            : betType === "under"
+                            ? `For "Under ${target}" bets, you win when the dice rolls 1 through ${target-1}. That's ${target-1} favorable outcomes out of 100 possible outcomes, giving a probability of ${probability}%.`
+                            : `For "Exactly ${target}" bets, you win only when the dice rolls exactly ${target}. That's 1 favorable outcome out of 100 possible outcomes, giving a probability of 1%.`}
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -398,22 +381,16 @@ export default function DiceGame() {
                 {/* Multiplier explanation */}
                 <div>
                   <h4 className="text-sm font-medium text-neutral-light mb-2">Multiplier Explanation</h4>
-                  <p className="text-sm text-gray-400 mb-3">
-                    The multiplier is based on probability. The less likely an outcome, the higher the multiplier to balance risk and reward.
-                  </p>
-                  <div className="text-xs text-neutral-light">
-                    <div className="flex justify-between mb-1">
-                      <span>Exactly 7:</span>
-                      <span className="font-mono">5.0x (16.7% chance)</span>
+                  <div className="bg-neutral-dark p-3 rounded-md">
+                    <p className="text-xs text-gray-400 mb-2">
+                      The multiplier is calculated based on the probability of winning. The lower the chances, the higher the multiplier.
+                    </p>
+                    <div className="text-xs bg-black bg-opacity-30 p-2 rounded font-mono">
+                      multiplier = (1 / probability) * 0.985
                     </div>
-                    <div className="flex justify-between mb-1">
-                      <span>Exactly 2 or 12:</span>
-                      <span className="font-mono">35.0x (2.8% chance)</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Over/Under:</span>
-                      <span className="font-mono">Varies by target value</span>
-                    </div>
+                    <p className="text-xs text-gray-400 mt-2">
+                      A 1.5% house edge is included in the multiplier calculation.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -422,12 +399,17 @@ export default function DiceGame() {
         </div>
       </section>
       
-      {/* Game History */}
-      {user && (
-        <section className="mb-10">
-          <GameHistory limit={5} />
-        </section>
-      )}
+      {/* Game history section */}
+      <section>
+        <div className="bg-secondary rounded-lg border border-neutral-dark overflow-hidden">
+          <div className="bg-neutral-dark px-6 py-4">
+            <h2 className="font-display text-xl font-semibold">Your Game History</h2>
+          </div>
+          <div className="p-6">
+            <GameHistory showTitle={false} />
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
