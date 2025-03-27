@@ -371,7 +371,7 @@ export default function SlotGame() {
                 </div>
                 
                 {/* Educational information */}
-                <div>
+                <div className="mb-4">
                   <h4 className="text-sm font-medium text-neutral-light mb-2">Did You Know?</h4>
                   <p className="text-sm text-gray-400 mb-3">
                     Each symbol appears with different probability. The RTP (Return to Player) of this game is {game?.rtp || 96.5}%.
@@ -394,6 +394,39 @@ export default function SlotGame() {
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
+                </div>
+                
+                {/* Security information */}
+                <div>
+                  <h4 className="text-sm font-medium text-neutral-light mb-2">
+                    <span className="flex items-center gap-1">
+                      <i className="fas fa-shield-alt text-accent-green"></i> Security Features
+                    </span>
+                  </h4>
+                  <div className="bg-neutral-dark p-3 rounded-md">
+                    <p className="text-xs text-gray-400 mb-2">
+                      This game uses cryptographic randomness to ensure fair outcomes:
+                    </p>
+                    <ul className="text-xs text-gray-400 list-disc pl-4 space-y-1">
+                      <li>Cryptographically secure random number generation (CSPRNG)</li>
+                      <li>Uniform distribution for truly fair outcomes</li>
+                      <li>Tampering resistance through algorithmic fairness</li>
+                    </ul>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="bg-black bg-opacity-30 p-2 rounded font-mono text-xs mt-2 cursor-help">
+                            <span className="text-accent-green">crypto.randomBytes()</span> &gt; Math.random()
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent className="w-80 bg-neutral-dark">
+                          <p className="text-xs">
+                            Unlike standard Math.random() which uses a predictable algorithm, our games use Node.js crypto.randomBytes() which produces high-quality randomness from your operating system's entropy sources. This makes outcomes truly unpredictable and fair.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 </div>
               </div>
             </div>

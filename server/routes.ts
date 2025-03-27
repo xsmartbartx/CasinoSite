@@ -16,7 +16,43 @@ interface WinLine {
   name: string; // Name of the winning pattern
 }
 
-// Helper to get weighted random symbols with different probabilities
+// Cryptographically secure random number generator
+function secureRandom(min: number, max: number): number {
+  // Ensures a secure, fair distribution of random numbers
+  const range = max - min;
+  const bytesNeeded = Math.ceil(Math.log2(range) / 8);
+  const maxNum = Math.pow(256, bytesNeeded);
+  const cutoff = maxNum - (maxNum % range);
+  
+  let randomNum;
+  let randomBytes;
+  
+  // Rejection sampling to ensure uniform distribution
+  do {
+    randomBytes = crypto.randomBytes(bytesNeeded);
+    randomNum = 0;
+    
+    for (let i = 0; i < bytesNeeded; i++) {
+      randomNum = (randomNum << 8) | randomBytes[i];
+    }
+  } while (randomNum >= cutoff);
+  
+  return min + (randomNum % range);
+}
+
+// Get a secure random float between 0 and 1
+function secureRandomFloat(): number {
+  // Generate 4 bytes (32 bits) of randomness
+  const randomBytes = crypto.randomBytes(4);
+  
+  // Convert to a 32-bit unsigned integer
+  const randomInt = randomBytes.readUInt32BE(0);
+  
+  // Divide by maximum 32-bit unsigned int to get value between 0 and 1
+  return randomInt / 0xFFFFFFFF;
+}
+
+// Helper to get weighted random symbols with different probabilities using cryptographically secure RNG
 function getWeightedRandomSymbol(): string {
   const symbols = ["gem", "crown", "star", "dice", "money"];
   // Define weights (probability distribution) for each symbol
@@ -32,8 +68,8 @@ function getWeightedRandomSymbol(): string {
   // Calculate total weight
   const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
   
-  // Generate a random number between 0 and total weight
-  let random = Math.random() * totalWeight;
+  // Generate a cryptographically secure random number between 0 and total weight
+  let random = secureRandomFloat() * totalWeight;
   
   // Find the symbol based on weight distribution
   for (const symbol of symbols) {
@@ -44,7 +80,7 @@ function getWeightedRandomSymbol(): string {
   }
   
   // Fallback (should never happen)
-  return symbols[Math.floor(Math.random() * symbols.length)];
+  return symbols[secureRandom(0, symbols.length)];
 }
 
 // Symbol multiplier values
@@ -138,7 +174,8 @@ function generateSlotResult() {
 }
 
 function generateRouletteResult(betType: string, betValue: any) {
-  const number = Math.floor(Math.random() * 37); // 0-36
+  // Using cryptographically secure RNG for roulette (0-36)
+  const number = secureRandom(0, 37); 
   const color = number === 0 ? 'green' : (number % 2 === 0 ? 'black' : 'red');
   const isEven = number !== 0 && number % 2 === 0;
   const isLow = number >= 1 && number <= 18;
@@ -184,8 +221,9 @@ function generateRouletteResult(betType: string, betValue: any) {
 }
 
 function generateDiceResult(targetValue: number, betType: string) {
-  const dice1 = Math.floor(Math.random() * 6) + 1;
-  const dice2 = Math.floor(Math.random() * 6) + 1;
+  // Using cryptographically secure RNG for dice rolls (1-6)
+  const dice1 = secureRandom(1, 7); // 1-6 inclusive
+  const dice2 = secureRandom(1, 7); // 1-6 inclusive
   const sum = dice1 + dice2;
   
   let win = false;
