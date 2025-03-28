@@ -64,9 +64,17 @@ export interface IStorage {
   moderateChatMessage(id: number, isDeleted?: boolean, isModerated?: boolean): Promise<ChatMessage | undefined>;
   
   // Leaderboard methods
-  getLeaderboard(period: string, gameId?: number, limit?: number): Promise<Leaderboard[]>;
-  updateLeaderboard(userId: number, gameId: number | null, score: number, win: number, period: string): Promise<Leaderboard>;
-  getUserRank(userId: number, period: string, gameId?: number): Promise<number>;
+  getLeaderboard(period: string, category: string, gameId?: number, limit?: number): Promise<Leaderboard[]>;
+  updateLeaderboard(
+    userId: number, 
+    username: string,
+    gameId: number | null, 
+    bet: number, 
+    multiplier: number,
+    payout: number,
+    period: string
+  ): Promise<void>;
+  getUserRank(userId: number, period: string, category: string, gameId?: number): Promise<number>;
 }
 
 export class MemStorage implements IStorage {
@@ -536,9 +544,14 @@ export class MemStorage implements IStorage {
   }
   
   // Leaderboard methods
-  async getLeaderboard(period: string, gameId?: number, limit = 10): Promise<Leaderboard[]> {
+  async getLeaderboard(
+    period: "daily" | "weekly" | "monthly" | "all_time",
+    category: "biggest_win" | "highest_multiplier" | "total_games" | "total_wagered",
+    gameId?: number,
+    limit = 10
+  ): Promise<Leaderboard[]> {
     let leaderboardData = Array.from(this.leaderboards.values())
-      .filter(entry => entry.period === period);
+      .filter(entry => entry.period === period && entry.category === category);
       
     // Apply game filter if specified
     if (gameId !== undefined) {
@@ -551,52 +564,150 @@ export class MemStorage implements IStorage {
       .slice(0, limit);
   }
   
-  async updateLeaderboard(userId: number, gameId: number | null, score: number, win: number, period: string): Promise<Leaderboard> {
-    // Find existing entry
+  async updateLeaderboard(
+    userId: number, 
+    username: string,
+    gameId: number | null, 
+    bet: number, 
+    multiplier: number,
+    payout: number,
+    period: "daily" | "weekly" | "monthly" | "all_time"
+  ): Promise<void> {
+    // Update each category
+    await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "biggest_win", period);
+    await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "highest_multiplier", period);
+    await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "total_games", period);
+    await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "total_wagered", period);
+    
+    // Update all time leaderboard too
+    if (period !== "all_time") {
+      await this.updateLeaderboard(userId, username, gameId, bet, multiplier, payout, "all_time");
+    }
+  }
+  
+  private async updateLeaderboardCategory(
+    userId: number, 
+    username: string,
+    gameId: number | null, 
+    bet: number, 
+    multiplier: number,
+    payout: number,
+    category: "biggest_win" | "highest_multiplier" | "total_games" | "total_wagered",
+    period: "daily" | "weekly" | "monthly" | "all_time"
+  ): Promise<void> {
+    // Find existing entry for this user/game/period/category combination
     const existingEntryArray = Array.from(this.leaderboards.values())
       .filter(entry => 
         entry.userId === userId && 
         entry.period === period && 
-        entry.gameId === gameId
+        entry.gameId === gameId &&
+        entry.category === category
       );
     
     let existingEntry = existingEntryArray.length > 0 ? existingEntryArray[0] : null;
+    
+    // Set the score based on category
+    let score = 0;
+    switch(category) {
+      case "biggest_win":
+        score = payout;
+        break;
+      case "highest_multiplier":
+        score = multiplier;
+        break;
+      case "total_games":
+        score = 1; // Will be added to existing score
+        break;
+      case "total_wagered":
+        score = bet;
+        break;
+    }
     
     if (existingEntry) {
       // Update existing entry
       const updatedEntry: Leaderboard = {
         ...existingEntry,
-        score: Number(existingEntry.score) + score,
-        biggestWin: win > Number(existingEntry.biggestWin) ? win : Number(existingEntry.biggestWin),
-        totalBets: existingEntry.totalBets + 1,
+        username, // Update username in case it changed
+        // Update metrics based on category
+        highestMultiplier: Math.max(existingEntry.highestMultiplier || 0, multiplier),
+        biggestWin: Math.max(existingEntry.biggestWin || 0, payout),
+        totalWagered: (existingEntry.totalWagered || 0) + bet,
+        totalGames: (existingEntry.totalGames || 0) + 1,
+        // Set score based on category
+        score: category === "biggest_win" ? Math.max(existingEntry.score, score) : 
+               category === "highest_multiplier" ? Math.max(existingEntry.score, score) :
+               existingEntry.score + score, // For total_games and total_wagered, add to existing score
         updatedAt: new Date()
       };
       this.leaderboards.set(existingEntry.id, updatedEntry);
-      return updatedEntry;
     } else {
       // Create new entry
       const id = this.leaderboardIdCounter++;
       const newEntry: Leaderboard = {
         id,
         userId,
+        username,
         gameId,
+        category,
         score,
-        biggestWin: win,
-        totalBets: 1,
+        highestMultiplier: multiplier,
+        biggestWin: payout,
+        totalWagered: bet,
+        totalGames: 1,
         period,
-        rank: 0, // Will be calculated when retrieving leaderboards
+        rank: null,
         updatedAt: new Date()
       };
       this.leaderboards.set(id, newEntry);
-      return newEntry;
     }
+    
+    // Update ranks for this category/period/game combination
+    await this.updateLeaderboardRanks(category, period, gameId);
   }
   
-  async getUserRank(userId: number, period: string, gameId?: number): Promise<number> {
-    const leaderboard = await this.getLeaderboard(period, gameId, 1000); // Get a large portion of the leaderboard
-    const userIndex = leaderboard.findIndex(entry => entry.userId === userId);
+  private async updateLeaderboardRanks(
+    category: "biggest_win" | "highest_multiplier" | "total_games" | "total_wagered",
+    period: "daily" | "weekly" | "monthly" | "all_time",
+    gameId: number | null
+  ): Promise<void> {
+    // Get all entries for this category/period/game combination
+    let entries = Array.from(this.leaderboards.values())
+      .filter(entry => 
+        entry.category === category && 
+        entry.period === period &&
+        (gameId === null || entry.gameId === gameId)
+      )
+      .sort((a, b) => Number(b.score) - Number(a.score));
     
-    return userIndex >= 0 ? userIndex + 1 : 0; // Return 0 if user not found in leaderboard
+    // Update ranks
+    entries.forEach((entry, index) => {
+      const updatedEntry = { ...entry, rank: index + 1 };
+      this.leaderboards.set(entry.id, updatedEntry);
+    });
+  }
+  
+  async getUserRank(
+    userId: number,
+    period: "daily" | "weekly" | "monthly" | "all_time",
+    category: "biggest_win" | "highest_multiplier" | "total_games" | "total_wagered",
+    gameId?: number
+  ): Promise<number> {
+    // Get leaderboard filtered by period, category and optionally gameId
+    let leaderboard = Array.from(this.leaderboards.values())
+      .filter(entry => entry.period === period && entry.category === category);
+      
+    if (gameId !== undefined) {
+      leaderboard = leaderboard.filter(entry => entry.gameId === gameId);
+    }
+    
+    // Sort by score (highest first)
+    leaderboard.sort((a, b) => Number(b.score) - Number(a.score));
+    
+    // Find user's position
+    const position = leaderboard.findIndex(entry => entry.userId === userId);
+    
+    // Position + 1 = rank (1-based indexing), or -1 if not found
+    return position >= 0 ? position + 1 : -1;
   }
   
   private initializeDefaultData() {
@@ -1133,10 +1244,20 @@ export class PgStorage implements IStorage {
   }
   
   // Leaderboard methods
-  async getLeaderboard(period: string, gameId?: number, limit = 10): Promise<Leaderboard[]> {
+  async getLeaderboard(
+    period: "daily" | "weekly" | "monthly" | "all_time",
+    category: "biggest_win" | "highest_multiplier" | "total_games" | "total_wagered",
+    gameId?: number,
+    limit = 10
+  ): Promise<Leaderboard[]> {
     let query = this.db.select()
       .from(leaderboards)
-      .where(eq(leaderboards.period, period))
+      .where(
+        and(
+          eq(leaderboards.period, period),
+          eq(leaderboards.category, category)
+        )
+      )
       .orderBy(desc(leaderboards.score))
       .limit(limit);
     
@@ -1146,6 +1267,7 @@ export class PgStorage implements IStorage {
         .where(
           and(
             eq(leaderboards.period, period),
+            eq(leaderboards.category, category),
             eq(leaderboards.gameId, gameId)
           )
         )
@@ -1156,7 +1278,37 @@ export class PgStorage implements IStorage {
     return query;
   }
   
-  async updateLeaderboard(userId: number, gameId: number | null, score: number, win: number, period: string): Promise<Leaderboard> {
+  async updateLeaderboard(
+    userId: number, 
+    username: string,
+    gameId: number | null, 
+    bet: number, 
+    multiplier: number,
+    payout: number,
+    period: "daily" | "weekly" | "monthly" | "all_time"
+  ): Promise<void> {
+    // Update each category
+    await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "biggest_win", period);
+    await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "highest_multiplier", period);
+    await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "total_games", period);
+    await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "total_wagered", period);
+    
+    // Update all time leaderboard too
+    if (period !== "all_time") {
+      await this.updateLeaderboard(userId, username, gameId, bet, multiplier, payout, "all_time");
+    }
+  }
+  
+  private async updateLeaderboardCategory(
+    userId: number, 
+    username: string,
+    gameId: number | null, 
+    bet: number, 
+    multiplier: number,
+    payout: number,
+    category: "biggest_win" | "highest_multiplier" | "total_games" | "total_wagered",
+    period: "daily" | "weekly" | "monthly" | "all_time"
+  ): Promise<void> {
     // Try to find existing entry
     const existingEntry = await this.db.select()
       .from(leaderboards)
@@ -1164,6 +1316,7 @@ export class PgStorage implements IStorage {
         and(
           eq(leaderboards.userId, userId),
           eq(leaderboards.period, period),
+          eq(leaderboards.category, category),
           gameId !== null 
             ? eq(leaderboards.gameId, gameId)
             : sql`leaderboards.game_id IS NULL`
@@ -1171,51 +1324,104 @@ export class PgStorage implements IStorage {
       )
       .limit(1);
     
+    // Set the score based on category
+    let score = 0;
+    switch(category) {
+      case "biggest_win":
+        score = payout;
+        break;
+      case "highest_multiplier":
+        score = multiplier;
+        break;
+      case "total_games":
+        score = 1; // Will be added to existing score
+        break;
+      case "total_wagered":
+        score = bet;
+        break;
+    }
+    
     if (existingEntry.length > 0) {
       // Update existing entry
       const entry = existingEntry[0];
-      const newScore = Number(entry.score) + score;
-      const newBiggestWin = win > Number(entry.biggestWin) ? win : Number(entry.biggestWin);
       
-      const result = await this.db.update(leaderboards)
+      // Update the entry based on category
+      await this.db.update(leaderboards)
         .set({
-          score: newScore,
-          biggestWin: newBiggestWin,
-          totalBets: entry.totalBets + 1,
+          username, // Update username in case it changed
+          // Update metrics based on category
+          highestMultiplier: Math.max(entry.highestMultiplier || 0, multiplier),
+          biggestWin: Math.max(entry.biggestWin || 0, payout),
+          totalWagered: (entry.totalWagered || 0) + bet,
+          totalGames: (entry.totalGames || 0) + 1,
+          // Set score based on category
+          score: category === "biggest_win" ? Math.max(entry.score, score) : 
+                 category === "highest_multiplier" ? Math.max(entry.score, score) :
+                 entry.score + score, // For total_games and total_wagered, add to existing score
           updatedAt: new Date()
         })
-        .where(eq(leaderboards.id, entry.id))
-        .returning();
+        .where(eq(leaderboards.id, entry.id));
       
-      return result[0];
     } else {
       // Create new entry
-      const result = await this.db.insert(leaderboards)
+      await this.db.insert(leaderboards)
         .values({
           userId,
+          username,
           gameId,
+          category,
           score,
-          biggestWin: win,
-          totalBets: 1,
+          highestMultiplier: multiplier,
+          biggestWin: payout,
+          totalWagered: bet,
+          totalGames: 1,
           period,
-          rank: 0, // Will be calculated when retrieving
+          rank: null,
           updatedAt: new Date()
-        })
-        .returning();
+        });
+    }
+    
+    // Update the ranks for this category/period/game combination
+    await this.updateLeaderboardRanks(category, period, gameId);
+  }
+  
+  private async updateLeaderboardRanks(
+    category: "biggest_win" | "highest_multiplier" | "total_games" | "total_wagered",
+    period: "daily" | "weekly" | "monthly" | "all_time",
+    gameId: number | null
+  ): Promise<void> {
+    // Get all entries for this category/period/game combination
+    const gameIdParam = gameId === null ? undefined : gameId;
+    const entries = await this.getLeaderboard(period, category, gameIdParam, 1000);
+    
+    // Update ranks for each entry
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      const rank = i + 1;
       
-      return result[0];
+      // Only update if rank has changed
+      if (entry.rank !== rank) {
+        await this.db.update(leaderboards)
+          .set({ rank })
+          .where(eq(leaderboards.id, entry.id));
+      }
     }
   }
   
-  async getUserRank(userId: number, period: string, gameId?: number): Promise<number> {
+  async getUserRank(
+    userId: number,
+    period: "daily" | "weekly" | "monthly" | "all_time",
+    category: "biggest_win" | "highest_multiplier" | "total_games" | "total_wagered",
+    gameId?: number
+  ): Promise<number> {
     // Get full leaderboard to calculate rank
-    const leaderboard = await this.getLeaderboard(period, gameId, 1000);
+    const leaderboard = await this.getLeaderboard(period, category, gameId, 1000);
     
     // Find user's position
     const userIndex = leaderboard.findIndex(entry => entry.userId === userId);
     
-    // Return 0 if user not found, otherwise return position (1-based)
-    return userIndex >= 0 ? userIndex + 1 : 0;
+    // Return user's rank (1-based) or -1 if not found
+    return userIndex >= 0 ? userIndex + 1 : -1;
   }
   
   // Method to seed the database with initial data

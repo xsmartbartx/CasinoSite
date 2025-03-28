@@ -190,24 +190,46 @@ export const insertChatMessageSchema = createInsertSchema(chatMessages).pick({
 });
 
 // Leaderboards
+export const leaderboardCategories = pgEnum("leaderboard_category", [
+  "biggest_win", 
+  "highest_multiplier", 
+  "total_games", 
+  "total_wagered"
+]);
+
+export const leaderboardPeriods = pgEnum("leaderboard_period", [
+  "daily", 
+  "weekly", 
+  "monthly", 
+  "all_time"
+]);
+
 export const leaderboards = pgTable("leaderboards", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
+  username: text("username").notNull(), // Store username for display
   gameId: integer("game_id").references(() => games.id),
-  score: doublePrecision("score").notNull(),
-  biggestWin: doublePrecision("biggest_win").default(0),
-  totalBets: integer("total_bets").default(0).notNull(),
-  period: text("period").notNull(), // 'daily', 'weekly', 'monthly', 'all-time'
-  rank: integer("rank"),
+  category: leaderboardCategories("category").notNull(), // Competition category
+  score: doublePrecision("score").notNull(), // Current score in this category
+  highestMultiplier: doublePrecision("highest_multiplier").default(0), // Highest multiplier achieved
+  biggestWin: doublePrecision("biggest_win").default(0), // Biggest single win
+  totalWagered: doublePrecision("total_wagered").default(0), // Total amount wagered
+  totalGames: integer("total_games").default(0).notNull(), // Total games played
+  period: leaderboardPeriods("period").notNull(), // Time period
+  rank: integer("rank"), // Current rank in this category
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const insertLeaderboardSchema = createInsertSchema(leaderboards).pick({
   userId: true,
+  username: true,
   gameId: true,
+  category: true,
   score: true,
+  highestMultiplier: true,
   biggestWin: true,
-  totalBets: true,
+  totalWagered: true,
+  totalGames: true,
   period: true,
 });
 
