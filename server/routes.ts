@@ -1371,7 +1371,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admin/games', adminMiddleware, async (req, res) => {
     try {
       const games = await storage.getAllGames();
-      res.status(200).json(games);
+      
+      // For each game, fetch its settings
+      const gamesWithSettings = await Promise.all(games.map(async (game) => {
+        const settings = await storage.getGameSettings(game.id);
+        return {
+          ...game,
+          settings: settings || {
+            minBet: 1,
+            maxBet: 1000,
+            maxWin: 10000,
+            houseEdge: 0.03,
+            isEnabled: true
+          }
+        };
+      }));
+      
+      res.status(200).json(gamesWithSettings);
     } catch (error) {
       console.error("Admin games route error:", error);
       res.status(500).json({ message: "Internal server error" });
@@ -1417,6 +1433,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Update game settings error:", error);
       res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  // Update game settings with advanced options
+  app.patch('/api/admin/games/:id/settings', adminMiddleware, async (req, res) => {
+    try {
+      const gameId = parseInt(req.params.id);
+      
+      if (!gameId || isNaN(gameId)) {
+        return res.status(400).json({ message: "Invalid game ID" });
+      }
+      
+      // Validate the game exists
+      const game = await storage.getGame(gameId);
+      if (!game) {
+        return res.status(404).json({ message: "Game not found" });
+      }
+      
+      // Check if settings exist - if not, create them
+      const existingSettings = await storage.getGameSettings(gameId);
+      let updatedSettings;
+      
+      if (existingSettings) {
+        // Update with all provided settings
+        updatedSettings = await storage.updateGameSettings(existingSettings.id, req.body);
+      } else {
+        // Create new settings with all provided fields
+        updatedSettings = await storage.createGameSettings({
+          gameId,
+          ...req.body
+        });
+      }
+      
+      res.status(200).json({
+        ...updatedSettings,
+        message: "Game settings updated successfully"
+      });
+    } catch (error) {
+      console.error("Error updating advanced game settings:", error);
+      res.status(500).json({ message: "Failed to update game settings" });
     }
   });
   

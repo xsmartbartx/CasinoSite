@@ -381,6 +381,7 @@ export class MemStorage implements IStorage {
       houseEdge: settings.houseEdge ?? 0.03,
       maxWin: settings.maxWin ?? 10000,
       isEnabled: settings.isEnabled ?? true,
+      config: settings.config ?? null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -396,6 +397,7 @@ export class MemStorage implements IStorage {
       maxBet: settings.maxBet ?? 1000,
       maxWin: settings.maxWin ?? 10000,
       isEnabled: settings.isEnabled ?? true,
+      config: settings.config ?? null,
       createdAt: new Date(),
       updatedAt: new Date()
     };

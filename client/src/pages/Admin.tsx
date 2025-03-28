@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 import { apiRequest } from "@/lib/queryClient";
-import { Loader2, Users, Settings, ChevronRight, ChevronLeft, BarChart2, User as UserIcon, Shield, Copy, Check } from "lucide-react";
+import { Loader2, Users, Settings, ChevronRight, ChevronLeft, BarChart2, User as UserIcon, Shield, Copy, Check, ChevronUp, ChevronDown } from "lucide-react";
 import { 
   Table, 
   TableBody, 
@@ -654,8 +654,21 @@ function CopyPasswordButton({ password }: { password: string }) {
 
 // Game Settings Component
 function GameSettings() {
-  // Mock game data
-  const gameData = [
+  const { toast } = useToast();
+  
+  // Fetch game settings from API
+  const { data: gameData, isLoading, refetch } = useQuery({
+    queryKey: ['/api/admin/games'],
+    queryFn: () => apiRequest<any[]>('/api/admin/games'),
+  });
+
+  // State for edited settings
+  const [editedSettings, setEditedSettings] = useState<{[key: number]: any}>({});
+  // State for currently expanded advanced settings
+  const [expandedGameId, setExpandedGameId] = useState<number | null>(null);
+
+  // Default game data if API returns empty
+  const defaultGameData = [
     { 
       id: 1, 
       name: "Slots", 
@@ -666,7 +679,24 @@ function GameSettings() {
         maxBet: 1000,
         maxWin: 10000,
         houseEdge: 0.035,
-        isEnabled: true
+        isEnabled: true,
+        // Slot specific settings
+        symbolFrequencies: {
+          cherry: 15,
+          lemon: 20, 
+          orange: 20,
+          plum: 15,
+          bell: 12,
+          bar: 10,
+          seven: 5,
+          wild: 3
+        },
+        payoutMultipliers: {
+          threeInRow: 5,
+          threeSevens: 15,
+          threeWilds: 30,
+          diagonal: 3
+        }
       }
     },
     { 
@@ -679,7 +709,16 @@ function GameSettings() {
         maxBet: 2000,
         maxWin: 35000,
         houseEdge: 0.027,
-        isEnabled: true
+        isEnabled: true,
+        // Roulette specific settings
+        straightUpMaxBet: 100,
+        splitMaxBet: 200,
+        streetMaxBet: 300,
+        cornerMaxBet: 400,
+        columnMaxBet: 1000,
+        dozenMaxBet: 1000,
+        evenOddMaxBet: 2000,
+        redBlackMaxBet: 2000
       }
     },
     { 
@@ -692,7 +731,17 @@ function GameSettings() {
         maxBet: 500,
         maxWin: 9500,
         houseEdge: 0.015,
-        isEnabled: true
+        isEnabled: true,
+        // Dice specific settings
+        minRange: 1,
+        maxRange: 100,
+        winMultiplierFormula: "98 / (100 - target)",
+        probabilityRanges: {
+          easy: [50, 75],
+          medium: [25, 49],
+          hard: [10, 24],
+          expert: [1, 9]
+        }
       }
     },
     { 
@@ -705,18 +754,82 @@ function GameSettings() {
         maxBet: 1000,
         maxWin: 50000,
         houseEdge: 0.03,
-        isEnabled: true
+        isEnabled: true,
+        // Crash specific settings
+        crashPointDistribution: {
+          mean: 1.9,
+          houseFactor: 0.97,
+          variance: 0.2
+        },
+        gameSpeedMs: 40,
+        waitTimeBeforeStartMs: 5000,
+        maxMultiplier: 100
       }
     }
   ];
 
-  // State for edited settings
-  const [editedSettings, setEditedSettings] = useState<{[key: number]: any}>({});
+  // If loading, show skeleton UI
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Game Settings</CardTitle>
+            <CardDescription>
+              Loading game configuration...
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-8">
+              {[1, 2, 3, 4].map((id) => (
+                <div key={id} className="p-6 border rounded-lg mb-6 animate-pulse">
+                  <div className="h-6 bg-muted rounded mb-4 w-1/4"></div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {[1, 2, 3, 4].map((fieldId) => (
+                      <div key={fieldId} className="space-y-2">
+                        <div className="h-4 bg-muted rounded w-1/2"></div>
+                        <div className="h-9 bg-muted rounded"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-  // Handler for saving changes (would call API)
-  const handleSaveSettings = (gameId: number) => {
-    console.log(`Save settings for game ${gameId}:`, editedSettings[gameId]);
-    // Call API to save settings
+  // Handler for saving changes
+  const handleSaveSettings = async (gameId: number) => {
+    try {
+      const settings = editedSettings[gameId];
+      await apiRequest(`/api/admin/games/${gameId}/settings`, {
+        method: 'PATCH',
+        data: settings
+      });
+      
+      toast({
+        title: "Settings saved",
+        description: "Game settings have been updated successfully.",
+      });
+      
+      // Remove from edited settings after successful save
+      const newEditedSettings = { ...editedSettings };
+      delete newEditedSettings[gameId];
+      setEditedSettings(newEditedSettings);
+      
+      // Refetch data
+      refetch();
+    } catch (error) {
+      console.error("Failed to save game settings:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save game settings. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   // Handler for updating a setting
@@ -730,6 +843,25 @@ function GameSettings() {
     });
   };
 
+  // Handler for updating a nested setting (for game-specific settings)
+  const updateNestedSetting = (gameId: number, parentField: string, field: string, value: any) => {
+    const currentParentValue = getSettingValue(
+      gameData?.find(g => g.id === gameId) || defaultGameData.find(g => g.id === gameId),
+      parentField
+    );
+    
+    setEditedSettings({
+      ...editedSettings,
+      [gameId]: {
+        ...(editedSettings[gameId] || {}),
+        [parentField]: {
+          ...currentParentValue,
+          [field]: value
+        }
+      }
+    });
+  };
+
   // Get current setting value (edited or original)
   const getSettingValue = (game: any, field: string) => {
     if (editedSettings[game.id] && editedSettings[game.id][field] !== undefined) {
@@ -738,18 +870,26 @@ function GameSettings() {
     return game.settings[field];
   };
 
+  // Handler for toggling advanced settings view
+  const toggleAdvancedSettings = (gameId: number) => {
+    setExpandedGameId(expandedGameId === gameId ? null : gameId);
+  };
+
+  // Get the games data to display
+  const games = gameData || defaultGameData;
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Game Settings</CardTitle>
           <CardDescription>
-            Configure game parameters, betting limits, and house edge
+            Configure game parameters, betting limits, and return-to-player rates
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-8">
-            {gameData.map((game) => (
+            {games.map((game) => (
               <div key={game.id} className="p-6 border rounded-lg mb-6">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-xl font-bold">{game.name}</h3>
@@ -763,6 +903,7 @@ function GameSettings() {
                   </div>
                 </div>
                 
+                {/* Basic settings that apply to all games */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor={`minBet-${game.id}`}>Minimum Bet</Label>
@@ -808,10 +949,303 @@ function GameSettings() {
                       value={getSettingValue(game, 'houseEdge') * 100}
                       onChange={(e) => updateSetting(game.id, 'houseEdge', parseFloat(e.target.value) / 100)}
                     />
+                    <p className="text-xs text-muted-foreground">
+                      RTP: {(100 - getSettingValue(game, 'houseEdge') * 100).toFixed(2)}%
+                    </p>
                   </div>
                 </div>
                 
-                <div className="flex justify-end mt-4">
+                {/* Button to toggle advanced settings */}
+                <div className="mt-4 mb-6">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => toggleAdvancedSettings(game.id)}
+                    className="w-full justify-between"
+                  >
+                    <span>Advanced Game-Specific Settings</span>
+                    {expandedGameId === game.id ? (
+                      <ChevronUp size={16} />
+                    ) : (
+                      <ChevronDown size={16} />
+                    )}
+                  </Button>
+                </div>
+                
+                {/* Game-specific advanced settings */}
+                {expandedGameId === game.id && (
+                  <div className="mt-6 bg-muted/30 p-4 rounded-lg border">
+                    <h4 className="font-medium mb-4">Game-Specific Configuration</h4>
+                    
+                    {/* Slot Machine Settings */}
+                    {game.type === 'slot' && (
+                      <div className="space-y-6">
+                        <div>
+                          <h5 className="text-sm font-medium mb-2">Symbol Frequencies (%)</h5>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {Object.entries(getSettingValue(game, 'symbolFrequencies') || {}).map(([symbol, frequency]) => (
+                              <div key={symbol} className="space-y-1">
+                                <Label htmlFor={`freq-${symbol}-${game.id}`} className="capitalize">{symbol}</Label>
+                                <Input
+                                  id={`freq-${symbol}-${game.id}`}
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  value={Number(frequency)}
+                                  onChange={(e) => updateNestedSetting(
+                                    game.id, 
+                                    'symbolFrequencies', 
+                                    symbol, 
+                                    parseFloat(e.target.value)
+                                  )}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h5 className="text-sm font-medium mb-2">Payout Multipliers</h5>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {Object.entries(getSettingValue(game, 'payoutMultipliers') || {}).map(([pattern, multiplier]) => (
+                              <div key={pattern} className="space-y-1">
+                                <Label htmlFor={`mult-${pattern}-${game.id}`}>
+                                  {pattern.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
+                                </Label>
+                                <Input
+                                  id={`mult-${pattern}-${game.id}`}
+                                  type="number"
+                                  min="1"
+                                  value={Number(multiplier)}
+                                  onChange={(e) => updateNestedSetting(
+                                    game.id, 
+                                    'payoutMultipliers', 
+                                    pattern, 
+                                    parseFloat(e.target.value)
+                                  )}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Roulette Settings */}
+                    {game.type === 'roulette' && (
+                      <div className="space-y-6">
+                        <div>
+                          <h5 className="text-sm font-medium mb-2">Bet Type Limits</h5>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {[
+                              { key: 'straightUpMaxBet', label: 'Straight Up' },
+                              { key: 'splitMaxBet', label: 'Split' },
+                              { key: 'streetMaxBet', label: 'Street' },
+                              { key: 'cornerMaxBet', label: 'Corner' },
+                              { key: 'columnMaxBet', label: 'Column' },
+                              { key: 'dozenMaxBet', label: 'Dozen' },
+                              { key: 'evenOddMaxBet', label: 'Even/Odd' },
+                              { key: 'redBlackMaxBet', label: 'Red/Black' }
+                            ].map(({ key, label }) => (
+                              <div key={key} className="space-y-1">
+                                <Label htmlFor={`${key}-${game.id}`}>{label}</Label>
+                                <Input
+                                  id={`${key}-${game.id}`}
+                                  type="number"
+                                  min="0"
+                                  value={getSettingValue(game, key)}
+                                  onChange={(e) => updateSetting(
+                                    game.id, 
+                                    key, 
+                                    parseFloat(e.target.value)
+                                  )}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Dice Settings */}
+                    {game.type === 'dice' && (
+                      <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <Label htmlFor={`minRange-${game.id}`}>Minimum Range</Label>
+                            <Input
+                              id={`minRange-${game.id}`}
+                              type="number"
+                              min="1"
+                              max={getSettingValue(game, 'maxRange') - 1}
+                              value={getSettingValue(game, 'minRange')}
+                              onChange={(e) => updateSetting(
+                                game.id, 
+                                'minRange', 
+                                parseInt(e.target.value)
+                              )}
+                            />
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <Label htmlFor={`maxRange-${game.id}`}>Maximum Range</Label>
+                            <Input
+                              id={`maxRange-${game.id}`}
+                              type="number"
+                              min={getSettingValue(game, 'minRange') + 1}
+                              value={getSettingValue(game, 'maxRange')}
+                              onChange={(e) => updateSetting(
+                                game.id, 
+                                'maxRange', 
+                                parseInt(e.target.value)
+                              )}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h5 className="text-sm font-medium mb-2">Probability Ranges</h5>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {Object.entries(getSettingValue(game, 'probabilityRanges') || {}).map(([difficulty, range]) => (
+                              <div key={difficulty} className="space-y-1">
+                                <Label htmlFor={`range-${difficulty}-${game.id}`} className="capitalize">{difficulty}</Label>
+                                <div className="flex items-center space-x-2">
+                                  <Input
+                                    id={`range-${difficulty}-min-${game.id}`}
+                                    type="number"
+                                    min="1"
+                                    max={getSettingValue(game, 'maxRange') - 1}
+                                    value={(range as number[])[0]}
+                                    onChange={(e) => {
+                                      const currentRange = getSettingValue(game, 'probabilityRanges')[difficulty];
+                                      updateNestedSetting(
+                                        game.id, 
+                                        'probabilityRanges', 
+                                        difficulty, 
+                                        [parseInt(e.target.value), currentRange[1]]
+                                      );
+                                    }}
+                                  />
+                                  <span>-</span>
+                                  <Input
+                                    id={`range-${difficulty}-max-${game.id}`}
+                                    type="number"
+                                    min={(range as number[])[0] + 1}
+                                    max={getSettingValue(game, 'maxRange')}
+                                    value={(range as number[])[1]}
+                                    onChange={(e) => {
+                                      const currentRange = getSettingValue(game, 'probabilityRanges')[difficulty];
+                                      updateNestedSetting(
+                                        game.id, 
+                                        'probabilityRanges', 
+                                        difficulty, 
+                                        [currentRange[0], parseInt(e.target.value)]
+                                      );
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Crash Game Settings */}
+                    {game.type === 'crash' && (
+                      <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          <div className="space-y-1">
+                            <Label htmlFor={`gameSpeedMs-${game.id}`}>Game Speed (ms)</Label>
+                            <Input
+                              id={`gameSpeedMs-${game.id}`}
+                              type="number"
+                              min="10"
+                              max="1000"
+                              value={getSettingValue(game, 'gameSpeedMs')}
+                              onChange={(e) => updateSetting(
+                                game.id, 
+                                'gameSpeedMs', 
+                                parseInt(e.target.value)
+                              )}
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              Controls animation speed
+                            </p>
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <Label htmlFor={`waitTimeBeforeStartMs-${game.id}`}>Wait Time Before Start (ms)</Label>
+                            <Input
+                              id={`waitTimeBeforeStartMs-${game.id}`}
+                              type="number"
+                              min="1000"
+                              max="30000"
+                              value={getSettingValue(game, 'waitTimeBeforeStartMs')}
+                              onChange={(e) => updateSetting(
+                                game.id, 
+                                'waitTimeBeforeStartMs', 
+                                parseInt(e.target.value)
+                              )}
+                            />
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <Label htmlFor={`maxMultiplier-${game.id}`}>Maximum Multiplier</Label>
+                            <Input
+                              id={`maxMultiplier-${game.id}`}
+                              type="number"
+                              min="2"
+                              max="1000"
+                              value={getSettingValue(game, 'maxMultiplier')}
+                              onChange={(e) => updateSetting(
+                                game.id, 
+                                'maxMultiplier', 
+                                parseFloat(e.target.value)
+                              )}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h5 className="text-sm font-medium mb-2">Crash Point Distribution</h5>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {Object.entries(getSettingValue(game, 'crashPointDistribution') || {}).map(([param, value]) => (
+                              <div key={param} className="space-y-1">
+                                <Label htmlFor={`crash-${param}-${game.id}`}>
+                                  {param === 'mean' ? 'Mean Value' :
+                                   param === 'houseFactor' ? 'House Factor' :
+                                   param === 'variance' ? 'Variance' : param}
+                                </Label>
+                                <Input
+                                  id={`crash-${param}-${game.id}`}
+                                  type="number"
+                                  min={param === 'houseFactor' ? 0.5 : 0.1}
+                                  max={param === 'mean' ? 10 : 
+                                       param === 'houseFactor' ? 1 : 1}
+                                  step="0.01"
+                                  value={Number(value)}
+                                  onChange={(e) => updateNestedSetting(
+                                    game.id, 
+                                    'crashPointDistribution', 
+                                    param, 
+                                    parseFloat(e.target.value)
+                                  )}
+                                />
+                                {param === 'houseFactor' && (
+                                  <p className="text-xs text-muted-foreground">
+                                    Lower values increase house edge
+                                  </p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                <div className="flex justify-end mt-6">
                   <Button
                     onClick={() => handleSaveSettings(game.id)}
                     disabled={!editedSettings[game.id]}
