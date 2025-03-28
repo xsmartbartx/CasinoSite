@@ -412,16 +412,45 @@ export class MemStorage implements IStorage {
     // Generate snapshot based on current state
     const stats = await this.getGlobalStatistics();
     const dailyActiveUsers = Math.floor(stats.activeUsers * 0.6); // Simulate daily active users
+    const newUsersToday = Math.floor(Math.random() * 15); // Simulate new user signups
+    
+    // Create simulated hourly user activity data for heatmap
+    const hourlyActivity = Array.from({length: 24}, (_, hour) => {
+      // More users during peak hours (simulated pattern)
+      const baseUsers = hour >= 8 && hour <= 23 ? 10 + Math.floor(Math.random() * 30) : 2 + Math.floor(Math.random() * 8);
+      return { hour, count: baseUsers };
+    });
+    
+    // Create financial projections (simple linear projection for demo)
+    const projections = {
+      nextDay: stats.platformProfit * 1.02,
+      nextWeek: stats.platformProfit * 7 * 1.05,
+      nextMonth: stats.platformProfit * 30 * 1.1,
+      growth: 0.1 + (Math.random() * 0.15)
+    };
+    
+    // Risk metrics based on current platform state
+    const riskMetrics = {
+      largeWinRisk: 0.01 + (Math.random() * 0.03),
+      payoutRatio: stats.totalWon / stats.totalWagered,
+      volatilityIndex: 0.2 + (Math.random() * 0.4),
+      highRiskUsers: Math.floor(stats.activeUsers * 0.03),
+      potentialLiability: stats.totalWagered * 0.8
+    };
     
     return {
       id: 1,
       totalUsers: stats.totalUsers,
       activeUsers: stats.activeUsers,
+      newUsers: newUsersToday,
       totalBets: stats.totalGamesPlayed,
       totalWagered: stats.totalWagered,
       totalPayout: stats.totalWon,
       houseProfit: stats.platformProfit,
       gameBreakdown: JSON.stringify(stats.gameStats),
+      userActivity: JSON.stringify(hourlyActivity),
+      financialProjections: JSON.stringify(projections),
+      riskMetrics: JSON.stringify(riskMetrics),
       createdAt: new Date(),
       date: new Date()
     };
@@ -840,6 +869,39 @@ export class PgStorage implements IStorage {
       typeof dailyUsers[0].dailyActiveUsers === 'string' ? 
       parseInt(dailyUsers[0].dailyActiveUsers) : 0;
     
+    // Count new users in the last day
+    const lastDay = new Date();
+    lastDay.setDate(lastDay.getDate() - 1);
+    
+    const newUsersResult = await this.db.select({
+      count: sql`count(*)`
+    })
+    .from(users)
+    .where(gte(users.createdAt, lastDay));
+    
+    const newUsers = parseInt(String(newUsersResult[0]?.count) || '0');
+    
+    // Generate hourly activity pattern for heatmap
+    // More realistic implementation would analyze actual db records by hour
+    const hourlyActivity = await this.generateHourlyActivityData();
+    
+    // Generate financial projections based on current data
+    const projections = {
+      nextDay: stats.platformProfit * 1.02,
+      nextWeek: stats.platformProfit * 7 * 1.05,
+      nextMonth: stats.platformProfit * 30 * 1.1,
+      growth: 0.1 + (Math.random() * 0.15)
+    };
+    
+    // Generate risk analysis metrics
+    const riskMetrics = {
+      largeWinRisk: 0.01 + (Math.random() * 0.03),
+      payoutRatio: stats.totalWon / stats.totalWagered,
+      volatilityIndex: 0.2 + (Math.random() * 0.4),
+      highRiskUsers: Math.floor(stats.activeUsers * 0.03),
+      potentialLiability: stats.totalWagered * 0.8
+    };
+    
     // Create a valid analytics record
     const result = await this.db.insert(analytics)
       .values({
@@ -849,6 +911,10 @@ export class PgStorage implements IStorage {
         houseProfit: stats.platformProfit,
         gameBreakdown: JSON.stringify(stats.gameStats),
         activeUsers: stats.activeUsers,
+        newUsers: newUsers,
+        userActivity: JSON.stringify(hourlyActivity),
+        financialProjections: JSON.stringify(projections),
+        riskMetrics: JSON.stringify(riskMetrics),
         date: new Date()
       })
       .returning();
@@ -866,6 +932,43 @@ export class PgStorage implements IStorage {
         )
       )
       .orderBy(analytics.date);
+  }
+  
+  // Generate hourly activity data for heatmap visualization
+  private async generateHourlyActivityData(): Promise<any[]> {
+    // In a production environment, we would query the database to get actual hourly data
+    // For this demo, we'll generate simulated data with a realistic pattern
+    const now = new Date();
+    const currentHour = now.getHours();
+    
+    return Array.from({length: 24}, (_, hour) => {
+      // Create a realistic pattern: low activity at night, peaks in evening
+      let baseActivity;
+      
+      if (hour >= 0 && hour < 6) {
+        // Night hours: low activity
+        baseActivity = 5 + Math.floor(Math.random() * 10);
+      } else if (hour >= 6 && hour < 12) {
+        // Morning hours: medium activity
+        baseActivity = 15 + Math.floor(Math.random() * 15);
+      } else if (hour >= 12 && hour < 18) {
+        // Afternoon hours: high activity
+        baseActivity = 30 + Math.floor(Math.random() * 20);
+      } else {
+        // Evening hours: peak activity
+        baseActivity = 40 + Math.floor(Math.random() * 25);
+      }
+      
+      // Add recency effect - hours closer to current hour have more accurate data
+      const recencyFactor = 1 - (Math.abs(currentHour - hour) / 24);
+      const finalActivity = Math.round(baseActivity * (0.8 + (recencyFactor * 0.4)));
+      
+      return {
+        hour,
+        count: finalActivity,
+        // Optionally add more metrics like new users, conversion rate, etc.
+      };
+    });
   }
   
   async seedInitialData(): Promise<void> {

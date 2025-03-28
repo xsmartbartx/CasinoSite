@@ -137,11 +137,15 @@ export const analytics = pgTable("analytics", {
   date: timestamp("date").defaultNow().notNull(),
   totalUsers: integer("total_users").notNull().default(0),
   activeUsers: integer("active_users").notNull().default(0),
+  newUsers: integer("new_users").default(0),
   totalBets: integer("total_bets").notNull().default(0),
   totalWagered: doublePrecision("total_wagered").notNull().default(0),
   totalPayout: doublePrecision("total_payout").notNull().default(0),
   houseProfit: doublePrecision("house_profit").notNull().default(0),
   gameBreakdown: text("game_breakdown"), // JSON string with per-game stats
+  userActivity: text("user_activity"), // JSON string with hourly user activity for heatmap
+  financialProjections: text("financial_projections"), // JSON string with projections
+  riskMetrics: text("risk_metrics"), // JSON with risk analysis data
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -149,11 +153,15 @@ export const insertAnalyticsSchema = createInsertSchema(analytics).pick({
   date: true,
   totalUsers: true,
   activeUsers: true,
+  newUsers: true,
   totalBets: true,
   totalWagered: true,
   totalPayout: true,
   houseProfit: true,
   gameBreakdown: true,
+  userActivity: true,
+  financialProjections: true,
+  riskMetrics: true,
 });
 
 export type GameSettings = typeof gameSettings.$inferSelect;
