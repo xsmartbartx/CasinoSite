@@ -886,6 +886,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create WebSocket server on a specific path for Crash game
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
   
+  // Track connected clients and their assigned rooms
+  interface ConnectedClient extends WebSocket {
+    userId?: number;
+    username?: string;
+    room?: string;
+    isAdmin?: boolean;
+  }
+  
+  // Map to store connected clients
+  const connectedClients = new Map<WebSocket, ConnectedClient>();
+  
+  // Helper function to broadcast to a specific room
+  const broadcastToRoom = (room: string, message: any) => {
+    const messageStr = JSON.stringify(message);
+    connectedClients.forEach((client) => {
+      if (client.room === room && client.readyState === WebSocket.OPEN) {
+        client.send(messageStr);
+      }
+    });
+  };
+  
   // Define types for crash game
   interface CrashActiveBet {
     userId: number;
@@ -935,14 +956,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     .digest('hex');
   
   // Handle WebSocket connections
-  wss.on('connection', (ws) => {
+  wss.on('connection', (ws: WebSocket) => {
     console.log('Client connected to WebSocket');
+    
+    // Cast the WebSocket to our custom interface
+    const client = ws as ConnectedClient;
     
     // Send current game state to new client
     ws.send(JSON.stringify({
       type: 'gameState',
       data: crashGameState
     }));
+    
+    // Store the client in our connected clients map
+    connectedClients.set(ws, client);
     
     // Handle messages from client
     ws.on('message', async (message) => {
@@ -951,6 +978,127 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Handle different message types
         switch(data.type) {
+          case 'joinRoom':
+            // Handle joining chat room
+            const { room, userId: chatUserId, username: chatUsername } = data.data;
+            if (!room) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'Room name is required' }
+              }));
+              return;
+            }
+            
+            // Set client properties
+            client.room = room;
+            if (chatUserId) client.userId = chatUserId;
+            if (chatUsername) client.username = chatUsername;
+            
+            // If user is authenticated, check if they're an admin
+            if (chatUserId) {
+              const user = await storage.getUser(chatUserId);
+              client.isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
+            }
+            
+            // Get recent messages for the room
+            const recentMessages = await storage.getChatMessages(room, 50);
+            
+            // Send welcome message and recent chat history
+            ws.send(JSON.stringify({
+              type: 'roomJoined',
+              data: {
+                room,
+                recentMessages
+              }
+            }));
+            
+            // Notify room of new user if they're authenticated
+            if (chatUserId && chatUsername) {
+              broadcastToRoom(room, {
+                type: 'systemMessage',
+                data: {
+                  message: `${chatUsername} has joined the room`,
+                  timestamp: new Date().toISOString()
+                }
+              });
+            }
+            break;
+            
+          case 'chatMessage':
+            // Check if client has joined a room
+            if (!client.room) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'You must join a room before sending messages' }
+              }));
+              return;
+            }
+            
+            // Validate message data
+            const { content, messageUserId, messageUsername } = data.data;
+            if (!content || !messageUserId || !messageUsername) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'Invalid message data' }
+              }));
+              return;
+            }
+            
+            // Create chat message in database
+            const chatMessage = await storage.createChatMessage({
+              userId: messageUserId,
+              username: messageUsername,
+              content,
+              room: client.room
+            });
+            
+            // Broadcast message to all clients in the room
+            broadcastToRoom(client.room, {
+              type: 'newChatMessage',
+              data: chatMessage
+            });
+            break;
+            
+          case 'moderateMessage':
+            // Check if user is admin
+            if (!client.isAdmin) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'Unauthorized: Admin privileges required' }
+              }));
+              return;
+            }
+            
+            // Validate moderation data
+            const { messageId, action } = data.data;
+            if (!messageId || !action) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'Invalid moderation data' }
+              }));
+              return;
+            }
+            
+            // Apply moderation action
+            let moderatedMessage;
+            if (action === 'delete') {
+              moderatedMessage = await storage.moderateChatMessage(messageId, true, true);
+            } else if (action === 'flag') {
+              moderatedMessage = await storage.moderateChatMessage(messageId, false, true);
+            }
+            
+            // If successful, broadcast moderation action to room
+            if (moderatedMessage && client.room) {
+              broadcastToRoom(client.room, {
+                type: 'messageModerated',
+                data: {
+                  messageId,
+                  action,
+                  message: moderatedMessage
+                }
+              });
+            }
+            break;
           case 'placeBet':
             if (crashGameState.gameState !== 'waiting') {
               ws.send(JSON.stringify({
@@ -1105,6 +1253,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Handle client disconnect
     ws.on('close', () => {
       console.log('Client disconnected from WebSocket');
+      
+      // Notify room of user disconnect if they were in a room
+      if (client.room && client.username) {
+        broadcastToRoom(client.room, {
+          type: 'systemMessage',
+          data: {
+            message: `${client.username} has left the room`,
+            timestamp: new Date().toISOString()
+          }
+        });
+      }
+      
+      // Remove client from our map
+      connectedClients.delete(ws);
     });
   });
   
@@ -1578,6 +1740,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Admin reset password route error:", error);
       res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  // Leaderboard API Routes
+  app.get('/api/leaderboard', async (req, res) => {
+    try {
+      const period = req.query.period as string || 'all';
+      const gameId = req.query.gameId ? parseInt(req.query.gameId as string) : undefined;
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+      
+      const leaderboard = await storage.getLeaderboard(period, gameId, limit);
+      
+      res.status(200).json(leaderboard);
+    } catch (error) {
+      console.error("Error getting leaderboard:", error);
+      res.status(500).json({ message: "Failed to get leaderboard" });
+    }
+  });
+
+  // Get leaderboard for a specific game
+  app.get('/api/games/:gameId/leaderboard', async (req, res) => {
+    try {
+      const gameId = parseInt(req.params.gameId);
+      const period = req.query.period as string || 'all';
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+      
+      if (!gameId || isNaN(gameId)) {
+        return res.status(400).json({ message: "Invalid game ID" });
+      }
+      
+      // Check if game exists
+      const game = await storage.getGame(gameId);
+      if (!game) {
+        return res.status(404).json({ message: "Game not found" });
+      }
+      
+      const leaderboard = await storage.getLeaderboard(period, gameId, limit);
+      
+      res.status(200).json(leaderboard);
+    } catch (error) {
+      console.error("Error getting game leaderboard:", error);
+      res.status(500).json({ message: "Failed to get game leaderboard" });
+    }
+  });
+
+  // Get user's rank on leaderboard
+  app.get('/api/users/:userId/rank', authMiddleware, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const period = req.query.period as string || 'all';
+      const gameId = req.query.gameId ? parseInt(req.query.gameId as string) : undefined;
+      
+      if (!userId || isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      const rank = await storage.getUserRank(userId, period, gameId);
+      
+      res.status(200).json({ rank });
+    } catch (error) {
+      console.error("Error getting user rank:", error);
+      res.status(500).json({ message: "Failed to get user rank" });
     }
   });
   

@@ -169,3 +169,50 @@ export type InsertGameSettings = z.infer<typeof insertGameSettingsSchema>;
 
 export type Analytics = typeof analytics.$inferSelect;
 export type InsertAnalytics = z.infer<typeof insertAnalyticsSchema>;
+
+// Chat messages
+export const chatMessages = pgTable("chat_messages", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  username: text("username").notNull(), // Username for display in the chat
+  room: text("room").notNull(), // 'global' or game-specific rooms like 'slot', 'dice', etc.
+  content: text("content").notNull(), // The actual message content
+  isDeleted: boolean("is_deleted").default(false).notNull(),
+  isModerated: boolean("is_moderated").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertChatMessageSchema = createInsertSchema(chatMessages).pick({
+  userId: true,
+  username: true,
+  room: true,
+  content: true,
+});
+
+// Leaderboards
+export const leaderboards = pgTable("leaderboards", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  gameId: integer("game_id").references(() => games.id),
+  score: doublePrecision("score").notNull(),
+  biggestWin: doublePrecision("biggest_win").default(0),
+  totalBets: integer("total_bets").default(0).notNull(),
+  period: text("period").notNull(), // 'daily', 'weekly', 'monthly', 'all-time'
+  rank: integer("rank"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertLeaderboardSchema = createInsertSchema(leaderboards).pick({
+  userId: true,
+  gameId: true,
+  score: true,
+  biggestWin: true,
+  totalBets: true,
+  period: true,
+});
+
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
+
+export type Leaderboard = typeof leaderboards.$inferSelect;
+export type InsertLeaderboard = z.infer<typeof insertLeaderboardSchema>;

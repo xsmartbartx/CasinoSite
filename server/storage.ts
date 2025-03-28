@@ -5,6 +5,8 @@ import {
   educationalContent, type EducationalContent, type InsertEducationalContent,
   gameSettings, type GameSettings, type InsertGameSettings,
   analytics, type Analytics, type InsertAnalytics,
+  chatMessages, type ChatMessage, type InsertChatMessage,
+  leaderboards, type Leaderboard, type InsertLeaderboard,
   userRoles
 } from "@shared/schema";
 import { eq, and, desc, sql, gte, lte } from "drizzle-orm";
@@ -55,6 +57,16 @@ export interface IStorage {
   // Statistics methods
   getUserStatistics(userId: number): Promise<any>;
   getGlobalStatistics(): Promise<any>;
+  
+  // Chat methods
+  getChatMessages(room: string, limit?: number, offset?: number): Promise<ChatMessage[]>;
+  createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
+  moderateChatMessage(id: number, isDeleted?: boolean, isModerated?: boolean): Promise<ChatMessage | undefined>;
+  
+  // Leaderboard methods
+  getLeaderboard(period: string, gameId?: number, limit?: number): Promise<Leaderboard[]>;
+  updateLeaderboard(userId: number, gameId: number | null, score: number, win: number, period: string): Promise<Leaderboard>;
+  getUserRank(userId: number, period: string, gameId?: number): Promise<number>;
 }
 
 export class MemStorage implements IStorage {
@@ -62,22 +74,30 @@ export class MemStorage implements IStorage {
   private games: Map<number, Game>;
   private gameHistories: Map<number, GameHistory>;
   private educationalContents: Map<number, EducationalContent>;
+  private chatMessages: Map<number, ChatMessage>;
+  private leaderboards: Map<number, Leaderboard>;
   
   private userIdCounter: number;
   private gameIdCounter: number;
   private gameHistoryIdCounter: number;
   private educationalContentIdCounter: number;
+  private chatMessageIdCounter: number;
+  private leaderboardIdCounter: number;
 
   constructor() {
     this.users = new Map();
     this.games = new Map();
     this.gameHistories = new Map();
     this.educationalContents = new Map();
+    this.chatMessages = new Map();
+    this.leaderboards = new Map();
     
     this.userIdCounter = 1;
     this.gameIdCounter = 1;
     this.gameHistoryIdCounter = 1;
     this.educationalContentIdCounter = 1;
+    this.chatMessageIdCounter = 1;
+    this.leaderboardIdCounter = 1;
     
     // Initialize with default games
     this.initializeDefaultData();
@@ -366,6 +386,7 @@ export class MemStorage implements IStorage {
       maxBet: 1000,
       maxWin: 10000,
       isEnabled: true,
+      config: null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -473,6 +494,109 @@ export class MemStorage implements IStorage {
     
     this.games.set(id, updatedGame);
     return updatedGame;
+  }
+  
+  // Chat methods
+  async getChatMessages(room: string, limit = 50, offset = 0): Promise<ChatMessage[]> {
+    const messages = Array.from(this.chatMessages.values())
+      .filter(msg => msg.room === room && !msg.isDeleted)
+      .sort((a, b) => {
+        if (!a.createdAt || !b.createdAt) return 0;
+        return b.createdAt.getTime() - a.createdAt.getTime();
+      });
+    
+    return messages.slice(offset, offset + limit);
+  }
+  
+  async createChatMessage(message: InsertChatMessage): Promise<ChatMessage> {
+    const id = this.chatMessageIdCounter++;
+    const createdAt = new Date();
+    const chatMessage: ChatMessage = {
+      ...message,
+      id,
+      isDeleted: false,
+      isModerated: false,
+      createdAt
+    };
+    this.chatMessages.set(id, chatMessage);
+    return chatMessage;
+  }
+  
+  async moderateChatMessage(id: number, isDeleted = false, isModerated = true): Promise<ChatMessage | undefined> {
+    const message = this.chatMessages.get(id);
+    if (!message) return undefined;
+    
+    const updatedMessage: ChatMessage = {
+      ...message,
+      isDeleted,
+      isModerated
+    };
+    this.chatMessages.set(id, updatedMessage);
+    return updatedMessage;
+  }
+  
+  // Leaderboard methods
+  async getLeaderboard(period: string, gameId?: number, limit = 10): Promise<Leaderboard[]> {
+    let leaderboardData = Array.from(this.leaderboards.values())
+      .filter(entry => entry.period === period);
+      
+    // Apply game filter if specified
+    if (gameId !== undefined) {
+      leaderboardData = leaderboardData.filter(entry => entry.gameId === gameId);
+    }
+    
+    // Sort by score in descending order
+    return leaderboardData
+      .sort((a, b) => Number(b.score) - Number(a.score))
+      .slice(0, limit);
+  }
+  
+  async updateLeaderboard(userId: number, gameId: number | null, score: number, win: number, period: string): Promise<Leaderboard> {
+    // Find existing entry
+    const existingEntryArray = Array.from(this.leaderboards.values())
+      .filter(entry => 
+        entry.userId === userId && 
+        entry.period === period && 
+        entry.gameId === gameId
+      );
+    
+    let existingEntry = existingEntryArray.length > 0 ? existingEntryArray[0] : null;
+    
+    if (existingEntry) {
+      // Update existing entry
+      const updatedEntry: Leaderboard = {
+        ...existingEntry,
+        score: Number(existingEntry.score) + score,
+        biggestWin: win > Number(existingEntry.biggestWin) ? win : Number(existingEntry.biggestWin),
+        totalBets: existingEntry.totalBets + 1,
+        updatedAt: new Date()
+      };
+      this.leaderboards.set(existingEntry.id, updatedEntry);
+      return updatedEntry;
+    } else {
+      // Create new entry
+      const id = this.leaderboardIdCounter++;
+      const newEntry: Leaderboard = {
+        id,
+        userId,
+        gameId,
+        score,
+        biggestWin: win,
+        totalBets: 1,
+        period,
+        rank: 0, // Will be calculated when retrieving leaderboards
+        updatedAt: new Date()
+      };
+      this.leaderboards.set(id, newEntry);
+      return newEntry;
+    }
+  }
+  
+  async getUserRank(userId: number, period: string, gameId?: number): Promise<number> {
+    const leaderboard = await this.getLeaderboard(period, gameId, 1000); // Get a large portion of the leaderboard
+    const userIndex = leaderboard.findIndex(entry => entry.userId === userId);
+    
+    return userIndex >= 0 ? userIndex + 1 : 0; // Return 0 if user not found in leaderboard
   }
   
   private initializeDefaultData() {
@@ -971,6 +1095,130 @@ export class PgStorage implements IStorage {
     });
   }
   
+  // Chat methods
+  async getChatMessages(room: string, limit = 50, offset = 0): Promise<ChatMessage[]> {
+    return this.db.select()
+      .from(chatMessages)
+      .where(
+        and(
+          eq(chatMessages.room, room),
+          eq(chatMessages.isDeleted, false)
+        )
+      )
+      .orderBy(desc(chatMessages.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
+  
+  async createChatMessage(message: InsertChatMessage): Promise<ChatMessage> {
+    const result = await this.db.insert(chatMessages)
+      .values({
+        ...message,
+        isDeleted: false,
+        isModerated: false
+      })
+      .returning();
+    return result[0];
+  }
+  
+  async moderateChatMessage(id: number, isDeleted = false, isModerated = true): Promise<ChatMessage | undefined> {
+    const result = await this.db.update(chatMessages)
+      .set({
+        isDeleted,
+        isModerated
+      })
+      .where(eq(chatMessages.id, id))
+      .returning();
+    return result[0];
+  }
+  
+  // Leaderboard methods
+  async getLeaderboard(period: string, gameId?: number, limit = 10): Promise<Leaderboard[]> {
+    let query = this.db.select()
+      .from(leaderboards)
+      .where(eq(leaderboards.period, period))
+      .orderBy(desc(leaderboards.score))
+      .limit(limit);
+    
+    if (gameId !== undefined) {
+      query = this.db.select()
+        .from(leaderboards)
+        .where(
+          and(
+            eq(leaderboards.period, period),
+            eq(leaderboards.gameId, gameId)
+          )
+        )
+        .orderBy(desc(leaderboards.score))
+        .limit(limit);
+    }
+    
+    return query;
+  }
+  
+  async updateLeaderboard(userId: number, gameId: number | null, score: number, win: number, period: string): Promise<Leaderboard> {
+    // Try to find existing entry
+    const existingEntry = await this.db.select()
+      .from(leaderboards)
+      .where(
+        and(
+          eq(leaderboards.userId, userId),
+          eq(leaderboards.period, period),
+          gameId !== null 
+            ? eq(leaderboards.gameId, gameId)
+            : sql`leaderboards.game_id IS NULL`
+        )
+      )
+      .limit(1);
+    
+    if (existingEntry.length > 0) {
+      // Update existing entry
+      const entry = existingEntry[0];
+      const newScore = Number(entry.score) + score;
+      const newBiggestWin = win > Number(entry.biggestWin) ? win : Number(entry.biggestWin);
+      
+      const result = await this.db.update(leaderboards)
+        .set({
+          score: newScore,
+          biggestWin: newBiggestWin,
+          totalBets: entry.totalBets + 1,
+          updatedAt: new Date()
+        })
+        .where(eq(leaderboards.id, entry.id))
+        .returning();
+      
+      return result[0];
+    } else {
+      // Create new entry
+      const result = await this.db.insert(leaderboards)
+        .values({
+          userId,
+          gameId,
+          score,
+          biggestWin: win,
+          totalBets: 1,
+          period,
+          rank: 0, // Will be calculated when retrieving
+          updatedAt: new Date()
+        })
+        .returning();
+      
+      return result[0];
+    }
+  }
+  
+  async getUserRank(userId: number, period: string, gameId?: number): Promise<number> {
+    // Get full leaderboard to calculate rank
+    const leaderboard = await this.getLeaderboard(period, gameId, 1000);
+    
+    // Find user's position
+    const userIndex = leaderboard.findIndex(entry => entry.userId === userId);
+    
+    // Return 0 if user not found, otherwise return position (1-based)
+    return userIndex >= 0 ? userIndex + 1 : 0;
+  }
+  
+  // Method to seed the database with initial data
   async seedInitialData(): Promise<void> {
     // Check if games already exist
     const existingGames = await this.getAllGames();
