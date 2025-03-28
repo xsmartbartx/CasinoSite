@@ -4,14 +4,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 import { apiRequest } from "@/lib/queryClient";
-import { Loader2, Users, Settings, ChevronRight, ChevronLeft, BarChart2, User as UserIcon, Shield } from "lucide-react";
+import { Loader2, Users, Settings, ChevronRight, ChevronLeft, BarChart2, User as UserIcon, Shield, Copy, Check } from "lucide-react";
 import { 
   Table, 
   TableBody, 
@@ -28,6 +28,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 // Admin Dashboard Component
 export default function Admin() {
@@ -243,6 +251,7 @@ function AdminDashboard() {
 
 // User Management Component
 function UserManagement() {
+  const { toast } = useToast();
   // For pagination
   const [page, setPage] = useState(1);
   const [pageSize] = useState(8);
@@ -251,6 +260,15 @@ function UserManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  
+  // For transaction history modal
+  const [isTransactionsOpen, setIsTransactionsOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [userTransactions, setUserTransactions] = useState<any[]>([]);
+  
+  // For password reset modal
+  const [isPasswordResetOpen, setIsPasswordResetOpen] = useState(false);
+  const [resetResult, setResetResult] = useState<{ tempPassword: string } | null>(null);
 
   // Mock user data
   const userData = [
@@ -311,6 +329,50 @@ function UserManagement() {
   const handleStatusUpdate = (userId: number, isActive: boolean) => {
     console.log(`Update user ${userId} status to ${isActive ? 'active' : 'inactive'}`);
     // Call API to update status
+  };
+  
+  // Handler for viewing transactions
+  const handleViewTransactions = async (userId: number) => {
+    setSelectedUserId(userId);
+    setIsTransactionsOpen(true);
+    
+    try {
+      const response = await apiRequest<any[]>(`/api/admin/users/${userId}/transactions`);
+      setUserTransactions(response);
+    } catch (error) {
+      console.error("Error fetching user transactions:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load transaction history",
+        variant: "destructive"
+      });
+      setUserTransactions([]);
+    }
+  };
+  
+  // Handler for resetting password
+  const handleResetPassword = async (userId: number) => {
+    setSelectedUserId(userId);
+    setIsPasswordResetOpen(true);
+    setResetResult(null);
+    
+    try {
+      const response = await apiRequest<{ tempPassword: string }>(`/api/admin/users/${userId}/reset-password`, { 
+        method: 'POST' 
+      });
+      setResetResult(response);
+      toast({
+        title: "Success",
+        description: "Password has been reset successfully"
+      });
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      toast({
+        title: "Error",
+        description: "Failed to reset password",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -415,9 +477,22 @@ function UserManagement() {
                     </TableCell>
                     <TableCell>{formatDate(user.lastLogin)}</TableCell>
                     <TableCell>
-                      <Button variant="outline" size="sm">
-                        View Details
-                      </Button>
+                      <div className="flex space-x-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleViewTransactions(user.id)}
+                        >
+                          Transactions
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleResetPassword(user.id)}
+                        >
+                          Reset Password
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -456,7 +531,124 @@ function UserManagement() {
           </div>
         </CardContent>
       </Card>
+      
+      {/* Transaction History Dialog */}
+      <Dialog open={isTransactionsOpen} onOpenChange={setIsTransactionsOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Transaction History</DialogTitle>
+            <DialogDescription>
+              Viewing transactions for user {selectedUserId ? userData.find(u => u.id === selectedUserId)?.username : ''}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {userTransactions.length > 0 ? (
+            <div className="max-h-[60vh] overflow-y-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Game</TableHead>
+                    <TableHead>Bet Amount</TableHead>
+                    <TableHead>Multiplier</TableHead>
+                    <TableHead>Payout</TableHead>
+                    <TableHead>Result</TableHead>
+                    <TableHead>Date</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {userTransactions.map((transaction) => (
+                    <TableRow key={transaction.id}>
+                      <TableCell>{transaction.game?.name || `Game #${transaction.gameId}`}</TableCell>
+                      <TableCell>${transaction.bet.toLocaleString()}</TableCell>
+                      <TableCell>x{transaction.multiplier.toFixed(2)}</TableCell>
+                      <TableCell>${transaction.payout.toLocaleString()}</TableCell>
+                      <TableCell>
+                        <span className={transaction.result === 'win' ? 'text-green-500' : 'text-red-500'}>
+                          {transaction.result === 'win' ? 'Win' : 'Loss'}
+                        </span>
+                      </TableCell>
+                      <TableCell>{formatDate(transaction.createdAt)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <div className="py-8 text-center text-muted-foreground">
+              No transaction history found for this user
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsTransactionsOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Password Reset Dialog */}
+      <Dialog open={isPasswordResetOpen} onOpenChange={setIsPasswordResetOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Password Reset</DialogTitle>
+            <DialogDescription>
+              {resetResult ? 
+                "Password has been reset successfully. Please share the temporary password with the user." :
+                `Resetting password for user ${selectedUserId ? userData.find(u => u.id === selectedUserId)?.username : ''}`
+              }
+            </DialogDescription>
+          </DialogHeader>
+          
+          {resetResult ? (
+            <div className="my-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">Temporary Password</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between p-2 bg-muted rounded-md">
+                    <code className="text-sm font-mono">{resetResult.tempPassword}</code>
+                    <CopyPasswordButton password={resetResult.tempPassword} />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    The user will need to change this password on their next login.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <div className="py-6 text-center">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
+              <p>Resetting password...</p>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsPasswordResetOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+// Helper component for copying password
+function CopyPasswordButton({ password }: { password: string }) {
+  const [copied, setCopied] = useState(false);
+  
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(password);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  
+  return (
+    <Button variant="ghost" size="sm" onClick={copyToClipboard}>
+      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+    </Button>
   );
 }
 

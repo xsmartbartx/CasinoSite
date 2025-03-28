@@ -1447,5 +1447,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Get all transaction history for a user
+  app.get('/api/admin/users/:id/transactions', adminMiddleware, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
+      const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
+      
+      if (!userId || isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      // Get user to verify it exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Get all game history for the user
+      const transactions = await storage.getGameHistory(userId, limit, offset);
+      
+      // Include game details for each transaction
+      const enhancedTransactions = await Promise.all(
+        transactions.map(async (transaction) => {
+          const game = await storage.getGame(transaction.gameId);
+          return { 
+            ...transaction, 
+            game: game ? { name: game.name, type: game.type } : null 
+          };
+        })
+      );
+      
+      res.status(200).json(enhancedTransactions);
+    } catch (error) {
+      console.error("Admin user transactions route error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  // Reset user password
+  app.post('/api/admin/users/:id/reset-password', adminMiddleware, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      
+      if (!userId || isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      // Get user to verify it exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Generate a random temporary password
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let tempPassword = '';
+      for (let i = 0; i < 10; i++) {
+        tempPassword += characters.charAt(Math.floor(secureRandom(0, characters.length)));
+      }
+      
+      // Update the user's password
+      const updatedUser = await storage.resetUserPassword(userId, tempPassword);
+      
+      if (!updatedUser) {
+        return res.status(500).json({ message: "Failed to reset password" });
+      }
+      
+      res.status(200).json({ 
+        message: "Password reset successful", 
+        userId: userId, 
+        tempPassword: tempPassword // In a real-world app, this should be sent via email instead
+      });
+    } catch (error) {
+      console.error("Admin reset password route error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
   return httpServer;
 }

@@ -22,6 +22,7 @@ export interface IStorage {
   getAllUsers(limit?: number, offset?: number): Promise<User[]>;
   updateUserRole(id: number, role: string): Promise<User | undefined>;
   updateUserStatus(id: number, isActive: boolean): Promise<User | undefined>;
+  resetUserPassword(id: number, newPassword: string): Promise<User | undefined>;
   
   // Game methods
   getAllGames(): Promise<Game[]>;
@@ -155,6 +156,18 @@ export class MemStorage implements IStorage {
     const updatedUser = { 
       ...user, 
       isActive
+    };
+    this.users.set(id, updatedUser);
+    return updatedUser;
+  }
+  
+  async resetUserPassword(id: number, newPassword: string): Promise<User | undefined> {
+    const user = await this.getUser(id);
+    if (!user) return undefined;
+    
+    const updatedUser = { 
+      ...user, 
+      password: newPassword
     };
     this.users.set(id, updatedUser);
     return updatedUser;
@@ -695,6 +708,15 @@ export class PgStorage implements IStorage {
     return result[0];
   }
   
+  async resetUserPassword(id: number, newPassword: string): Promise<User | undefined> {
+    const result = await this.db.update(users)
+      .set({ password: newPassword })
+      .where(eq(users.id, id))
+      .returning();
+    
+    return result[0];
+  }
+  
   async updateGame(id: number, game: Partial<InsertGame>): Promise<Game | undefined> {
     const result = await this.db.update(games)
       .set(game)
@@ -737,8 +759,8 @@ export class PgStorage implements IStorage {
       activeCount: sql`count(*) filter (where is_active = true)` 
     }).from(users);
     
-    const totalUsers = parseInt(usersResult[0].count.toString());
-    const activeUsers = parseInt(usersResult[0].activeCount.toString());
+    const totalUsers = parseInt(String(usersResult[0]?.count) || '0');
+    const activeUsers = parseInt(String(usersResult[0]?.activeCount) || '0');
     
     // Game stats
     const gameStats = await this.db.execute(sql`
@@ -770,11 +792,11 @@ export class PgStorage implements IStorage {
         game_history
     `);
     
-    const totalWagered = parseFloat(totalStats[0].totalWagered || 0);
-    const totalWon = parseFloat(totalStats[0].totalWon || 0);
+    const totalWagered = parseFloat(String(totalStats[0]?.totalWagered || '0'));
+    const totalWon = parseFloat(String(totalStats[0]?.totalWon || '0'));
     const platformProfit = totalWagered - totalWon;
     const overallRtp = totalWagered > 0 ? (totalWon / totalWagered) * 100 : 0;
-    const totalGamesPlayed = parseInt(totalStats[0].totalGamesPlayed || 0);
+    const totalGamesPlayed = parseInt(String(totalStats[0]?.totalGamesPlayed || '0'));
     
     return {
       totalUsers,
