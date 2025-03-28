@@ -7,6 +7,7 @@ import { NavBar } from "@/components/NavBar";
 import { Footer } from "@/components/Footer";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { HelmetProvider } from "react-helmet-async";
 
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
@@ -19,6 +20,7 @@ import CrashGame from "@/pages/CrashGame";
 import Statistics from "@/pages/Statistics";
 import Education from "@/pages/Education";
 import Admin from "@/pages/Admin";
+import LeaderboardPage from "@/pages/LeaderboardPage";
 
 // Page transition variants
 const pageVariants = {
@@ -133,6 +135,11 @@ function Router() {
             <Admin />
           </AnimatedPage>
         </Route>
+        <Route path="/leaderboard">
+          <AnimatedPage>
+            <LeaderboardPage />
+          </AnimatedPage>
+        </Route>
         {/* Fallback to 404 */}
         <Route>
           <AnimatedPage>
@@ -167,16 +174,18 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <div className="flex flex-col min-h-screen bg-background">
-          <NavBar />
-          <main className="flex-grow pt-16"> {/* Add padding for fixed navbar */}
-            <Router />
-          </main>
-          <Footer />
-        </div>
-        <Toaster />
-      </AuthProvider>
+      <HelmetProvider>
+        <AuthProvider>
+          <div className="flex flex-col min-h-screen bg-background">
+            <NavBar />
+            <main className="flex-grow pt-16"> {/* Add padding for fixed navbar */}
+              <Router />
+            </main>
+            <Footer />
+          </div>
+          <Toaster />
+        </AuthProvider>
+      </HelmetProvider>
     </QueryClientProvider>
   );
 }

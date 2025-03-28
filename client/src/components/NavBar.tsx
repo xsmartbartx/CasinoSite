@@ -13,7 +13,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { formatCurrency } from "@/lib/gameUtils";
-import { ChevronDown, Home, BarChart2, BookOpen, Menu, X, LogOut, User, DollarSign, Gamepad2, Zap, ShieldCheck } from "lucide-react";
+import { ChevronDown, Home, BarChart2, BookOpen, Menu, X, LogOut, User, DollarSign, Gamepad2, Zap, ShieldCheck, Trophy } from "lucide-react";
 
 export function NavBar() {
   const [location] = useLocation();
@@ -34,6 +34,7 @@ export function NavBar() {
   const navItems = [
     { label: "Home", path: "/", icon: <Home className="w-4 h-4 mr-1" /> },
     { label: "Games", path: "/", icon: <Gamepad2 className="w-4 h-4 mr-1" /> },
+    { label: "Leaderboard", path: "/leaderboard", icon: <Trophy className="w-4 h-4 mr-1" /> },
     { label: "Statistics", path: "/statistics", icon: <BarChart2 className="w-4 h-4 mr-1" /> },
     { label: "Education", path: "/education", icon: <BookOpen className="w-4 h-4 mr-1" /> }
   ];
