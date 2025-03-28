@@ -50,16 +50,13 @@ export function NavBar() {
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/">
-                <a className="font-display font-bold text-2xl gradient-text">
-                  EduCasino
-                </a>
+              <Link href="/" className="font-display font-bold text-2xl gradient-text">
+                EduCasino
               </Link>
             </div>
             <div className="hidden md:ml-8 md:flex md:space-x-4">
               {navItems.map((item) => (
-                <Link key={item.path} href={item.path}>
-                  <a className={`
+                <Link key={item.path} href={item.path} className={`
                     group relative flex items-center py-2 px-3 rounded-md text-sm font-medium transition-colors duration-200
                     ${location === item.path 
                       ? 'text-primary' 
@@ -76,7 +73,6 @@ export function NavBar() {
                         layoutId="navbar-indicator"
                       />
                     )}
-                  </a>
                 </Link>
               ))}
             </div>
@@ -122,28 +118,22 @@ export function NavBar() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/statistics">
-                      <a className="flex cursor-pointer items-center">
-                        <User className="mr-2 h-4 w-4" />
-                        <span>My Profile</span>
-                      </a>
+                    <Link href="/statistics" className="flex cursor-pointer items-center">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>My Profile</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/statistics">
-                      <a className="flex cursor-pointer items-center">
-                        <BarChart2 className="mr-2 h-4 w-4" />
-                        <span>Statistics</span>
-                      </a>
+                    <Link href="/statistics" className="flex cursor-pointer items-center">
+                      <BarChart2 className="mr-2 h-4 w-4" />
+                      <span>Statistics</span>
                     </Link>
                   </DropdownMenuItem>
                   {user.role === 'admin' || user.role === 'superadmin' ? (
                     <DropdownMenuItem asChild>
-                      <Link href="/admin">
-                        <a className="flex cursor-pointer items-center">
-                          <ShieldCheck className="mr-2 h-4 w-4" />
-                          <span>Admin Panel</span>
-                        </a>
+                      <Link href="/admin" className="flex cursor-pointer items-center">
+                        <ShieldCheck className="mr-2 h-4 w-4" />
+                        <span>Admin Panel</span>
                       </Link>
                     </DropdownMenuItem>
                   ) : null}
@@ -216,20 +206,19 @@ export function NavBar() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.05 * index }}
                 >
-                  <Link href={item.path}>
-                    <a 
-                      className={`
-                        flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors duration-150
-                        ${location === item.path 
-                          ? 'bg-primary/10 text-primary' 
-                          : 'text-foreground/70 hover:bg-muted hover:text-foreground'
-                        }
-                      `}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      {item.icon}
-                      <span className="ml-1">{item.label}</span>
-                    </a>
+                  <Link 
+                    href={item.path} 
+                    className={`
+                      flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors duration-150
+                      ${location === item.path 
+                        ? 'bg-primary/10 text-primary' 
+                        : 'text-foreground/70 hover:bg-muted hover:text-foreground'
+                      }
+                    `}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {item.icon}
+                    <span className="ml-1">{item.label}</span>
                   </Link>
                 </motion.div>
               ))}
@@ -256,33 +245,30 @@ export function NavBar() {
                   </div>
                   
                   <div className="mt-3 space-y-1">
-                    <Link href="/statistics">
-                      <a 
-                        className="flex items-center px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:text-foreground hover:bg-muted transition-colors duration-150"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Profile</span>
-                      </a>
+                    <Link 
+                      href="/statistics"
+                      className="flex items-center px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:text-foreground hover:bg-muted transition-colors duration-150"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
                     </Link>
-                    <Link href="/statistics">
-                      <a 
-                        className="flex items-center px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:text-foreground hover:bg-muted transition-colors duration-150"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <BarChart2 className="mr-2 h-4 w-4" />
-                        <span>Statistics</span>
-                      </a>
+                    <Link 
+                      href="/statistics"
+                      className="flex items-center px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:text-foreground hover:bg-muted transition-colors duration-150"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <BarChart2 className="mr-2 h-4 w-4" />
+                      <span>Statistics</span>
                     </Link>
                     {user.role === 'admin' || user.role === 'superadmin' ? (
-                      <Link href="/admin">
-                        <a 
-                          className="flex items-center px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:text-foreground hover:bg-muted transition-colors duration-150"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          <ShieldCheck className="mr-2 h-4 w-4" />
-                          <span>Admin Panel</span>
-                        </a>
+                      <Link 
+                        href="/admin"
+                        className="flex items-center px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:text-foreground hover:bg-muted transition-colors duration-150"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <ShieldCheck className="mr-2 h-4 w-4" />
+                        <span>Admin Panel</span>
                       </Link>
                     ) : null}
                     <button
