@@ -123,3 +123,16 @@
     opacity: 1;
     transform: scale(1);
 }
+
+.page-exit-active {
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 300ms, transform 300ms;
+}
+
+/* Custom Classes */
+.glass-effect {
+  backdrop-filter: blur(10px);
+  background: rgba(23, 25, 35, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
