@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* Animations */
+@keyframes slot-spin {
+    0% {
+      transform: translateY(-50px);
+    }
+    100% {
+      transform: translateY(200px);
+    }
+  }
