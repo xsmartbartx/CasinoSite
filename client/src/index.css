@@ -82,3 +82,8 @@
 .animate-slot-spin-medium {
     animation: slot-spin 0.25s linear infinite;
 }
+
+.animate-slot-spin-slow {
+    animation: slot-spin 0.3s linear infinite;
+}
+
