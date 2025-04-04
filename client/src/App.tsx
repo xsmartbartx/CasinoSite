@@ -173,3 +173,22 @@ if (isLoading) {
         </div>
     );
 }
+
+
+return (
+    <QueryClientProvider client={queryClient}>
+      <HelmetProvider>
+        <AuthProvider>
+          <div className="flex flex-col min-h-screen bg-background">
+            <NavBar />
+            <main className="flex-grow pt-16"> {/* Add padding for fixed navbar */}
+              <Router />
+            </main>
+            <Footer />
+          </div>
+          <Toaster />
+        </AuthProvider>
+      </HelmetProvider>
+    </QueryClientProvider>
+  );
+}
