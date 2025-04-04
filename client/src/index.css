@@ -87,3 +87,6 @@
     animation: slot-spin 0.3s linear infinite;
 }
 
+.animate-winning-pulse {
+    animation: winning-pulse 1.5s ease-in-out infinite;
+}
