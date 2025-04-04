@@ -73,3 +73,9 @@
       transform: translateY(0px);
     }
 }
+
+/* Custom Animation Classes */
+.animate-slot-spin-fast {
+    animation: slot-spin 0.2s linear infinite;
+}
+
