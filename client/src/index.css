@@ -79,3 +79,6 @@
     animation: slot-spin 0.2s linear infinite;
 }
 
+.animate-slot-spin-medium {
+    animation: slot-spin 0.25s linear infinite;
+}
