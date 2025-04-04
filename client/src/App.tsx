@@ -162,3 +162,14 @@ function App() {
         const timer = setTimeout(() => setIsLoading(false), 1000);
         return () => clearTimeout(timer);
     }, []);
+
+if (isLoading) {
+    return (
+        <div className="fixed inset-0 flex items-center justify-center bg-background">
+            <div className="flex flex-col items-center space-y-4">
+                <div className="h-12 w-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+                <h2 className="text-xl font-medium animate-pulse">Loading EduCasino...</h2>
+            </div>
+        </div>
+    );
+}
