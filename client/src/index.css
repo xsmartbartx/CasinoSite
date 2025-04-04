@@ -118,3 +118,8 @@
     transform: scale(1);
     transition: opacity 300ms, transform 300ms;
 }
+
+.page-exit {
+    opacity: 1;
+    transform: scale(1);
+}
