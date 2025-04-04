@@ -152,3 +152,13 @@ function Router() {
         </AnimatePresence>
       );
     }
+
+function App() {
+    // Loading state for initial application load
+    const [isLoading, setIsLoading] = useState(true);
+      
+    useEffect(() => {
+        // Simulate loading time
+        const timer = setTimeout(() => setIsLoading(false), 1000);
+        return () => clearTimeout(timer);
+    }, []);
