@@ -44,4 +44,111 @@ const pageVariants = {
     ease: "easeInOut",
     duration: 0.3,
   };
+
   
+// Wrapper component to add animation to each page
+const AnimatedPage = ({ children }: { children: React.ReactNode }) => {
+    return (
+      <motion.div
+        initial="initial"
+        animate="in"
+        exit="out"
+        variants={pageVariants}
+        transition={pageTransition}
+        className="w-full"
+      >
+        {children}
+      </motion.div>
+    );
+  };
+  
+function Router() {
+    const [location] = useLocation();
+    // Ensure the page scrolls to top on navigation
+    useEffect(() => {
+      window.scrollTo(0, 0);
+    }, [location]);
+    
+    return (
+        <AnimatePresence mode="wait">
+          <Switch key={location}>
+            <Route path="/">
+              <AnimatedPage>
+                <Home />
+              </AnimatedPage>
+            </Route>
+            <Route path="/register">
+              <AnimatedPage>
+                <Register />
+              </AnimatedPage>
+            </Route>
+            <Route path="/login">
+              <AnimatedPage>
+                <Login />
+              </AnimatedPage>
+            </Route>
+            <Route path="/games/slots/:id">
+              {(params) => (
+                <AnimatedPage>
+                  <SlotGame />
+                </AnimatedPage>
+              )}
+            </Route>
+            <Route path="/games/roulette/:id">
+              {(params) => (
+                <AnimatedPage>
+                  <RouletteGame />
+                </AnimatedPage>
+              )}
+            </Route>
+            <Route path="/games/dice/:id">
+              {(params) => (
+                <AnimatedPage>
+                  <DiceGame />
+                </AnimatedPage>
+              )}
+            </Route>
+            <Route path="/games/crash/:id">
+              {(params) => (
+                <AnimatedPage>
+                  <CrashGame />
+                </AnimatedPage>
+              )}
+            </Route>
+            <Route path="/statistics">
+              <AnimatedPage>
+                <Statistics />
+              </AnimatedPage>
+            </Route>
+            <Route path="/education">
+              <AnimatedPage>
+                <Education />
+              </AnimatedPage>
+            </Route>
+            <Route path="/education/:id">
+              {(params) => (
+                <AnimatedPage>
+                  <Education />
+                </AnimatedPage>
+              )}
+            </Route>
+            <Route path="/admin">
+              <AnimatedPage>
+                <Admin />
+              </AnimatedPage>
+            </Route>
+            <Route path="/leaderboard">
+              <AnimatedPage>
+                <LeaderboardPage />
+              </AnimatedPage>
+            </Route>
+            {/* Fallback to 404 */}
+            <Route>
+              <AnimatedPage>
+                <NotFound />
+              </AnimatedPage>
+            </Route>
+          </Switch>
+        </AnimatePresence>
+      );
+    }
