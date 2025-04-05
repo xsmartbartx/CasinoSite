@@ -26,3 +26,17 @@ export function Footer() {
             variants={fadeInUpVariants}
             transition={{ duration: 0.4 }}
         >
+                        <Link href="/">
+              <a className="font-display font-bold text-2xl gradient-text">
+                EduCasino
+              </a>
+            </Link>
+            <p className="mt-3 text-muted-foreground text-sm leading-relaxed">
+              An educational platform for understanding the mathematics and probabilities behind casino games. 
+              All simulations use verifiable randomness and detailed statistical analysis.
+            </p>
+            <div className="mt-4 flex items-center space-x-2 text-muted-foreground">
+              <Shield className="h-4 w-4" />
+              <span className="text-xs">No real money involved. Educational purposes only.</span>
+            </div>
+          </motion.div>
