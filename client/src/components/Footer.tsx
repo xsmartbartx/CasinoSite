@@ -66,3 +66,10 @@ export function Footer() {
                     </a>
                   </Link>
                 </li>
+                <li>
+                  <Link href="/education">
+                    <a className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
+                      Education
+                    </a>
+                  </Link>
+                </li>
