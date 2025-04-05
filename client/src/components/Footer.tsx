@@ -60,3 +60,9 @@ export function Footer() {
                   </Link>
                 </li>
                 <li>
+                <Link href="/statistics">
+                    <a className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
+                      Statistics
+                    </a>
+                  </Link>
+                </li>
