@@ -82,3 +82,17 @@ export function Footer() {
                 </li>
               </ul>
             </div>
+
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center">
+                <BookOpen className="h-4 w-4 mr-2 text-primary" />
+                Resources
+              </h3>
+              <ul className="space-y-2.5">
+                <li>
+                  <Link href="/education/probability">
+                    <a className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
+                      Probability Theory
+                    </a>
+                  </Link>
+                </li>
