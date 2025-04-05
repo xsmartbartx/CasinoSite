@@ -20,4 +20,9 @@ export function Footer() {
           whileInView="visible"
           viewport={{ once: true }}
           transition={{ staggerChildren: 0.1 }}
-        > 
+    > 
+        <motion.div 
+            className="mb-8 md:mb-0 md:max-w-sm"
+            variants={fadeInUpVariants}
+            transition={{ duration: 0.4 }}
+        >
