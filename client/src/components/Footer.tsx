@@ -73,3 +73,12 @@ export function Footer() {
                     </a>
                   </Link>
                 </li>
+                <li>
+                  <Link href="/about">
+                    <a className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
+                      About
+                    </a>
+                  </Link>
+                </li>
+              </ul>
+            </div>
