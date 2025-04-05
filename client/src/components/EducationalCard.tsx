@@ -10,3 +10,16 @@ interface EducationalCardProps {
     onClick?: (id: number) => void;
     className?: string;
 }
+
+export function EducationalCard({
+    title,
+    content,
+    icon,
+    readTime,
+    id,
+    onClick,
+    className
+}: EducationalCardProps) {
+    const handleClick = () => {
+      if (onClick) onClick(id);
+};
