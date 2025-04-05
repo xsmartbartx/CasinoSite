@@ -46,3 +46,17 @@ export function Footer() {
             variants={fadeInUpVariants}
             transition={{ duration: 0.4, delay: 0.1 }}
           >
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center">
+                <DollarSign className="h-4 w-4 mr-2 text-primary" />
+                Platform
+              </h3>
+              <ul className="space-y-2.5">
+                <li>
+                  <Link href="/">
+                    <a className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
+                      Games
+                    </a>
+                  </Link>
+                </li>
+                <li>
