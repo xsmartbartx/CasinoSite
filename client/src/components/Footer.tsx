@@ -158,3 +158,32 @@ export function Footer() {
             </div>
           </motion.div>
         </motion.div>
+
+        <motion.div 
+          className="mt-12 pt-6 border-t border-border flex flex-col md:flex-row justify-between items-center"
+          variants={fadeInUpVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+            <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2">
+            <p className="text-sm text-muted-foreground">
+              &copy; {currentYear} EduCasino. All rights reserved.
+            </p>
+            <div className="flex items-center text-sm text-muted-foreground">
+              <span className="hidden sm:inline-block mx-2">•</span>
+              <span>Made with</span>
+              <Heart className="h-3 w-3 mx-1 text-destructive" />
+              <span>for education</span>
+            </div>
+          </div>
+
+          <div className="mt-6 md:mt-0 flex space-x-6">
+            <a 
+              href="#" 
+              className="text-muted-foreground hover:text-primary transition-colors duration-200"
+              aria-label="Twitter"
+            >
+              <Twitter className="h-5 w-5" />
+            </a>
