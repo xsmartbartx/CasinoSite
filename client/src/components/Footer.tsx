@@ -201,3 +201,16 @@ export function Footer() {
             >
               <Github className="h-5 w-5" />
             </a>
+            <a 
+              href="#" 
+              className="text-muted-foreground hover:text-primary transition-colors duration-200"
+              aria-label="Email us"
+            >
+              <Mail className="h-5 w-5" />
+            </a>
+        </div>
+    </motion.div>
+</div>
+</footer>
+  );
+}
