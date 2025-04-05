@@ -187,3 +187,10 @@ export function Footer() {
             >
               <Twitter className="h-5 w-5" />
             </a>
+            <a 
+              href="#" 
+              className="text-muted-foreground hover:text-primary transition-colors duration-200"
+              aria-label="LinkedIn"
+            >
+              <Linkedin className="h-5 w-5" />
+            </a>
