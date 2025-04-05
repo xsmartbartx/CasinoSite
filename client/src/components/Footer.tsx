@@ -40,3 +40,9 @@ export function Footer() {
               <span className="text-xs">No real money involved. Educational purposes only.</span>
             </div>
           </motion.div>
+
+          <motion.div 
+            className="grid grid-cols-2 md:grid-cols-3 gap-8 sm:gap-10 md:gap-16"
+            variants={fadeInUpVariants}
+            transition={{ duration: 0.4, delay: 0.1 }}
+          >
