@@ -110,3 +110,12 @@ export function Footer() {
                     </a>
                   </Link>
                 </li>
+                <li>
+                  <Link href="/education/responsible">
+                    <a className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
+                      Responsible Gaming
+                    </a>
+                  </Link>
+                </li>
+              </ul>
+            </div>
