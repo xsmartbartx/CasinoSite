@@ -133,3 +133,10 @@ export function Footer() {
                     </a>
                   </Link>
                 </li>
+                <li>
+                  <Link href="/privacy">
+                    <a className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
+                      Privacy Policy
+                    </a>
+                  </Link>
+                </li>
