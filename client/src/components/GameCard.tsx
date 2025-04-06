@@ -157,3 +157,31 @@ return (
         <p className="text-sm text-gray-400 mb-4">
           {description}
         </p>
+        <div className="flex justify-between items-center">
+          <div className="text-sm">
+            <span className="text-neutral-light">RTP:</span>
+            <span className="text-white ml-1 font-mono">{rtp}%</span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-block ml-1 cursor-help">
+                    <i className="fas fa-info-circle text-xs text-neutral-light"></i>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent className="w-56 bg-neutral-dark border border-neutral-medium">
+                  <p className="text-xs">{getRtpExplanation()}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <Button 
+            onClick={handlePlay}
+            className="bg-accent-green hover:bg-opacity-80 text-black text-sm font-medium py-1.5 px-4 rounded"
+          >
+            Play
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
