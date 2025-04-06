@@ -67,4 +67,11 @@ const getGameIcon = (type: string) => {
             return <i className="fas fa-gamepad text-accent-green mr-2"></i>;
     }
 };
-      
+
+return (
+    <div className={`bg-secondary rounded-lg border border-neutral-dark overflow-hidden ${className}`}>
+      {showTitle && (
+        <div className="px-6 py-4 border-b border-neutral-dark">
+          <h3 className="font-display font-medium">Recent Game History</h3>
+        </div>
+    )}
