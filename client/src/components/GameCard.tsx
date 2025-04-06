@@ -57,3 +57,9 @@ const renderGamePreview = () => {
               <div className="slot-symbol text-accent-green text-2xl flex items-center justify-center h-full">
                 <i className="fas fa-gem"></i>
               </div>
+              </div>
+            <div className="slot-reel bg-neutral-dark rounded">
+              <div className="slot-symbol text-accent-purple text-2xl flex items-center justify-center h-full">
+                <i className="fas fa-crown"></i>
+              </div>
+            </div>
