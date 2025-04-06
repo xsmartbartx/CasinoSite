@@ -25,3 +25,10 @@ export function GameCard({
     className
 }: GameCardProps) {
     const [location, navigate] = useLocation();
+
+// Route mapping for each game type
+const gameRoutes: Record<string, string> = {
+    slot: `/games/slots/${id}`,
+    roulette: `/games/roulette/${id}`,
+    dice: `/games/dice/${id}`,
+};
