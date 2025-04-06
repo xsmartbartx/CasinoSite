@@ -78,3 +78,16 @@ const renderGamePreview = () => {
                   <div className="absolute top-1/2 left-0 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-neutral-light rounded-full"></div>
                   <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-4 h-4 bg-neutral-light rounded-full"></div>
                   <div className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-neutral-light rounded-full"></div>
+
+                  <div className="absolute inset-0 m-auto w-10 h-10 rounded-full bg-neutral-medium flex items-center justify-center">
+                <div className="w-6 h-6 rounded-full bg-accent-green"></div>
+              </div>
+            </div>
+            <div className="absolute bottom-2 right-2 flex">
+              <div className="roulette-number bg-red-600 text-white text-xs font-mono mr-1 w-6 h-6 rounded-full flex items-center justify-center">3</div>
+              <div className="roulette-number bg-black text-white text-xs font-mono mr-1 w-6 h-6 rounded-full flex items-center justify-center">26</div>
+              <div className="roulette-number bg-red-600 text-white text-xs font-mono w-6 h-6 rounded-full flex items-center justify-center">14</div>
+            </div>
+          </div>
+        );
+        
