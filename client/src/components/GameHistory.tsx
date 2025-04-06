@@ -54,3 +54,17 @@ export function GameHistory({
         queryKey: ['/api/history', { limit, offset: (page - 1) * limit }],
         enabled: !!user
     });
+
+const getGameIcon = (type: string) => {
+    switch (type) {
+        case 'slot':
+            return <i className="fas fa-gem text-accent-green mr-2"></i>;
+        case 'roulette':
+            return <i className="fas fa-circle text-accent-green mr-2"></i>;
+        case 'dice':
+            return <i className="fas fa-dice text-accent-green mr-2"></i>;
+        default:
+            return <i className="fas fa-gamepad text-accent-green mr-2"></i>;
+    }
+};
+      
