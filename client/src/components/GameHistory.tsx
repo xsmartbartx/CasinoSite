@@ -33,3 +33,11 @@ export interface GameHistoryEntry {
       type: string;
     };
 }
+
+interface GameHistoryProps {
+    limit?: number;
+    showTitle?: boolean;
+    showPagination?: boolean;
+    className?: string;
+}
+  
