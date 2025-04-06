@@ -70,3 +70,11 @@ const renderGamePreview = () => {
             </div>
           </div>
         );
+        case 'roulette':
+            return (
+              <div className="flex items-center justify-center">
+                <div className="w-32 h-32 rounded-full bg-neutral-dark border-4 border-neutral-medium relative roulette-wheel">
+                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-neutral-light rounded-full"></div>
+                  <div className="absolute top-1/2 left-0 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-neutral-light rounded-full"></div>
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-4 h-4 bg-neutral-light rounded-full"></div>
+                  <div className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-neutral-light rounded-full"></div>
