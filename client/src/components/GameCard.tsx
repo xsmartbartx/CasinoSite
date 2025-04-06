@@ -140,3 +140,12 @@ return (
       "game-card bg-secondary rounded-lg overflow-hidden border border-neutral-dark hover:shadow-glow transition-all duration-300",
       className
     )}>
+        <div className="p-4">
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="font-display font-semibold text-lg">{name}</h3>
+          {popular ? (
+            <span className="text-xs px-2 py-1 bg-neutral-dark rounded-full">Popular</span>
+          ) : (
+            <span className="text-xs px-2 py-1 bg-neutral-dark rounded-full">{difficulty}</span>
+          )}
+        </div>
