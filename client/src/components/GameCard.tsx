@@ -115,3 +115,17 @@ const renderGamePreview = () => {
         );
     }
 };
+
+  // RTP tooltip explanation based on game type
+const getRtpExplanation = () => {
+    switch (type) {
+      case 'slot':
+        return "Return to Player: The theoretical percentage of wagered money that is paid back to players over time.";
+      case 'roulette':
+        return "The European roulette has a house edge of 2.7%, meaning for every $100 wagered, the expected return is $97.30 over time.";
+      case 'dice':
+        return "The theoretical return to player varies based on the type of bet placed.";
+      default:
+        return "Return to Player: The theoretical percentage of wagered money that is paid back to players over time.";
+    }
+};
