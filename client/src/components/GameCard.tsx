@@ -13,3 +13,15 @@ interface GameCardProps {
     popular: boolean;
     className?: string;
 }
+
+export function GameCard({
+    id,
+    name,
+    description,
+    rtp,
+    type,
+    difficulty,
+    popular,
+    className
+}: GameCardProps) {
+    const [location, navigate] = useLocation();
