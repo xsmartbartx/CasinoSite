@@ -75,3 +75,16 @@ return (
           <h3 className="font-display font-medium">Recent Game History</h3>
         </div>
     )}
+
+<div className="overflow-x-auto">
+        <Table>
+          <TableHeader className="bg-primary">
+            <TableRow>
+              <TableHead className="text-neutral-light">Game</TableHead>
+              <TableHead className="text-neutral-light">Time</TableHead>
+              <TableHead className="text-neutral-light">Bet</TableHead>
+              <TableHead className="text-neutral-light">Multiplier</TableHead>
+              <TableHead className="text-neutral-light">Payout</TableHead>
+              <TableHead className="text-neutral-light">Result</TableHead>
+            </TableRow>
+          </TableHeader>
