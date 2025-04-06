@@ -137,3 +137,14 @@ return (
           </TableBody>
         </Table>
       </div>
+
+      {showPagination && (
+        <div className="px-6 py-3 flex justify-between items-center border-t border-neutral-dark">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  className="text-sm text-neutral-light hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => setPage(p => Math.max(p - 1, 1))}
+                  disabled={page === 1}
+                />
