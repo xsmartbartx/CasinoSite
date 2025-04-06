@@ -49,3 +49,8 @@ export function GameHistory({
 }: GameHistoryProps) {
     const { user } = useAuth();
     const [page, setPage] = React.useState(1);
+
+    const { data: history, isLoading } = useQuery({
+        queryKey: ['/api/history', { limit, offset: (page - 1) * limit }],
+        enabled: !!user
+    });
