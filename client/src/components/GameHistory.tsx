@@ -102,3 +102,24 @@ return (
                 </TableCell>
               </TableRow>
             ) : (
+                history.map((entry: GameHistoryEntry) => (
+                    <TableRow key={entry.id}>
+                      <TableCell>
+                        <div className="flex items-center">
+                          {entry.game && getGameIcon(entry.game.type)}
+                          <span>{entry.game?.name || "Unknown"}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm text-neutral-light">
+                        {formatTimestamp(entry.createdAt)}
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {formatCurrency(entry.bet)}
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {entry.multiplier.toFixed(2)}x
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {formatCurrency(entry.payout)}
+                      </TableCell>
+                      <TableCell>
