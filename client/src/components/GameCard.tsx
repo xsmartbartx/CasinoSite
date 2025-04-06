@@ -129,3 +129,8 @@ const getRtpExplanation = () => {
         return "Return to Player: The theoretical percentage of wagered money that is paid back to players over time.";
     }
 };
+
+const handlePlay = () => {
+    const route = gameRoutes[type] || '/games';
+    navigate(route);
+};
