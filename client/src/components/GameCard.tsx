@@ -134,3 +134,9 @@ const handlePlay = () => {
     const route = gameRoutes[type] || '/games';
     navigate(route);
 };
+
+return (
+    <div className={cn(
+      "game-card bg-secondary rounded-lg overflow-hidden border border-neutral-dark hover:shadow-glow transition-all duration-300",
+      className
+    )}>
