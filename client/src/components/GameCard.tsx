@@ -32,3 +32,17 @@ const gameRoutes: Record<string, string> = {
     roulette: `/games/roulette/${id}`,
     dice: `/games/dice/${id}`,
 };
+
+  // Icon mapping for game types
+const getGameIcon = () => {
+    switch (type) {
+      case 'slot':
+        return <i className="fas fa-gem text-accent-green mr-2 text-2xl"></i>;
+      case 'roulette':
+        return <i className="fas fa-circle text-accent-green mr-2 text-2xl"></i>;
+      case 'dice':
+        return <i className="fas fa-dice text-accent-green mr-2 text-2xl"></i>;
+      default:
+        return <i className="fas fa-gamepad text-accent-green mr-2 text-2xl"></i>;
+    }
+};
