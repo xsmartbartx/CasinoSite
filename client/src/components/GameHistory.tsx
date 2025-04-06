@@ -123,3 +123,17 @@ return (
                         {formatCurrency(entry.payout)}
                       </TableCell>
                       <TableCell>
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                      entry.result === "win" 
+                        ? "bg-status-success bg-opacity-20 text-status-success" 
+                        : "bg-status-error bg-opacity-20 text-status-error"
+                    }`}>
+                      {entry.result.charAt(0).toUpperCase() + entry.result.slice(1)}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
