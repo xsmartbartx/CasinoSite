@@ -148,3 +148,26 @@ return (
                   onClick={() => setPage(p => Math.max(p - 1, 1))}
                   disabled={page === 1}
                 />
+            </PaginationItem>
+              <PaginationItem>
+                <span className="text-sm text-neutral-light">Page {page}</span>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext 
+                  className="text-sm text-neutral-light hover:text-white"
+                  onClick={() => setPage(p => {
+                    if (history && history.length === limit) {
+                      return p + 1;
+                    }
+                    return p;
+                  })}
+                  disabled={!history || history.length < limit}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
+    </div>
+  );
+}
