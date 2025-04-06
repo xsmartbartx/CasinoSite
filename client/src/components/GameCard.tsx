@@ -46,3 +46,14 @@ const getGameIcon = () => {
         return <i className="fas fa-gamepad text-accent-green mr-2 text-2xl"></i>;
     }
 };
+
+// Game preview content
+const renderGamePreview = () => {
+    switch (type) {
+      case 'slot':
+        return (
+          <div className="grid grid-cols-3 gap-1 p-2 w-full">
+            <div className="slot-reel bg-neutral-dark rounded">
+              <div className="slot-symbol text-accent-green text-2xl flex items-center justify-center h-full">
+                <i className="fas fa-gem"></i>
+              </div>
