@@ -88,3 +88,17 @@ return (
               <TableHead className="text-neutral-light">Result</TableHead>
             </TableRow>
           </TableHeader>
+          <TableBody className="bg-secondary divide-y divide-neutral-dark">
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-4">
+                  Loading history...
+                </TableCell>
+              </TableRow>
+            ) : !history || history.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-4">
+                  No game history found. Play a game to see your results here!
+                </TableCell>
+              </TableRow>
+            ) : (
