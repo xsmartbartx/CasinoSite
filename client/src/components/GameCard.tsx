@@ -149,3 +149,11 @@ return (
             <span className="text-xs px-2 py-1 bg-neutral-dark rounded-full">{difficulty}</span>
           )}
         </div>
+        <div className="relative h-40 bg-primary rounded-md overflow-hidden mb-4">
+          <div className="absolute inset-0 flex items-center justify-center">
+            {renderGamePreview()}
+          </div>
+        </div>
+        <p className="text-sm text-gray-400 mb-4">
+          {description}
+        </p>
