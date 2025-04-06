@@ -17,3 +17,19 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination";
+
+export interface GameHistoryEntry {
+    id: number;
+    gameId: number;
+    userId: number;
+    bet: number;
+    multiplier: number;
+    payout: number;
+    result: "win" | "loss";
+    details: string;
+    createdAt: string;
+    game?: {
+      name: string;
+      type: string;
+    };
+}
