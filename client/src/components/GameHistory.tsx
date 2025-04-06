@@ -40,4 +40,12 @@ interface GameHistoryProps {
     showPagination?: boolean;
     className?: string;
 }
-  
+
+export function GameHistory({ 
+    limit = 10,
+    showTitle = true,
+    showPagination = true,
+    className
+}: GameHistoryProps) {
+    const { user } = useAuth();
+    const [page, setPage] = React.useState(1);
