@@ -90,4 +90,20 @@ const renderGamePreview = () => {
             </div>
           </div>
         );
-        
+        case 'dice':
+            return (
+              <div className="flex space-x-4 items-center justify-center">
+                <div className="dice w-12 h-12 bg-white rounded-lg flex items-center justify-center relative">
+                  <div className="absolute top-2 left-2 w-2 h-2 bg-black rounded-full"></div>
+                  <div className="absolute top-2 right-2 w-2 h-2 bg-black rounded-full"></div>
+                  <div className="absolute bottom-2 left-2 w-2 h-2 bg-black rounded-full"></div>
+                  <div className="absolute bottom-2 right-2 w-2 h-2 bg-black rounded-full"></div>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-black rounded-full"></div>
+                </div>
+                <div className="dice w-12 h-12 bg-white rounded-lg flex items-center justify-center relative">
+                  <div className="absolute top-2 left-2 w-2 h-2 bg-black rounded-full"></div>
+                  <div className="absolute top-2 right-2 w-2 h-2 bg-black rounded-full"></div>
+                  <div className="absolute bottom-2 left-2 w-2 h-2 bg-black rounded-full"></div>
+                </div>
+              </div>
+        );
