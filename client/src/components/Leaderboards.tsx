@@ -24,3 +24,8 @@ export function Leaderboard({
   }: LeaderboardProps) {
     const [period, setPeriod] = useState("all_time");
     const [category, setCategory] = useState("biggest_win");
+
+const { data: leaderboardData, isLoading } = useQuery<LeaderboardType[]>({
+    queryKey: [gameId ? `/api/games/${gameId}/leaderboard` : '/api/leaderboard', { period, limit }],
+    refetchInterval: 60000, // Refresh every minute
+});
