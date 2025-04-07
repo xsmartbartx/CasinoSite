@@ -122,3 +122,9 @@ return (
                 </TabsTrigger>
               </TabsList>
             </Tabs>
+
+            <Tabs 
+              value={period} 
+              onValueChange={handlePeriodChange}
+              className="w-full md:w-auto"
+            ></Tabs>
