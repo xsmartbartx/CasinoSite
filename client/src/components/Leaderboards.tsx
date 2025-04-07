@@ -202,3 +202,15 @@ return (
                     </div>
                   ))
               ) : (
+                <div className="py-8 text-center text-muted-foreground">
+                  <p>No leaderboard data for this period yet.</p>
+                  <p className="text-sm">Be the first to make the leaderboard!</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
