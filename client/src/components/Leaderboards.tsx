@@ -44,3 +44,18 @@ const getCategoryIcon = (cat: string) => {
         return <Trophy className="h-4 w-4" />;
     }
 };
+
+const getCategoryLabel = (cat: string) => {
+    switch(cat) {
+      case "biggest_win":
+        return "Biggest Wins";
+      case "highest_multiplier":
+        return "Highest Multipliers";
+      case "total_games":
+        return "Most Games Played";
+      case "total_wagered":
+        return "Most Wagered";
+      default:
+        return "Leaderboard";
+    }
+};
