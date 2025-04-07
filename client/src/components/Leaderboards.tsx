@@ -169,4 +169,4 @@ return (
                       className={`flex items-center justify-between p-2 rounded-md ${
                         index % 2 === 0 ? 'bg-muted/30' : 'bg-transparent'
                       } ${index === 0 ? 'bg-primary/10 border border-primary/20' : ''}`}
-                    ></div>
+                    >
