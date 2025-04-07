@@ -6,3 +6,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trophy, Award, Zap, Coins } from "lucide-react";
 import { formatCurrency } from "@/lib/gameUtils";
+
+interface LeaderboardProps {
+    gameId?: number;
+    className?: string;
+    limit?: number;
+    showTitle?: boolean;
+    compact?: boolean;
+}
+
