@@ -79,3 +79,8 @@ const formatValue = (value: number | null, cat: string) => {
 const handlePeriodChange = (value: string) => {
     setPeriod(value);
 };
+
+const handleCategoryChange = (value: string) => {
+    setCategory(value);
+};
+  
