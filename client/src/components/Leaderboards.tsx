@@ -170,3 +170,10 @@ return (
                         index % 2 === 0 ? 'bg-muted/30' : 'bg-transparent'
                       } ${index === 0 ? 'bg-primary/10 border border-primary/20' : ''}`}
                     >
+                                              <div className="flex items-center">
+                        <div className={`flex items-center justify-center h-7 w-7 rounded-full mr-2 ${
+                          index === 0 ? 'bg-yellow-500/20 text-yellow-500' : 
+                          index === 1 ? 'bg-slate-300/20 text-slate-300' : 
+                          index === 2 ? 'bg-amber-700/20 text-amber-700' : 
+                          'bg-muted/50 text-muted-foreground'
+                        }`}>
