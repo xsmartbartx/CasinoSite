@@ -157,3 +157,16 @@ return (
                 </div>
               ))}
             </div>
+        ) : (
+            <div className="space-y-1">
+              {leaderboardData && leaderboardData.length > 0 ? (
+                leaderboardData
+                  .filter(entry => entry.category === category)
+                  .slice(0, compact ? 5 : limit)
+                  .map((entry, index) => (
+                    <div 
+                      key={entry.id} 
+                      className={`flex items-center justify-between p-2 rounded-md ${
+                        index % 2 === 0 ? 'bg-muted/30' : 'bg-transparent'
+                      } ${index === 0 ? 'bg-primary/10 border border-primary/20' : ''}`}
+                    ></div>
