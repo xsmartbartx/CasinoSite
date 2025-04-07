@@ -29,3 +29,18 @@ const { data: leaderboardData, isLoading } = useQuery<LeaderboardType[]>({
     queryKey: [gameId ? `/api/games/${gameId}/leaderboard` : '/api/leaderboard', { period, limit }],
     refetchInterval: 60000, // Refresh every minute
 });
+
+const getCategoryIcon = (cat: string) => {
+    switch(cat) {
+      case "biggest_win":
+        return <Trophy className="h-4 w-4" />;
+      case "highest_multiplier":
+        return <Zap className="h-4 w-4" />;
+      case "total_games":
+        return <Award className="h-4 w-4" />;
+      case "total_wagered":
+        return <Coins className="h-4 w-4" />;
+      default:
+        return <Trophy className="h-4 w-4" />;
+    }
+};
