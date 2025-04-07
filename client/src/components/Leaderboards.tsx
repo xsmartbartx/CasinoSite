@@ -178,3 +178,15 @@ return (
                           'bg-muted/50 text-muted-foreground'
                         }`}>
                             {entry.rank || index + 1}
+                            </div>
+                        <div className="flex flex-col">
+                          <span className="font-medium text-sm">{entry.username}</span>
+                          {!compact && (
+                            <span className="text-xs text-muted-foreground">
+                              {category === "total_games" ? `${entry.totalGames} games` : 
+                               category === "highest_multiplier" ? `${entry.biggestWin ? formatCurrency(Number(entry.biggestWin)) : "N/A"} win` : 
+                               category === "biggest_win" ? `${entry.highestMultiplier ? entry.highestMultiplier.toFixed(2) : "0.00"}x multiplier` : 
+                               `${entry.totalGames} games`}
+                            </span>
+                          )}
+                        </div>
