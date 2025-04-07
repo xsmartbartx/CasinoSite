@@ -75,3 +75,7 @@ const formatValue = (value: number | null, cat: string) => {
         return value.toString();
     }
 };
+
+const handlePeriodChange = (value: string) => {
+    setPeriod(value);
+};
