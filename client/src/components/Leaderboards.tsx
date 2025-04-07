@@ -103,3 +103,22 @@ return (
               onValueChange={handleCategoryChange}
               className="w-full md:w-auto"
             >
+            <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full md:w-auto">
+                <TabsTrigger value="biggest_win" className="text-xs flex items-center gap-1">
+                  <Trophy className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Biggest</span> Wins
+                </TabsTrigger>
+                <TabsTrigger value="highest_multiplier" className="text-xs flex items-center gap-1">
+                  <Zap className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Highest</span> Multipliers
+                </TabsTrigger>
+                <TabsTrigger value="total_games" className="text-xs flex items-center gap-1">
+                  <Award className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Most</span> Games
+                </TabsTrigger>
+                <TabsTrigger value="total_wagered" className="text-xs flex items-center gap-1">
+                  <Coins className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Most</span> Wagered
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
