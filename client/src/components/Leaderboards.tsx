@@ -177,3 +177,4 @@ return (
                           index === 2 ? 'bg-amber-700/20 text-amber-700' : 
                           'bg-muted/50 text-muted-foreground'
                         }`}>
+                            {entry.rank || index + 1}
