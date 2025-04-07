@@ -59,3 +59,19 @@ const getCategoryLabel = (cat: string) => {
         return "Leaderboard";
     }
 };
+
+const formatValue = (value: number | null, cat: string) => {
+    if (value === null) return "0";
+    
+    switch(cat) {
+      case "biggest_win":
+      case "total_wagered":
+        return formatCurrency(Number(value));
+      case "highest_multiplier":
+        return `${Number(value).toFixed(2)}x`;
+      case "total_games":
+        return value.toString();
+      default:
+        return value.toString();
+    }
+};
