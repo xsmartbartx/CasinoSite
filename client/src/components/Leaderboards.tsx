@@ -15,3 +15,12 @@ interface LeaderboardProps {
     compact?: boolean;
 }
 
+export function Leaderboard({ 
+    gameId, 
+    className = "", 
+    limit = 10,
+    showTitle = true,
+    compact = false 
+  }: LeaderboardProps) {
+    const [period, setPeriod] = useState("all_time");
+    const [category, setCategory] = useState("biggest_win");
