@@ -190,3 +190,15 @@ return (
                             </span>
                           )}
                         </div>
+                    </div>
+                      <div className={`font-mono font-medium text-sm ${
+                        index === 0 ? 'text-yellow-500' : 
+                        index === 1 ? 'text-slate-300' : 
+                        index === 2 ? 'text-amber-700' : 
+                        'text-foreground'
+                      }`}>
+                        {formatValue(entry.score, category)}
+                      </div>
+                    </div>
+                  ))
+              ) : (
