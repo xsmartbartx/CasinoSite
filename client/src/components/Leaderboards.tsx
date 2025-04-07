@@ -95,3 +95,11 @@ return (
         </CardHeader>
 )}
 
+<CardContent className="p-3 pb-4">
+        <div className="space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+            <Tabs 
+              value={category} 
+              onValueChange={handleCategoryChange}
+              className="w-full md:w-auto"
+            >
