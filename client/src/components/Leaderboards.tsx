@@ -84,3 +84,14 @@ const handleCategoryChange = (value: string) => {
     setCategory(value);
 };
   
+return (
+    <Card className={`${className} bg-secondary/70 border-border`}>
+      {showTitle && (
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xl flex items-center">
+            {getCategoryIcon(category)}
+            <span className="ml-2">{getCategoryLabel(category)} Leaderboard</span>
+          </CardTitle>
+        </CardHeader>
+)}
+
