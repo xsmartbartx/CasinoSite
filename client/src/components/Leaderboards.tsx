@@ -127,4 +127,33 @@ return (
               value={period} 
               onValueChange={handlePeriodChange}
               className="w-full md:w-auto"
-            ></Tabs>
+            >
+            <TabsList className="grid grid-cols-3 md:grid-cols-4 w-full md:w-auto">
+                <TabsTrigger value="daily" className="text-xs">
+                  Today
+                </TabsTrigger>
+                <TabsTrigger value="weekly" className="text-xs">
+                  This Week
+                </TabsTrigger>
+                <TabsTrigger value="monthly" className="text-xs">
+                  This Month
+                </TabsTrigger>
+                <TabsTrigger value="all_time" className="text-xs">
+                  All Time
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+          
+          {isLoading ? (
+            <div className="space-y-2">
+              {Array.from({ length: compact ? 5 : 10 }).map((_, i) => (
+                <div key={i} className="flex items-center justify-between p-2 rounded-md">
+                  <div className="flex items-center">
+                    <Skeleton className="h-8 w-8 rounded-full mr-2" />
+                    <Skeleton className="h-4 w-32" />
+                  </div>
+                  <Skeleton className="h-4 w-20" />
+                </div>
+              ))}
+            </div>
