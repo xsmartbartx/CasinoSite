@@ -38,3 +38,12 @@ export function NavBar() {
     { label: "Statistics", path: "/statistics", icon: <BarChart2 className="w-4 h-4 mr-1" /> },
     { label: "Education", path: "/education", icon: <BookOpen className="w-4 h-4 mr-1" /> }
   ];
+
+  return (
+    <nav 
+      className={`fixed w-full z-50 transition-all duration-300 ${
+        isScrolled 
+          ? 'bg-background/90 backdrop-blur-md shadow-md' 
+          : 'bg-background/50 backdrop-blur-sm'
+      }`}
+    >
