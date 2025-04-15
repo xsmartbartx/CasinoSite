@@ -149,3 +149,17 @@ export function NavBar() {
               </DropdownMenu>
             ) : (
               <div className="flex space-x-3">
+                                <Link href="/login">
+                  <Button size="sm" variant="secondary" className="font-medium">
+                    Login
+                  </Button>
+                </Link>
+                <Link href="/register">
+                  <Button size="sm" variant="default" className="font-medium">
+                    <Zap className="mr-1 h-4 w-4" />
+                    Register
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </div>
