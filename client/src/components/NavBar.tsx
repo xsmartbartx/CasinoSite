@@ -202,3 +202,10 @@ export function NavBar() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.1, staggerChildren: 0.05 }}
             >
+            {navItems.map((item, index) => (
+                <motion.div
+                  key={item.path}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.05 * index }}
+                >
