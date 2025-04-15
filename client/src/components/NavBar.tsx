@@ -99,3 +99,12 @@ export function NavBar() {
                 </Tooltip>
               </TooltipProvider>
             )}
+
+            {/* User avatar or login buttons */}
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative flex items-center rounded-full h-8 w-8 p-0 overflow-hidden">
+                  <span className="sr-only">Open user menu</span>
+                    <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
+                      <span className="text-primary-foreground font-medium">{user.username.substring(0, 2).toUpperCase()}</span>
