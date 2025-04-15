@@ -163,3 +163,12 @@ export function NavBar() {
               </div>
             )}
           </div>
+
+        {/* Mobile menu button */}
+        <div className="flex items-center md:hidden">
+            {user && (
+              <div className="mr-2 flex items-center px-2 py-1 bg-muted rounded-md border border-border">
+                <DollarSign className="w-3.5 h-3.5 text-primary mr-1" />
+                <span className="text-sm font-mono font-medium">{formatCurrency(user.balance)}</span>
+              </div>
+            )}
