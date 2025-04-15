@@ -309,3 +309,19 @@ export function NavBar() {
                     <Button variant="secondary" className="w-full justify-center font-medium">
                       Login
                     </Button>
+                    </Link>
+                  <Link href="/register">
+                    <Button variant="default" className="w-full justify-center font-medium">
+                      <Zap className="mr-1 h-4 w-4" />
+                      Register
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </nav>
+  );
+}
