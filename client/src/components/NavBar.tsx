@@ -242,3 +242,23 @@ export function NavBar() {
                 </motion.div>
               ))}
             </motion.div>
+
+            <motion.div 
+              className="pt-4 pb-3 border-t border-border bg-muted/30 backdrop-blur-md"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              {user ? (
+                <div className="px-4">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
+                        <span className="text-primary-foreground font-medium">{user.username.substring(0, 2).toUpperCase()}</span>
+                      </div>
+                    </div>
+                    <div className="ml-3">
+                      <div className="text-base font-medium">{user.username}</div>
+                      <div className="text-sm text-muted-foreground">Member since {new Date(user.createdAt).toLocaleDateString()}</div>
+                    </div>
+                  </div>
