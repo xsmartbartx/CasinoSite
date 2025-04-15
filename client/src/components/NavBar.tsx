@@ -172,3 +172,16 @@ export function NavBar() {
                 <span className="text-sm font-mono font-medium">{formatCurrency(user.balance)}</span>
               </div>
             )}
+                        <Button 
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-expanded={isMobileMenuOpen}
+              className="text-foreground"
+            >
+              <span className="sr-only">Open main menu</span>
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          </div>
+        </div>
+      </div>
