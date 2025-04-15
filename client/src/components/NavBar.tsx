@@ -297,3 +297,15 @@ export function NavBar() {
                         setIsMobileMenuOpen(false);
                       }}
                     >
+
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="px-4 flex flex-col space-y-2">
+                  <Link href="/login">
+                    <Button variant="secondary" className="w-full justify-center font-medium">
+                      Login
+                    </Button>
