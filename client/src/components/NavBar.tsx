@@ -108,3 +108,13 @@ export function NavBar() {
                   <span className="sr-only">Open user menu</span>
                     <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
                       <span className="text-primary-foreground font-medium">{user.username.substring(0, 2).toUpperCase()}</span>
+
+                    </div>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-1">
+                      <span>{user.username}</span>
+                      <span className="text-xs text-muted-foreground">Member since {new Date(user.createdAt).toLocaleDateString()}</span>
+                    </div>
