@@ -132,3 +132,13 @@ export function NavBar() {
                       <span>Statistics</span>
                     </Link>
                   </DropdownMenuItem>
+                  {user.role === 'admin' || user.role === 'superadmin' ? (
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin" className="flex cursor-pointer items-center">
+                        <ShieldCheck className="mr-2 h-4 w-4" />
+                        <span>Admin Panel</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  ) : null}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive" onClick={logout}></DropdownMenuItem>
