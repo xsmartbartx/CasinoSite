@@ -64,3 +64,17 @@ export function NavBar() {
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
                     }
                   `}>
+                    <span className="flex items-center">
+                      {item.icon}
+                      {item.label}
+                    </span>
+                    {location === item.path && (
+                      <motion.div 
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" 
+                        layoutId="navbar-indicator"
+                      />
+                    )}
+                </Link>
+              ))}
+            </div>
+          </div>
