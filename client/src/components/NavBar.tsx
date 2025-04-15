@@ -30,3 +30,11 @@ export function NavBar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const navItems = [
+    { label: "Home", path: "/", icon: <Home className="w-4 h-4 mr-1" /> },
+    { label: "Games", path: "/", icon: <Gamepad2 className="w-4 h-4 mr-1" /> },
+    { label: "Leaderboard", path: "/leaderboard", icon: <Trophy className="w-4 h-4 mr-1" /> },
+    { label: "Statistics", path: "/statistics", icon: <BarChart2 className="w-4 h-4 mr-1" /> },
+    { label: "Education", path: "/education", icon: <BookOpen className="w-4 h-4 mr-1" /> }
+  ];
