@@ -86,3 +86,16 @@ export function NavBar() {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div className="flex items-center px-4 py-1.5 bg-muted rounded-md border border-border animate-glow">
+
+                    <DollarSign className="w-4 h-4 text-primary mr-1.5" />
+                      <span className="font-mono font-medium">{formatCurrency(user.balance)}</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p className="text-xs max-w-xs">
+                      Virtual credits for educational purposes only. No real money involved.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
