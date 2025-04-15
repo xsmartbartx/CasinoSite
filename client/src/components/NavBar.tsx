@@ -172,7 +172,7 @@ export function NavBar() {
                 <span className="text-sm font-mono font-medium">{formatCurrency(user.balance)}</span>
               </div>
             )}
-                        <Button 
+            <Button 
               variant="ghost"
               size="icon"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -185,3 +185,14 @@ export function NavBar() {
           </div>
         </div>
       </div>
+
+    {/* Mobile menu, show/hide with animation */}
+    <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div 
+            className="md:hidden"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+        >
