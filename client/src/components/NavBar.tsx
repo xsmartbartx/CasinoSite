@@ -118,3 +118,10 @@ export function NavBar() {
                       <span>{user.username}</span>
                       <span className="text-xs text-muted-foreground">Member since {new Date(user.createdAt).toLocaleDateString()}</span>
                     </div>
+                    </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/statistics" className="flex cursor-pointer items-center">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>My Profile</span>
+                    </Link>
