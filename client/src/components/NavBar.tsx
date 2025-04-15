@@ -262,3 +262,10 @@ export function NavBar() {
                       <div className="text-sm text-muted-foreground">Member since {new Date(user.createdAt).toLocaleDateString()}</div>
                     </div>
                   </div>
+
+                  <div className="mt-3 space-y-1">
+                    <Link 
+                      href="/statistics"
+                      className="flex items-center px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:text-foreground hover:bg-muted transition-colors duration-150"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
