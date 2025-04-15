@@ -141,4 +141,11 @@ export function NavBar() {
                     </DropdownMenuItem>
                   ) : null}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive" onClick={logout}></DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive" onClick={logout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="flex space-x-3">
