@@ -55,3 +55,12 @@ export function NavBar() {
                 Kasynoo
               </Link>
             </div>
+            <div className="hidden md:ml-8 md:flex md:space-x-4">
+              {navItems.map((item) => (
+                <Link key={item.path} href={item.path} className={`
+                    group relative flex items-center py-2 px-3 rounded-md text-sm font-medium transition-colors duration-200
+                    ${location === item.path 
+                      ? 'text-primary' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+                    }
+                  `}>
