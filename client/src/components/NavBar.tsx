@@ -209,3 +209,36 @@ export function NavBar() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.05 * index }}
                 >
+                                      <Link 
+                    href={item.path} 
+                    className={`
+                      flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors duration-150
+                      ${location === item.path 
+                        ? 'bg-primary/10 text-primary' 
+                        : 'text-foreground/70 hover:bg-muted hover:text-foreground'
+                      }
+                    `}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {item.icon}
+                    <span className="ml-1">{item.label}</span>
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.div>                  <Link 
+                    href={item.path} 
+                    className={`
+                      flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors duration-150
+                      ${location === item.path 
+                        ? 'bg-primary/10 text-primary' 
+                        : 'text-foreground/70 hover:bg-muted hover:text-foreground'
+                      }
+                    `}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {item.icon}
+                    <span className="ml-1">{item.label}</span>
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.div>
