@@ -78,3 +78,11 @@ export function NavBar() {
               ))}
             </div>
           </div>
+
+          <div className="hidden md:ml-6 md:flex md:items-center md:space-x-4">
+            {/* User balance display */}
+            {user && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center px-4 py-1.5 bg-muted rounded-md border border-border animate-glow">
