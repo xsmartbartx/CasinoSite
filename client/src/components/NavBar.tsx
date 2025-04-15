@@ -196,3 +196,9 @@ export function NavBar() {
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
         >
+        <motion.div 
+              className="px-2 pt-2 pb-3 space-y-1 bg-muted/30 backdrop-blur-md border-t border-border"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1, staggerChildren: 0.05 }}
+            >
