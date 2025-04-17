@@ -121,3 +121,14 @@ export function StatisticsSection() {
           subtitle={gameFilter === "all" ? "All Games" : gameFilter.charAt(0).toUpperCase() + gameFilter.slice(1)}
           isLoading={isLoading}
         />
+
+        <StatisticCard
+          title="Profit/Loss"
+          value={statistics ? (
+            <span className={statistics.profitLoss >= 0 ? "text-status-success" : "text-status-error"}>
+              {formatCurrency(statistics.profitLoss)}
+            </span>
+          ) : "$0.00"}
+          subtitle={gameFilter === "all" ? "All Games" : gameFilter.charAt(0).toUpperCase() + gameFilter.slice(1)}
+          isLoading={isLoading}
+        />
