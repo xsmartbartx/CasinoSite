@@ -23,3 +23,14 @@ interface StatisticCardProps {
     };
     isLoading?: boolean;
   }
+
+
+  function StatisticCard({ title, value, subtitle, change, isLoading }: StatisticCardProps) {
+    return (
+      <Card className="bg-secondary border-neutral-dark">
+        <CardContent className="p-4">
+          <div className="flex justify-between items-start mb-2">
+            <div className="text-neutral-light text-sm">{title}</div>
+            {subtitle && (
+              <div className="text-xs bg-neutral-dark px-2 py-0.5 rounded-full">{subtitle}</div>
+            )}
