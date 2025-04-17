@@ -70,3 +70,12 @@ export function StatisticsSection() {
             <div className="flex space-x-2">
               <Select value={gameFilter} onValueChange={setGameFilter}>
                 <SelectTrigger className="bg-neutral-dark text-white text-sm rounded-md border-none w-32">
+                <SelectValue placeholder="All Games" />
+            </SelectTrigger>
+            <SelectContent className="bg-neutral-dark border-neutral-medium">
+              <SelectItem value="all">All Games</SelectItem>
+              <SelectItem value="slot">Slots</SelectItem>
+              <SelectItem value="roulette">Roulette</SelectItem>
+              <SelectItem value="dice">Dice</SelectItem>
+            </SelectContent>
+          </Select>
