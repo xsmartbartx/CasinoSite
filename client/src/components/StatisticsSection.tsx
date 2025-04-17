@@ -84,3 +84,11 @@ export function StatisticsSection() {
             <SelectTrigger className="bg-neutral-dark text-white text-sm rounded-md border-none w-36">
               <SelectValue placeholder="Last 7 Days" />
             </SelectTrigger>
+            <SelectContent className="bg-neutral-dark border-neutral-medium">
+              <SelectItem value="7days">Last 7 Days</SelectItem>
+              <SelectItem value="30days">Last 30 Days</SelectItem>
+              <SelectItem value="alltime">All Time</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
