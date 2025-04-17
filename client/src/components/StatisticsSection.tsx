@@ -140,3 +140,9 @@ export function StatisticsSection() {
           isLoading={isLoading}
         />
       </div>
+
+      {/* Game history table */}
+      <GameHistory />
+    </section>
+  );
+}
