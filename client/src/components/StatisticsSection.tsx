@@ -79,3 +79,8 @@ export function StatisticsSection() {
               <SelectItem value="dice">Dice</SelectItem>
             </SelectContent>
           </Select>
+
+          <Select value={timeFilter} onValueChange={setTimeFilter}>
+            <SelectTrigger className="bg-neutral-dark text-white text-sm rounded-md border-none w-36">
+              <SelectValue placeholder="Last 7 Days" />
+            </SelectTrigger>
