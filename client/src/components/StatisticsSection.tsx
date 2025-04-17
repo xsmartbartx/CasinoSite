@@ -34,3 +34,22 @@ interface StatisticCardProps {
             {subtitle && (
               <div className="text-xs bg-neutral-dark px-2 py-0.5 rounded-full">{subtitle}</div>
             )}
+                    </div>
+        {isLoading ? (
+          <Skeleton className="h-8 w-3/4 bg-neutral-dark" />
+        ) : (
+          <div className="font-mono text-2xl font-medium">{value}</div>
+        )}
+        {change && (
+          <div className="text-xs text-neutral-light mt-1">
+            <span className={change.isPositive ? "text-status-success" : "text-status-error"}>
+              <i className={`fas fa-arrow-${change.isPositive ? 'up' : 'down'}`}></i> {Math.abs(change.value)}%
+            </span>
+            {" "}from last period
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+          
