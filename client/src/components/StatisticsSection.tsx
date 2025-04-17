@@ -62,3 +62,11 @@ export function StatisticsSection() {
       queryKey: ['/api/statistics', { game: gameFilter, time: timeFilter }],
       enabled: !!user
     });
+
+    return (
+        <section className="mb-10">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="font-display text-2xl font-semibold">Your Statistics</h2>
+            <div className="flex space-x-2">
+              <Select value={gameFilter} onValueChange={setGameFilter}>
+                <SelectTrigger className="bg-neutral-dark text-white text-sm rounded-md border-none w-32">
