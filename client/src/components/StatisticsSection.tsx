@@ -102,3 +102,11 @@ export function StatisticsSection() {
           change={statistics ? { value: 12.5, isPositive: true } : undefined}
           isLoading={isLoading}
         />
+
+        <StatisticCard
+          title="Total Won"
+          value={statistics ? formatCurrency(statistics.totalWon) : "$0.00"}
+          subtitle={gameFilter === "all" ? "All Games" : gameFilter.charAt(0).toUpperCase() + gameFilter.slice(1)}
+          change={statistics ? { value: 8.3, isPositive: true } : undefined}
+          isLoading={isLoading}
+        />
