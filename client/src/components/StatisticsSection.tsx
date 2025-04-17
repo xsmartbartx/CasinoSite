@@ -52,4 +52,13 @@ interface StatisticCardProps {
     </Card>
   );
 }
-          
+   
+export function StatisticsSection() {
+    const { user } = useAuth();
+    const [gameFilter, setGameFilter] = useState("all");
+    const [timeFilter, setTimeFilter] = useState("7days");
+    
+    const { data: statistics, isLoading } = useQuery({
+      queryKey: ['/api/statistics', { game: gameFilter, time: timeFilter }],
+      enabled: !!user
+    });
