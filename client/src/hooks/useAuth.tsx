@@ -59,3 +59,11 @@ interface User {
           const res = await apiRequest("POST", "/api/auth/register", credentials);
           return await res.json();
         },
+        onSuccess: (data) => {
+            setUser(data);
+            toast({
+              title: "Registration successful",
+              description: "Welcome to EduCasino!",
+            });
+            queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+          },
