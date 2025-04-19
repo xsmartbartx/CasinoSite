@@ -163,8 +163,8 @@ interface User {
         }
       };
 
-      return (
-        <AuthContext.Provider
+    return (
+    <AuthContext.Provider
           value={{
             user,
             loading: isLoading,
@@ -174,3 +174,7 @@ interface User {
             updateBalance,
           }}
         >
+         {children}
+    </AuthContext.Provider>
+  );
+}
