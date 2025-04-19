@@ -81,4 +81,12 @@ interface User {
     mutationFn: async (credentials) => {
       const res = await apiRequest("POST", "/api/auth/login", credentials);
       return await res.json();
-    },    
+    },
+    onSuccess: (data) => {
+        setUser(data);
+        toast({
+          title: "Registration successful",
+          description: "Welcome to EduCasino!",
+        });
+        queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+      },
