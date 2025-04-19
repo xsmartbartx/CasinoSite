@@ -36,3 +36,11 @@ interface User {
     const [user, setUser] = useState<User | null>(null);
     const queryClient = useQueryClient();
     const { toast } = useToast();
+
+      // Check if user is already logged in
+  const { data, isLoading } = useQuery<User | null>({
+    queryKey: ['/api/auth/me'],
+    retry: false,
+    staleTime: 60 * 1000, // 1 minute
+    gcTime: 5 * 60 * 1000, // 5 minutes
+  });
