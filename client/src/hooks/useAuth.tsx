@@ -156,3 +156,9 @@ interface User {
     const logout = async () => {
         await logoutMutation.mutateAsync();
     };
+
+    const updateBalance = (newBalance: number) => {
+        if (user) {
+          setUser({ ...user, balance: newBalance });
+        }
+      };
