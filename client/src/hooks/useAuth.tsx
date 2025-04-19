@@ -152,3 +152,7 @@ interface User {
     const login = async (username: string, password: string) => {
         await loginMutation.mutateAsync({ username, password });
       };
+
+    const logout = async () => {
+        await logoutMutation.mutateAsync();
+    };
