@@ -98,3 +98,10 @@ interface User {
         });
       },
     });
+
+      // Login mutation
+  const loginMutation = useMutation<User, Error, { username: string; password: string }>({
+    mutationFn: async (credentials) => {
+      const res = await apiRequest("POST", "/api/auth/login", credentials);
+      return await res.json();
+    },
