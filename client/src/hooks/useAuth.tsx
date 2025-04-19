@@ -148,3 +148,7 @@ interface User {
     const register = async (username: string, password: string) => {
         await registerMutation.mutateAsync({ username, password });
       };
+
+    const login = async (username: string, password: string) => {
+        await loginMutation.mutateAsync({ username, password });
+      };
