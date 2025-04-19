@@ -162,3 +162,15 @@ interface User {
           setUser({ ...user, balance: newBalance });
         }
       };
+
+      return (
+        <AuthContext.Provider
+          value={{
+            user,
+            loading: isLoading,
+            register,
+            login,
+            logout,
+            updateBalance,
+          }}
+        >
