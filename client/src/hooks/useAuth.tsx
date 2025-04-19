@@ -128,3 +128,11 @@ interface User {
       const res = await apiRequest("POST", "/api/auth/logout", {});
       return await res.json();
     },
+    onSuccess: () => {
+        setUser(null);
+        toast({
+          title: "Logged out",
+          description: "You have been logged out successfully",
+        });
+        queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+      },
