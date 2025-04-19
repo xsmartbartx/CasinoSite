@@ -52,3 +52,10 @@ interface User {
       setUser(null);
     }
   }, [data]);
+
+    // Register mutation
+    const registerMutation = useMutation<User, Error, { username: string; password: string }>({
+        mutationFn: async (credentials) => {
+          const res = await apiRequest("POST", "/api/auth/register", credentials);
+          return await res.json();
+        },
