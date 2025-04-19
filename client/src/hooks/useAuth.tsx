@@ -22,3 +22,12 @@ interface User {
     logout: () => Promise<void>;
     updateBalance: (newBalance: number) => void;
   }
+
+  const AuthContext = createContext<AuthContextType>({
+    user: null,
+    loading: true,
+    register: async () => {},
+    login: async () => {},
+    logout: async () => {},
+    updateBalance: () => {},
+  });
