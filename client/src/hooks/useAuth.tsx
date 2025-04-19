@@ -136,3 +136,11 @@ interface User {
         });
         queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
       },
+      onError: (error: any) => {
+        toast({
+          title: "Logout failed",
+          description: error.message || "An error occurred",
+          variant: "destructive",
+        });
+      },
+    });
