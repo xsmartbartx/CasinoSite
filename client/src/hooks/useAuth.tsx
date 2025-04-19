@@ -90,3 +90,11 @@ interface User {
         });
         queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
       },
+      onError: (error: any) => {
+        toast({
+          title: "Registration failed",
+          description: error.message || "Please try again with a different username",
+          variant: "destructive",
+        });
+      },
+    });
