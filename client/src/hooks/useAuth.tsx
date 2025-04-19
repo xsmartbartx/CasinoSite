@@ -121,3 +121,10 @@ interface User {
         });
       },
     });
+
+      // Logout mutation
+  const logoutMutation = useMutation<{message: string}, Error, void>({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/auth/logout", {});
+      return await res.json();
+    },
