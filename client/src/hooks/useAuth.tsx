@@ -31,3 +31,8 @@ interface User {
     logout: async () => {},
     updateBalance: () => {},
   });
+
+  export function AuthProvider({ children }: { children: React.ReactNode }) {
+    const [user, setUser] = useState<User | null>(null);
+    const queryClient = useQueryClient();
+    const { toast } = useToast();
