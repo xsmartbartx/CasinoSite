@@ -47,3 +47,11 @@ export function formatTimestamp(timestamp: string): string {
 export function calculateProbability(favorableOutcomes: number, totalOutcomes: number): number {
   return (favorableOutcomes / totalOutcomes) * 100;
 }
+
+/**
+ * Calculates the expected value of a bet
+ */
+export function calculateExpectedValue(probability: number, winAmount: number, betAmount: number): number {
+  const probDecimal = probability / 100;
+  return (probDecimal * winAmount) - ((1 - probDecimal) * betAmount);
+}
