@@ -49,3 +49,9 @@ type Action =
       toastId?: ToasterToast["id"]
     }
 
+interface State {
+  toasts: ToasterToast[]
+}
+
+const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
+
