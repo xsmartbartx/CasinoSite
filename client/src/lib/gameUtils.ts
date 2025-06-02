@@ -62,3 +62,10 @@ export function calculateExpectedValue(probability: number, winAmount: number, b
 export function getRandomNumber(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+/**
+ * Simulates a fair dice roll
+ */
+export function rollDice(): number {
+  return Math.floor(Math.random() * 6) + 1;
+}
