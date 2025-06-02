@@ -84,3 +84,17 @@ export function getRouletteColor(number: number): string {
   if (number === 0) return 'green';
   return number % 2 === 0 ? 'black' : 'red';
 }
+
+/**
+ * Parses and validates bet amounts
+ */
+export function parseBetAmount(value: string): number | null {
+  const numberValue = parseFloat(value);
+  
+  if (isNaN(numberValue) || numberValue <= 0) {
+    return null;
+  }
+  
+  // Limit to 2 decimal places
+  return Math.round(numberValue * 100) / 100;
+}
