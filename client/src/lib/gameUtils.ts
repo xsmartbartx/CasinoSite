@@ -69,3 +69,10 @@ export function getRandomNumber(min: number, max: number): number {
 export function rollDice(): number {
   return Math.floor(Math.random() * 6) + 1;
 }
+
+/**
+ * Simulates a roulette wheel spin (European roulette: 0-36)
+ */
+export function spinRouletteWheel(): number {
+  return Math.floor(Math.random() * 37);
+}
