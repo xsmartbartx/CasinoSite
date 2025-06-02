@@ -55,3 +55,10 @@ export function calculateExpectedValue(probability: number, winAmount: number, b
   const probDecimal = probability / 100;
   return (probDecimal * winAmount) - ((1 - probDecimal) * betAmount);
 }
+
+/**
+ * Generates a random number between min and max (inclusive)
+ */
+export function getRandomNumber(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
