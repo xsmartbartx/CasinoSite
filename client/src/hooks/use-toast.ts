@@ -136,3 +136,8 @@ function dispatch(action: Action) {
     listener(memoryState)
   })
 }
+
+type Toast = Omit<ToasterToast, "id">
+
+function toast({ ...props }: Toast) {
+  const id = genId()
