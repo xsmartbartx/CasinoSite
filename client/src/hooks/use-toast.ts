@@ -160,3 +160,10 @@ const update = (props: ToasterToast) =>
       },
     },
   })
+
+  return {
+    id: id,
+    dismiss,
+    update,
+  }
+}
