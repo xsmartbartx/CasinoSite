@@ -36,3 +36,7 @@ export function formatTimestamp(timestamp: string): string {
   if (diffInDays < 30) {
     return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
   }
+
+  // Fall back to a simple date format
+  return date.toLocaleDateString();
+}
