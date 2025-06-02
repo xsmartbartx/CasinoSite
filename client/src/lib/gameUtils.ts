@@ -76,3 +76,11 @@ export function rollDice(): number {
 export function spinRouletteWheel(): number {
   return Math.floor(Math.random() * 37);
 }
+
+/**
+ * Gets the color of a roulette number
+ */
+export function getRouletteColor(number: number): string {
+  if (number === 0) return 'green';
+  return number % 2 === 0 ? 'black' : 'red';
+}
