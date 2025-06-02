@@ -40,3 +40,10 @@ export function formatTimestamp(timestamp: string): string {
   // Fall back to a simple date format
   return date.toLocaleDateString();
 }
+
+/**
+ * Calculates the probability of a given event
+ */
+export function calculateProbability(favorableOutcomes: number, totalOutcomes: number): number {
+  return (favorableOutcomes / totalOutcomes) * 100;
+}
