@@ -36,3 +36,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
+// Admin Dashboard Component
+export default function Admin() {
+  const { user } = useAuth();
+  const [, navigate] = useLocation();
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState("dashboard");
