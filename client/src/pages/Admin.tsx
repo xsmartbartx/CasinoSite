@@ -586,3 +586,51 @@ function UserManagement() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+       {/* Password Reset Dialog */}
+      <Dialog open={isPasswordResetOpen} onOpenChange={setIsPasswordResetOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Password Reset</DialogTitle>
+            <DialogDescription>
+              {resetResult ? 
+                "Password has been reset successfully. Please share the temporary password with the user." :
+                `Resetting password for user ${selectedUserId ? userData.find(u => u.id === selectedUserId)?.username : ''}`
+              }
+            </DialogDescription>
+          </DialogHeader>
+          
+          {resetResult ? (
+            <div className="my-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">Temporary Password</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between p-2 bg-muted rounded-md">
+                    <code className="text-sm font-mono">{resetResult.tempPassword}</code>
+                    <CopyPasswordButton password={resetResult.tempPassword} />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    The user will need to change this password on their next login.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <div className="py-6 text-center">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
+              <p>Resetting password...</p>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsPasswordResetOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
