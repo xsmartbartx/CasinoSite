@@ -819,3 +819,15 @@ function GameSettings() {
       const newEditedSettings = { ...editedSettings };
       delete newEditedSettings[gameId];
       setEditedSettings(newEditedSettings);
+
+            // Refetch data
+      refetch();
+    } catch (error) {
+      console.error("Failed to save game settings:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save game settings. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
