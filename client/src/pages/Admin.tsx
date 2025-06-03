@@ -861,3 +861,19 @@ function GameSettings() {
       }
     });
   };
+
+    // Get current setting value (edited or original)
+  const getSettingValue = (game: any, field: string) => {
+    if (editedSettings[game.id] && editedSettings[game.id][field] !== undefined) {
+      return editedSettings[game.id][field];
+    }
+    return game.settings[field];
+  };
+
+  // Handler for toggling advanced settings view
+  const toggleAdvancedSettings = (gameId: number) => {
+    setExpandedGameId(expandedGameId === gameId ? null : gameId);
+  };
+
+  // Get the games data to display
+  const games = gameData || defaultGameData;
