@@ -842,3 +842,22 @@ function GameSettings() {
       }
     });
   };
+
+    // Handler for updating a nested setting (for game-specific settings)
+  const updateNestedSetting = (gameId: number, parentField: string, field: string, value: any) => {
+    const currentParentValue = getSettingValue(
+      gameData?.find(g => g.id === gameId) || defaultGameData.find(g => g.id === gameId),
+      parentField
+    );
+    
+    setEditedSettings({
+      ...editedSettings,
+      [gameId]: {
+        ...(editedSettings[gameId] || {}),
+        [parentField]: {
+          ...currentParentValue,
+          [field]: value
+        }
+      }
+    });
+  };
