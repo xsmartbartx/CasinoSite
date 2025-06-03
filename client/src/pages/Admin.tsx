@@ -148,3 +148,14 @@ function AdminDashboard() {
       description: "profit this month"
     }
   ];
+
+  // Mock data for activity chart
+  const activityData = [
+    { name: "Mon", users: 345, bets: 2453 },
+    { name: "Tue", users: 389, bets: 2367 },
+    { name: "Wed", users: 483, bets: 3290 },
+    { name: "Thu", users: 562, bets: 3812 },
+    { name: "Fri", users: 689, bets: 4521 },
+    { name: "Sat", users: 782, bets: 5324 },
+    { name: "Sun", users: 724, bets: 4928 }
+  ];
