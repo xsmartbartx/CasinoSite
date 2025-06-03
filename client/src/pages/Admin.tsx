@@ -215,3 +215,36 @@ function AdminDashboard() {
           </ResponsiveContainer>
         </CardContent>
       </Card>
+
+            {/* Recent activity */}
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>Recent Activity</CardTitle>
+          <CardDescription>
+            Latest actions performed on the platform
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>User</TableHead>
+                <TableHead>Action</TableHead>
+                <TableHead>Time</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {recentActivity.map((activity) => (
+                <TableRow key={activity.id}>
+                  <TableCell className="font-medium">{activity.user}</TableCell>
+                  <TableCell>{activity.action}</TableCell>
+                  <TableCell>{activity.time}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
