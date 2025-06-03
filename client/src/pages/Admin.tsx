@@ -159,3 +159,12 @@ function AdminDashboard() {
     { name: "Sat", users: 782, bets: 5324 },
     { name: "Sun", users: 724, bets: 4928 }
   ];
+
+  // Mock recent activity data
+  const recentActivity = [
+    { id: 1, user: "player123", action: "New registration", time: "5 mins ago" },
+    { id: 2, user: "winmaster", action: "Won $350 in Crash", time: "12 mins ago" },
+    { id: 3, user: "gambler479", action: "Updated profile", time: "47 mins ago" },
+    { id: 4, user: "luckystar", action: "Placed 20 bets", time: "1 hour ago" },
+    { id: 5, user: "admin2", action: "Modified game settings", time: "2 hours ago" }
+  ];
