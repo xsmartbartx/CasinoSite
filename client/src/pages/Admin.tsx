@@ -56,4 +56,20 @@ export default function Admin() {
     }
   }, [user, navigate, toast]);
 
-  
+if (!user || (user.role !== "admin" && user.role !== "superadmin")) {
+    return (
+      <div className="container mx-auto py-8 flex items-center justify-center min-h-[60vh]">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Access Denied</CardTitle>
+            <CardDescription>You don't have permission to access this page.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => navigate("/")} className="w-full">
+              Return to Homepage
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
