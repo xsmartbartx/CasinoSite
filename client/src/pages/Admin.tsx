@@ -800,3 +800,22 @@ function GameSettings() {
       </div>
     );
   }
+
+  // Handler for saving changes
+  const handleSaveSettings = async (gameId: number) => {
+    try {
+      const settings = editedSettings[gameId];
+      await apiRequest(`/api/admin/games/${gameId}/settings`, {
+        method: 'PATCH',
+        data: settings
+      });
+      
+      toast({
+        title: "Settings saved",
+        description: "Game settings have been updated successfully.",
+      });
+      
+      // Remove from edited settings after successful save
+      const newEditedSettings = { ...editedSettings };
+      delete newEditedSettings[gameId];
+      setEditedSettings(newEditedSettings);
