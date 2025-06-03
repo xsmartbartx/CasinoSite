@@ -970,3 +970,62 @@ function GameSettings() {
                     )}
                   </Button>
                 </div>
+
+                                {/* Game-specific advanced settings */}
+                {expandedGameId === game.id && (
+                  <div className="mt-6 bg-muted/30 p-4 rounded-lg border">
+                    <h4 className="font-medium mb-4">Game-Specific Configuration</h4>
+                    
+                    {/* Slot Machine Settings */}
+                    {game.type === 'slot' && (
+                      <div className="space-y-6">
+                        <div>
+                          <h5 className="text-sm font-medium mb-2">Symbol Frequencies (%)</h5>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {Object.entries(getSettingValue(game, 'symbolFrequencies') || {}).map(([symbol, frequency]) => (
+                              <div key={symbol} className="space-y-1">
+                                <Label htmlFor={`freq-${symbol}-${game.id}`} className="capitalize">{symbol}</Label>
+                                <Input
+                                  id={`freq-${symbol}-${game.id}`}
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  value={Number(frequency)}
+                                  onChange={(e) => updateNestedSetting(
+                                    game.id, 
+                                    'symbolFrequencies', 
+                                    symbol, 
+                                    parseFloat(e.target.value)
+                                  )}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h5 className="text-sm font-medium mb-2">Payout Multipliers</h5>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {Object.entries(getSettingValue(game, 'payoutMultipliers') || {}).map(([pattern, multiplier]) => (
+                              <div key={pattern} className="space-y-1">
+                                <Label htmlFor={`mult-${pattern}-${game.id}`}>
+                                  {pattern.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
+                                </Label>
+                                <Input
+                                  id={`mult-${pattern}-${game.id}`}
+                                  type="number"
+                                  min="1"
+                                  value={Number(multiplier)}
+                                  onChange={(e) => updateNestedSetting(
+                                    game.id, 
+                                    'payoutMultipliers', 
+                                    pattern, 
+                                    parseFloat(e.target.value)
+                                  )}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
