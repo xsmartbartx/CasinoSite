@@ -168,3 +168,27 @@ function AdminDashboard() {
     { id: 4, user: "luckystar", action: "Placed 20 bets", time: "1 hour ago" },
     { id: 5, user: "admin2", action: "Modified game settings", time: "2 hours ago" }
   ];
+
+  return (
+    <div className="grid gap-6">
+      {/* Summary cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+        {summaryData.map((item, index) => (
+          <Card key={index}>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">
+                {item.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{item.value}</div>
+              <p className="text-xs text-muted-foreground">
+                <span className={item.change.startsWith('+') ? "text-emerald-500" : "text-rose-500"}>
+                  {item.change}
+                </span>{" "}
+                {item.description}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
