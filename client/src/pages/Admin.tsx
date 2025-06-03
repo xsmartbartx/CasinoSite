@@ -306,3 +306,15 @@ function UserManagement() {
     // Paginate results
   const paginatedUsers = filteredUsers.slice((page - 1) * pageSize, page * pageSize);
   const totalPages = Math.ceil(filteredUsers.length / pageSize);
+
+    // Format date to human-readable
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
+  };
