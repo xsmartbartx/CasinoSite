@@ -531,3 +531,58 @@ function UserManagement() {
           </div>
         </CardContent>
       </Card>
+
+            {/* Transaction History Dialog */}
+      <Dialog open={isTransactionsOpen} onOpenChange={setIsTransactionsOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Transaction History</DialogTitle>
+            <DialogDescription>
+              Viewing transactions for user {selectedUserId ? userData.find(u => u.id === selectedUserId)?.username : ''}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {userTransactions.length > 0 ? (
+            <div className="max-h-[60vh] overflow-y-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Game</TableHead>
+                    <TableHead>Bet Amount</TableHead>
+                    <TableHead>Multiplier</TableHead>
+                    <TableHead>Payout</TableHead>
+                    <TableHead>Result</TableHead>
+                    <TableHead>Date</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {userTransactions.map((transaction) => (
+                    <TableRow key={transaction.id}>
+                      <TableCell>{transaction.game?.name || `Game #${transaction.gameId}`}</TableCell>
+                      <TableCell>${transaction.bet.toLocaleString()}</TableCell>
+                      <TableCell>x{transaction.multiplier.toFixed(2)}</TableCell>
+                      <TableCell>${transaction.payout.toLocaleString()}</TableCell>
+                      <TableCell>
+                        <span className={transaction.result === 'win' ? 'text-green-500' : 'text-red-500'}>
+                          {transaction.result === 'win' ? 'Win' : 'Loss'}
+                        </span>
+                      </TableCell>
+                      <TableCell>{formatDate(transaction.createdAt)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <div className="py-8 text-center text-muted-foreground">
+              No transaction history found for this user
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsTransactionsOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
