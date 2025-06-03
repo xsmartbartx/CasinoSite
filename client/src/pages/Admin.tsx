@@ -1029,3 +1029,39 @@ function GameSettings() {
                         </div>
                       </div>
                     )}
+
+                                        {/* Roulette Settings */}
+                    {game.type === 'roulette' && (
+                      <div className="space-y-6">
+                        <div>
+                          <h5 className="text-sm font-medium mb-2">Bet Type Limits</h5>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {[
+                              { key: 'straightUpMaxBet', label: 'Straight Up' },
+                              { key: 'splitMaxBet', label: 'Split' },
+                              { key: 'streetMaxBet', label: 'Street' },
+                              { key: 'cornerMaxBet', label: 'Corner' },
+                              { key: 'columnMaxBet', label: 'Column' },
+                              { key: 'dozenMaxBet', label: 'Dozen' },
+                              { key: 'evenOddMaxBet', label: 'Even/Odd' },
+                              { key: 'redBlackMaxBet', label: 'Red/Black' }
+                            ].map(({ key, label }) => (
+                              <div key={key} className="space-y-1">
+                                <Label htmlFor={`${key}-${game.id}`}>{label}</Label>
+                                <Input
+                                  id={`${key}-${game.id}`}
+                                  type="number"
+                                  min="0"
+                                  value={getSettingValue(game, key)}
+                                  onChange={(e) => updateSetting(
+                                    game.id, 
+                                    key, 
+                                    parseFloat(e.target.value)
+                                  )}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
