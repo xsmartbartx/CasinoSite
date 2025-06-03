@@ -666,3 +666,104 @@ function GameSettings() {
   const [editedSettings, setEditedSettings] = useState<{[key: number]: any}>({});
   // State for currently expanded advanced settings
   const [expandedGameId, setExpandedGameId] = useState<number | null>(null);
+
+    // Default game data if API returns empty
+  const defaultGameData = [
+    { 
+      id: 1, 
+      name: "Slots", 
+      rtp: 96.5, 
+      type: "slot", 
+      settings: {
+        minBet: 1,
+        maxBet: 1000,
+        maxWin: 10000,
+        houseEdge: 0.035,
+        isEnabled: true,
+        // Slot specific settings
+        symbolFrequencies: {
+          cherry: 15,
+          lemon: 20, 
+          orange: 20,
+          plum: 15,
+          bell: 12,
+          bar: 10,
+          seven: 5,
+          wild: 3
+        },
+        payoutMultipliers: {
+          threeInRow: 5,
+          threeSevens: 15,
+          threeWilds: 30,
+          diagonal: 3
+        }
+      }
+    },
+    { 
+      id: 2, 
+      name: "Roulette", 
+      rtp: 97.3, 
+      type: "roulette", 
+      settings: {
+        minBet: 1,
+        maxBet: 2000,
+        maxWin: 35000,
+        houseEdge: 0.027,
+        isEnabled: true,
+        // Roulette specific settings
+        straightUpMaxBet: 100,
+        splitMaxBet: 200,
+        streetMaxBet: 300,
+        cornerMaxBet: 400,
+        columnMaxBet: 1000,
+        dozenMaxBet: 1000,
+        evenOddMaxBet: 2000,
+        redBlackMaxBet: 2000
+      }
+    },
+    { 
+      id: 3, 
+      name: "Dice", 
+      rtp: 98.5, 
+      type: "dice", 
+      settings: {
+        minBet: 1,
+        maxBet: 500,
+        maxWin: 9500,
+        houseEdge: 0.015,
+        isEnabled: true,
+        // Dice specific settings
+        minRange: 1,
+        maxRange: 100,
+        winMultiplierFormula: "98 / (100 - target)",
+        probabilityRanges: {
+          easy: [50, 75],
+          medium: [25, 49],
+          hard: [10, 24],
+          expert: [1, 9]
+        }
+      }
+    },
+    { 
+      id: 4, 
+      name: "Crash", 
+      rtp: 97.0, 
+      type: "crash", 
+      settings: {
+        minBet: 5,
+        maxBet: 1000,
+        maxWin: 50000,
+        houseEdge: 0.03,
+        isEnabled: true,
+        // Crash specific settings
+        crashPointDistribution: {
+          mean: 1.9,
+          houseFactor: 0.97,
+          variance: 0.2
+        },
+        gameSpeedMs: 40,
+        waitTimeBeforeStartMs: 5000,
+        maxMultiplier: 100
+      }
+    }
+  ];
