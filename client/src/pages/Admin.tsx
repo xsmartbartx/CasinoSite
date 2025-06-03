@@ -73,3 +73,20 @@ if (!user || (user.role !== "admin" && user.role !== "superadmin")) {
       </div>
     );
   }
+
+  return (
+    <div className="container mx-auto py-8">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Admin Panel</h1>
+          <p className="text-muted-foreground">
+            Manage users, games, and view analytics.
+          </p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2 bg-muted px-3 py-1 rounded-full">
+            <Shield size={16} className="text-amber-500" />
+            <span className="text-sm font-medium capitalize">{user.role}</span>
+          </div>
+        </div>
+      </div>
