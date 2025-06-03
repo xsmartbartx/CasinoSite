@@ -290,3 +290,15 @@ function UserManagement() {
     const matchesSearch = searchQuery === "" || 
       user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Role filter
+    const matchesRole = roleFilter === "all" || user.role === roleFilter;
+    
+    // Status filter
+    const matchesStatus = 
+      statusFilter === "all" || 
+      (statusFilter === "active" && user.isActive) ||
+      (statusFilter === "inactive" && !user.isActive);
+    
+    return matchesSearch && matchesRole && matchesStatus;
+  });
