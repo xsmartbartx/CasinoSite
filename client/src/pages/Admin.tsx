@@ -831,3 +831,14 @@ function GameSettings() {
       });
     }
   };
+
+    // Handler for updating a setting
+  const updateSetting = (gameId: number, field: string, value: any) => {
+    setEditedSettings({
+      ...editedSettings,
+      [gameId]: {
+        ...(editedSettings[gameId] || {}),
+        [field]: value
+      }
+    });
+  };
