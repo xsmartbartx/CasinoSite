@@ -499,3 +499,35 @@ function UserManagement() {
               </TableBody>
             </Table>
           </div>
+
+                    {/* Pagination */}
+          <div className="flex items-center justify-between mt-4">
+            <div className="text-sm text-muted-foreground">
+              Showing {((page - 1) * pageSize) + 1} to {Math.min(page * pageSize, filteredUsers.length)} of {filteredUsers.length} users
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                <span className="sr-only">Previous Page</span>
+              </Button>
+              <div className="text-sm">
+                Page {page} of {totalPages}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+              >
+                <ChevronRight className="h-4 w-4" />
+                <span className="sr-only">Next Page</span>
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
