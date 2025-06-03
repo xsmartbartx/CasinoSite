@@ -6,3 +6,10 @@ async function throwIfResNotOk(res: Response) {
     throw new Error(`${res.status}: ${text}`);
   }
 }
+
+export async function apiRequest<T = any>(
+  url: string,
+  options?: {
+    method?: string,
+    data?: unknown | undefined
+  }
