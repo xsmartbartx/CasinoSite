@@ -13,3 +13,13 @@ export async function apiRequest<T = any>(
     method?: string,
     data?: unknown | undefined
   }
+): Promise<T> {
+  const method = options?.method || 'GET';
+  const data = options?.data;
+  
+  const res = await fetch(url, {
+    method,
+    headers: data ? { "Content-Type": "application/json" } : {},
+    body: data ? JSON.stringify(data) : undefined,
+    credentials: "include",
+  });
