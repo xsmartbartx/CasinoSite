@@ -324,3 +324,9 @@ function UserManagement() {
     console.log(`Update user ${userId} role to ${newRole}`);
     // Call API to update role
   };
+
+    // Status update handler (would normally call API)
+  const handleStatusUpdate = (userId: number, isActive: boolean) => {
+    console.log(`Update user ${userId} status to ${isActive ? 'active' : 'inactive'}`);
+    // Call API to update status
+  };
