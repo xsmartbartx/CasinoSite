@@ -90,3 +90,31 @@ if (!user || (user.role !== "admin" && user.role !== "superadmin")) {
           </div>
         </div>
       </div>
+
+<Tabs defaultValue="dashboard" className="w-full" value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-4 md:w-auto">
+          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+          <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="games">Games</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="dashboard">
+          <AdminDashboard />
+        </TabsContent>
+        
+        <TabsContent value="users">
+          <UserManagement />
+        </TabsContent>
+        
+        <TabsContent value="games">
+          <GameSettings />
+        </TabsContent>
+        
+        <TabsContent value="analytics">
+          <AnalyticsDashboard />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
