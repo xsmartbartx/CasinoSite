@@ -877,3 +877,96 @@ function GameSettings() {
 
   // Get the games data to display
   const games = gameData || defaultGameData;
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Game Settings</CardTitle>
+          <CardDescription>
+            Configure game parameters, betting limits, and return-to-player rates
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-8">
+            {games.map((game) => (
+              <div key={game.id} className="p-6 border rounded-lg mb-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold">{game.name}</h3>
+                  <div className="flex items-center space-x-2">
+                    <Label htmlFor={`enable-${game.id}`}>Enabled</Label>
+                    <Switch 
+                      id={`enable-${game.id}`} 
+                      checked={getSettingValue(game, 'isEnabled')}
+                      onCheckedChange={(checked) => updateSetting(game.id, 'isEnabled', checked)}
+                    />
+                  </div>
+                </div>
+                
+                {/* Basic settings that apply to all games */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor={`minBet-${game.id}`}>Minimum Bet</Label>
+                    <Input 
+                      id={`minBet-${game.id}`}
+                      type="number"
+                      min="0"
+                      value={getSettingValue(game, 'minBet')}
+                      onChange={(e) => updateSetting(game.id, 'minBet', parseFloat(e.target.value))}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor={`maxBet-${game.id}`}>Maximum Bet</Label>
+                    <Input 
+                      id={`maxBet-${game.id}`}
+                      type="number"
+                      min="0"
+                      value={getSettingValue(game, 'maxBet')}
+                      onChange={(e) => updateSetting(game.id, 'maxBet', parseFloat(e.target.value))}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor={`maxWin-${game.id}`}>Maximum Win</Label>
+                    <Input 
+                      id={`maxWin-${game.id}`}
+                      type="number"
+                      min="0"
+                      value={getSettingValue(game, 'maxWin')}
+                      onChange={(e) => updateSetting(game.id, 'maxWin', parseFloat(e.target.value))}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor={`houseEdge-${game.id}`}>House Edge (%)</Label>
+                    <Input 
+                      id={`houseEdge-${game.id}`}
+                      type="number"
+                      min="0"
+                      max="50"
+                      step="0.1"
+                      value={getSettingValue(game, 'houseEdge') * 100}
+                      onChange={(e) => updateSetting(game.id, 'houseEdge', parseFloat(e.target.value) / 100)}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      RTP: {(100 - getSettingValue(game, 'houseEdge') * 100).toFixed(2)}%
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Button to toggle advanced settings */}
+                <div className="mt-4 mb-6">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => toggleAdvancedSettings(game.id)}
+                    className="w-full justify-between"
+                  >
+                    <span>Advanced Game-Specific Settings</span>
+                    {expandedGameId === game.id ? (
+                      <ChevronUp size={16} />
+                    ) : (
+                      <ChevronDown size={16} />
+                    )}
+                  </Button>
+                </div>
