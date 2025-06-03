@@ -651,3 +651,18 @@ function CopyPasswordButton({ password }: { password: string }) {
     </Button>
   );
 }
+
+// Game Settings Component
+function GameSettings() {
+  const { toast } = useToast();
+  
+  // Fetch game settings from API
+  const { data: gameData, isLoading, refetch } = useQuery({
+    queryKey: ['/api/admin/games'],
+    queryFn: () => apiRequest<any[]>('/api/admin/games'),
+  });
+
+  // State for edited settings
+  const [editedSettings, setEditedSettings] = useState<{[key: number]: any}>({});
+  // State for currently expanded advanced settings
+  const [expandedGameId, setExpandedGameId] = useState<number | null>(null);
