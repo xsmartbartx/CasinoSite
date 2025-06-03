@@ -23,3 +23,7 @@ export async function apiRequest<T = any>(
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
+
+  await throwIfResNotOk(res);
+  return await res.json();
+}
