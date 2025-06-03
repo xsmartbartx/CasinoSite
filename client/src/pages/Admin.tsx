@@ -349,3 +349,9 @@ function UserManagement() {
       setUserTransactions([]);
     }
   };
+
+    // Handler for resetting password
+  const handleResetPassword = async (userId: number) => {
+    setSelectedUserId(userId);
+    setIsPasswordResetOpen(true);
+    setResetResult(null);
