@@ -330,3 +330,8 @@ function UserManagement() {
     console.log(`Update user ${userId} status to ${isActive ? 'active' : 'inactive'}`);
     // Call API to update status
   };
+
+    // Handler for viewing transactions
+  const handleViewTransactions = async (userId: number) => {
+    setSelectedUserId(userId);
+    setIsTransactionsOpen(true);
