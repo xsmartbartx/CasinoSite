@@ -118,3 +118,33 @@ if (!user || (user.role !== "admin" && user.role !== "superadmin")) {
     </div>
   );
 }
+
+// Admin Dashboard Component
+function AdminDashboard() {
+  // Mock data for dashboard summary
+  const summaryData = [
+    {
+      title: "Total Users",
+      value: "3,721",
+      change: "+12%",
+      description: "from last month"
+    },
+    {
+      title: "Active Players",
+      value: "1,259",
+      change: "+18%",
+      description: "daily active users"
+    },
+    {
+      title: "Total Bets",
+      value: "92,475",
+      change: "+5.2%",
+      description: "from previous week"
+    },
+    {
+      title: "House Edge",
+      value: "$28,392",
+      change: "+7.3%",
+      description: "profit this month"
+    }
+  ];
