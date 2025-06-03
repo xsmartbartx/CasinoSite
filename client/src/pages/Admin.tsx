@@ -302,3 +302,7 @@ function UserManagement() {
     
     return matchesSearch && matchesRole && matchesStatus;
   });
+
+    // Paginate results
+  const paginatedUsers = filteredUsers.slice((page - 1) * pageSize, page * pageSize);
+  const totalPages = Math.ceil(filteredUsers.length / pageSize);
