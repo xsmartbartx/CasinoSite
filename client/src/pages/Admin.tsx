@@ -429,3 +429,73 @@ function UserManagement() {
               </div>
             </div>
           </div>
+
+                    {/* Users table */}
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Username</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Balance</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Last Login</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginatedUsers.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">{user.username}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <Select
+                        defaultValue={user.role}
+                        onValueChange={(value) => handleRoleUpdate(user.id, value)}
+                      >
+                        <SelectTrigger className="w-[130px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                          {/* Only superadmins can change to superadmin */}
+                          <SelectItem value="superadmin" disabled={true}>Super Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>${user.balance.toLocaleString()}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          checked={user.isActive}
+                          onCheckedChange={(checked) => handleStatusUpdate(user.id, checked)}
+                        />
+                        <span>{user.isActive ? "Active" : "Inactive"}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{formatDate(user.lastLogin)}</TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleViewTransactions(user.id)}
+                        >
+                          Transactions
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleResetPassword(user.id)}
+                        >
+                          Reset Password
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
