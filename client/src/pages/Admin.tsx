@@ -248,3 +248,10 @@ function AdminDashboard() {
     </div>
   );
 }
+
+// User Management Component
+function UserManagement() {
+  const { toast } = useToast();
+  // For pagination
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(8);
