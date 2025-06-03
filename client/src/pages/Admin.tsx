@@ -355,3 +355,22 @@ function UserManagement() {
     setSelectedUserId(userId);
     setIsPasswordResetOpen(true);
     setResetResult(null);
+
+    try {
+      const response = await apiRequest<{ tempPassword: string }>(`/api/admin/users/${userId}/reset-password`, { 
+        method: 'POST' 
+      });
+      setResetResult(response);
+      toast({
+        title: "Success",
+        description: "Password has been reset successfully"
+      });
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      toast({
+        title: "Error",
+        description: "Failed to reset password",
+        variant: "destructive"
+      });
+    }
+  };
