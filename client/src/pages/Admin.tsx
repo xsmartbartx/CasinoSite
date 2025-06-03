@@ -269,3 +269,17 @@ function UserManagement() {
   // For password reset modal
   const [isPasswordResetOpen, setIsPasswordResetOpen] = useState(false);
   const [resetResult, setResetResult] = useState<{ tempPassword: string } | null>(null);
+
+  // Mock user data
+  const userData = [
+    { id: 1, username: "player123", email: "player123@example.com", role: "user", balance: 3450, isActive: true, lastLogin: "2023-08-10T14:32:13" },
+    { id: 2, username: "admin_jane", email: "jane@admin.com", role: "admin", balance: 10000, isActive: true, lastLogin: "2023-08-15T09:15:22" },
+    { id: 3, username: "gambler479", email: "gambler479@example.com", role: "user", balance: 1250, isActive: true, lastLogin: "2023-08-12T18:45:37" },
+    { id: 4, username: "luckystar", email: "lucky@example.com", role: "user", balance: 7890, isActive: true, lastLogin: "2023-08-14T11:23:45" },
+    { id: 5, username: "bigwinner", email: "winner@example.com", role: "user", balance: 12340, isActive: false, lastLogin: "2023-07-29T15:12:08" },
+    { id: 6, username: "superadmin", email: "super@admin.com", role: "superadmin", balance: 50000, isActive: true, lastLogin: "2023-08-15T10:05:18" },
+    { id: 7, username: "casual_player", email: "casual@example.com", role: "user", balance: 2100, isActive: true, lastLogin: "2023-08-13T20:34:19" },
+    { id: 8, username: "inactive_user", email: "inactive@example.com", role: "user", balance: 500, isActive: false, lastLogin: "2023-06-20T08:17:22" },
+    { id: 9, username: "highroller", email: "highroller@example.com", role: "user", balance: 25000, isActive: true, lastLogin: "2023-08-15T14:22:31" },
+    { id: 10, username: "newbie", email: "newbie@example.com", role: "user", balance: 1000, isActive: true, lastLogin: "2023-08-15T08:45:12" }
+  ];
