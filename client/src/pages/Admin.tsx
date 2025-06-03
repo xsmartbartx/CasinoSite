@@ -335,3 +335,17 @@ function UserManagement() {
   const handleViewTransactions = async (userId: number) => {
     setSelectedUserId(userId);
     setIsTransactionsOpen(true);
+
+    try {
+      const response = await apiRequest<any[]>(`/api/admin/users/${userId}/transactions`);
+      setUserTransactions(response);
+    } catch (error) {
+      console.error("Error fetching user transactions:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load transaction history",
+        variant: "destructive"
+      });
+      setUserTransactions([]);
+    }
+  };
