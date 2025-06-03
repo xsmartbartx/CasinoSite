@@ -43,3 +43,17 @@ export default function Admin() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("dashboard");
+
+  // Check if user is admin
+  useEffect(() => {
+    if (!user || (user.role !== "admin" && user.role !== "superadmin")) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to access the admin panel.",
+        variant: "destructive"
+      });
+      navigate("/");
+    }
+  }, [user, navigate, toast]);
+
+  
