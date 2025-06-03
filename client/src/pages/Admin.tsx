@@ -767,3 +767,36 @@ function GameSettings() {
       }
     }
   ];
+
+    // If loading, show skeleton UI
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Game Settings</CardTitle>
+            <CardDescription>
+              Loading game configuration...
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-8">
+              {[1, 2, 3, 4].map((id) => (
+                <div key={id} className="p-6 border rounded-lg mb-6 animate-pulse">
+                  <div className="h-6 bg-muted rounded mb-4 w-1/4"></div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {[1, 2, 3, 4].map((fieldId) => (
+                      <div key={fieldId} className="space-y-2">
+                        <div className="h-4 bg-muted rounded w-1/2"></div>
+                        <div className="h-9 bg-muted rounded"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
