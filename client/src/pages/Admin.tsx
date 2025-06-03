@@ -634,3 +634,20 @@ function UserManagement() {
     </div>
   );
 }
+
+// Helper component for copying password
+function CopyPasswordButton({ password }: { password: string }) {
+  const [copied, setCopied] = useState(false);
+  
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(password);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  
+  return (
+    <Button variant="ghost" size="sm" onClick={copyToClipboard}>
+      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+    </Button>
+  );
+}
