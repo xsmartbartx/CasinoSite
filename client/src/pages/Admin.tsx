@@ -255,3 +255,17 @@ function UserManagement() {
   // For pagination
   const [page, setPage] = useState(1);
   const [pageSize] = useState(8);
+
+  // For search and filters
+  const [searchQuery, setSearchQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  
+  // For transaction history modal
+  const [isTransactionsOpen, setIsTransactionsOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [userTransactions, setUserTransactions] = useState<any[]>([]);
+  
+  // For password reset modal
+  const [isPasswordResetOpen, setIsPasswordResetOpen] = useState(false);
+  const [resetResult, setResetResult] = useState<{ tempPassword: string } | null>(null);
