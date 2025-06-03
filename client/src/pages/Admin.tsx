@@ -318,3 +318,9 @@ function UserManagement() {
       minute: '2-digit'
     }).format(date);
   };
+
+    // Role update handler (would normally call API)
+  const handleRoleUpdate = (userId: number, newRole: string) => {
+    console.log(`Update user ${userId} role to ${newRole}`);
+    // Call API to update role
+  };
