@@ -283,3 +283,10 @@ function UserManagement() {
     { id: 9, username: "highroller", email: "highroller@example.com", role: "user", balance: 25000, isActive: true, lastLogin: "2023-08-15T14:22:31" },
     { id: 10, username: "newbie", email: "newbie@example.com", role: "user", balance: 1000, isActive: true, lastLogin: "2023-08-15T08:45:12" }
   ];
+
+  // Filter users based on search and filters
+  const filteredUsers = userData.filter(user => {
+    // Search filter
+    const matchesSearch = searchQuery === "" || 
+      user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase());
