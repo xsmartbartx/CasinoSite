@@ -1065,3 +1065,87 @@ function GameSettings() {
                         </div>
                       </div>
                     )}
+
+                                        {/* Dice Settings */}
+                    {game.type === 'dice' && (
+                      <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <Label htmlFor={`minRange-${game.id}`}>Minimum Range</Label>
+                            <Input
+                              id={`minRange-${game.id}`}
+                              type="number"
+                              min="1"
+                              max={getSettingValue(game, 'maxRange') - 1}
+                              value={getSettingValue(game, 'minRange')}
+                              onChange={(e) => updateSetting(
+                                game.id, 
+                                'minRange', 
+                                parseInt(e.target.value)
+                              )}
+                            />
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <Label htmlFor={`maxRange-${game.id}`}>Maximum Range</Label>
+                            <Input
+                              id={`maxRange-${game.id}`}
+                              type="number"
+                              min={getSettingValue(game, 'minRange') + 1}
+                              value={getSettingValue(game, 'maxRange')}
+                              onChange={(e) => updateSetting(
+                                game.id, 
+                                'maxRange', 
+                                parseInt(e.target.value)
+                              )}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h5 className="text-sm font-medium mb-2">Probability Ranges</h5>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {Object.entries(getSettingValue(game, 'probabilityRanges') || {}).map(([difficulty, range]) => (
+                              <div key={difficulty} className="space-y-1">
+                                <Label htmlFor={`range-${difficulty}-${game.id}`} className="capitalize">{difficulty}</Label>
+                                <div className="flex items-center space-x-2">
+                                  <Input
+                                    id={`range-${difficulty}-min-${game.id}`}
+                                    type="number"
+                                    min="1"
+                                    max={getSettingValue(game, 'maxRange') - 1}
+                                    value={(range as number[])[0]}
+                                    onChange={(e) => {
+                                      const currentRange = getSettingValue(game, 'probabilityRanges')[difficulty];
+                                      updateNestedSetting(
+                                        game.id, 
+                                        'probabilityRanges', 
+                                        difficulty, 
+                                        [parseInt(e.target.value), currentRange[1]]
+                                      );
+                                    }}
+                                  />
+                                  <span>-</span>
+                                  <Input
+                                    id={`range-${difficulty}-max-${game.id}`}
+                                    type="number"
+                                    min={(range as number[])[0] + 1}
+                                    max={getSettingValue(game, 'maxRange')}
+                                    value={(range as number[])[1]}
+                                    onChange={(e) => {
+                                      const currentRange = getSettingValue(game, 'probabilityRanges')[difficulty];
+                                      updateNestedSetting(
+                                        game.id, 
+                                        'probabilityRanges', 
+                                        difficulty, 
+                                        [currentRange[0], parseInt(e.target.value)]
+                                      );
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
