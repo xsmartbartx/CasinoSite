@@ -459,3 +459,22 @@ export default function CrashGame() {
   const handleAutoCashoutToggle = (checked: boolean) => {
     setEnableAutoCashout(checked);
   };
+
+    // Adjust bet amount
+  const adjustBet = (amount: number) => {
+    const currentBet = parseBetAmount(betAmount) || 0;
+    const newBet = Math.max(0.01, currentBet + amount);
+    setBetAmount(newBet.toFixed(2));
+  };
+  
+  // Format time for chart
+  const formatTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+  
+  // Prepare chart data
+  const chartData = crashHistory.map(entry => ({
+    time: formatTime(entry.timestamp),
+    multiplier: entry.crashPoint
+  }));
