@@ -58,3 +58,10 @@ export default function CrashGame() {
   const animationFrameRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
   const webSocketRef = useRef<WebSocket | null>(null);
+
+    // User input state
+  const [betAmount, setBetAmount] = useState<string>("50.00");
+  const [autoCashoutAt, setAutoCashoutAt] = useState<number>(2.00);
+  const [enableAutoCashout, setEnableAutoCashout] = useState<boolean>(false);
+  const [hasBet, setHasBet] = useState<boolean>(false);
+  const [isCashedOut, setIsCashedOut] = useState<boolean>(false);
