@@ -160,3 +160,22 @@ export default function CrashGame() {
         description: `Cashed out at ${data.cashoutMultiplier.toFixed(2)}x and won ${formatCurrency(data.payout)}!`,
         variant: "default",
       });
+
+            // Update user balance
+      if (user) {
+        updateBalance(data.balance);
+      }
+      
+      setIsCashedOut(true);
+      
+      // Invalidate game history
+      queryClient.invalidateQueries({ queryKey: ['/api/history'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Cashout failed",
+        description: error.message || "Could not process your cashout",
+        variant: "destructive",
+      });
+    }
+  });
