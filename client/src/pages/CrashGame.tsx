@@ -47,3 +47,14 @@ export default function CrashGame() {
   const { user, updateBalance } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+    // Game state and refs
+  const [gameState, setGameState] = useState<GameState>("waiting");
+  const [currentMultiplier, setCurrentMultiplier] = useState<number>(1.00);
+  const [crashPoint, setCrashPoint] = useState<number | null>(null);
+  const [crashHistory, setCrashHistory] = useState<CrashHistoryEntry[]>([]);
+  const [activeBets, setActiveBets] = useState<ActiveBet[]>([]);
+  const multiplierRef = useRef<number>(1.00);
+  const animationFrameRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number | null>(null);
+  const webSocketRef = useRef<WebSocket | null>(null);
