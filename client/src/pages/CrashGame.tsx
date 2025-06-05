@@ -326,3 +326,33 @@ export default function CrashGame() {
       console.error('Error handling WebSocket message:', error);
     }
   }, [toast]);
+
+    // Setup WebSocket connection
+  useEffect(() => {
+    // Create WebSocket connection
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    const socket = new WebSocket(wsUrl);
+    
+    // Store reference
+    webSocketRef.current = socket;
+    
+    // Setup event handlers
+    socket.onopen = () => {
+      console.log('WebSocket connected');
+    };
+    
+    socket.onmessage = handleWebSocketMessage;
+    
+    socket.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      toast({
+        title: "Connection Error",
+        description: "Could not connect to game server. Please refresh the page.",
+        variant: "destructive",
+      });
+    };
+    
+    socket.onclose = () => {
+      console.log('WebSocket disconnected');
+    };
