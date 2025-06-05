@@ -65,3 +65,13 @@ export default function CrashGame() {
   const [enableAutoCashout, setEnableAutoCashout] = useState<boolean>(false);
   const [hasBet, setHasBet] = useState<boolean>(false);
   const [isCashedOut, setIsCashedOut] = useState<boolean>(false);
+
+    // Define the game response type
+  interface GameResponse {
+    id: number;
+    name: string;
+    description: string;
+    type: string;
+    rtp: number;
+    difficulty: string;
+  }
