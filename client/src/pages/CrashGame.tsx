@@ -221,3 +221,31 @@ export default function CrashGame() {
     if (enableAutoCashout && hasBet && !isCashedOut && roundedMultiplier >= autoCashoutAt) {
       handleCashout();
     }
+
+        // Check for crash (in a real implementation this would come from the server)
+    // For demo purposes, let's say we crash randomly when multiplier > 2
+    if (roundedMultiplier > 2 && Math.random() < 0.003) {
+      // Crashed!
+      setCrashPoint(roundedMultiplier);
+      setGameState("crashed");
+      setHasBet(false);
+      
+      // Show crash message
+      toast({
+        title: "Crashed!",
+        description: `The game crashed at ${roundedMultiplier.toFixed(2)}x`,
+        variant: "destructive",
+      });
+      
+      // Wait 5 seconds and reset to waiting state
+      setTimeout(() => {
+        setGameState("waiting");
+        
+        // Add this crash to history
+        setCrashHistory(prev => [
+          ...prev, 
+          { 
+            crashPoint: roundedMultiplier,
+            timestamp: new Date().toISOString()
+          }
+        ].slice(-10)); // Keep last 10 entries
