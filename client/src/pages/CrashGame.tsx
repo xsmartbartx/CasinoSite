@@ -199,3 +199,25 @@ export default function CrashGame() {
     // Start animation loop
     animateMultiplier();
   };
+
+    // Animation loop for the multiplier
+  const animateMultiplier = () => {
+    if (!startTimeRef.current) return;
+    
+    // Calculate elapsed time and update multiplier
+    const elapsedMs = Date.now() - startTimeRef.current;
+    const elapsedSec = elapsedMs / 1000;
+    
+    // Exponential growth formula for multiplier
+    // Use a growth rate that makes it approximately double every 6.5 seconds
+    const growthRate = Math.pow(2, 1/6.5);
+    multiplierRef.current = Math.pow(growthRate, elapsedSec);
+    
+    // Round to 2 decimal places and update state
+    const roundedMultiplier = Math.floor(multiplierRef.current * 100) / 100;
+    setCurrentMultiplier(roundedMultiplier);
+    
+    // Check for auto-cashout
+    if (enableAutoCashout && hasBet && !isCashedOut && roundedMultiplier >= autoCashoutAt) {
+      handleCashout();
+    }
