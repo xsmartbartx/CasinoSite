@@ -191,3 +191,11 @@ export default function CrashGame() {
     setCurrentMultiplier(1.00);
     setCrashPoint(null);
     setIsCashedOut(false);
+
+        // Set start time
+    startTimeRef.current = Date.now();
+    multiplierRef.current = 1.00;
+    
+    // Start animation loop
+    animateMultiplier();
+  };
