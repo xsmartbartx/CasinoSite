@@ -114,3 +114,36 @@ export default function CrashGame() {
       }
     }
   }, [crashState, gameState]);
+
+    // Bet mutation
+  const betMutation = useMutation({
+    mutationFn: async (params: { bet: number; autoCashoutAt: number | null }) => {
+      const res = await apiRequest("POST", "/api/play/crash/bet", params);
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Bet placed",
+        description: `Bet of ${formatCurrency(data.bet)} placed successfully`,
+        variant: "default",
+      });
+      
+      // Update user balance
+      if (user) {
+        updateBalance(data.balance);
+      }
+      
+      setHasBet(true);
+      setIsCashedOut(false);
+      
+      // Refetch crash state to show updated active bets
+      refetchCrashState();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Bet failed",
+        description: error.message || "Could not place your bet",
+        variant: "destructive",
+      });
+    }
+  });
