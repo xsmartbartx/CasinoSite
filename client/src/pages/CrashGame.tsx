@@ -81,3 +81,12 @@ export default function CrashGame() {
     queryKey: [`/api/games/${id}`],
     enabled: !!id
   });
+
+    // Define the crash state response type
+  interface CrashStateResponse {
+    gameState: GameState;
+    currentMultiplier: number;
+    history: CrashHistoryEntry[];
+    activeBets: ActiveBet[];
+    nextGameHash?: string;
+  }
