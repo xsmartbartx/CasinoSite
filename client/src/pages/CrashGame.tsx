@@ -23,3 +23,12 @@ import {
   Tooltip as RechartsTooltip,
   ResponsiveContainer
 } from 'recharts';
+
+// Game states
+type GameState = "waiting" | "running" | "crashed";
+
+// Type for crash history entry
+interface CrashHistoryEntry {
+  crashPoint: number;
+  timestamp: string;
+}
