@@ -256,3 +256,53 @@ export default function CrashGame() {
       
       return;
     }
+
+        // Continue animation if not crashed
+    if (gameState === "running") {
+      animationFrameRef.current = requestAnimationFrame(animateMultiplier);
+    }
+  };
+  
+  // Handle WebSocket messages
+  const handleWebSocketMessage = useCallback((event: MessageEvent) => {
+    try {
+      const data = JSON.parse(event.data);
+      
+      switch (data.type) {
+        case 'gameState':
+          // Initial game state
+          setCrashHistory(data.data.history || []);
+          setActiveBets(data.data.activeBets || []);
+          setGameState(data.data.gameState as GameState);
+          if (data.data.gameState === 'running') {
+            startCrashAnimation();
+          }
+          break;
+          
+        case 'gameStart':
+          // Game started
+          setGameState('running');
+          startTimeRef.current = data.data.startTime;
+          startCrashAnimation();
+          break;
+          
+        case 'multiplierUpdate':
+          // Update multiplier (server-driven)
+          setCurrentMultiplier(data.data.multiplier);
+          break;
+          
+        case 'gameCrash':
+          // Game crashed
+          setCrashPoint(data.data.crashPoint);
+          setGameState('crashed');
+          setHasBet(false);
+          
+          // Add to history
+          setCrashHistory(data.data.history);
+          
+          // Show crash message
+          toast({
+            title: "Crashed!",
+            description: `The game crashed at ${data.data.crashPoint.toFixed(2)}x`,
+            variant: "destructive",
+          });
