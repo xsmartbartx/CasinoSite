@@ -478,3 +478,157 @@ export default function CrashGame() {
     time: formatTime(entry.timestamp),
     multiplier: entry.crashPoint
   }));
+
+    // Loading state
+  if (gameLoading || crashStateLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="bg-secondary rounded-lg border border-neutral-dark animate-pulse h-96"></div>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <section className="mb-10">
+        <div className="bg-secondary rounded-lg border border-neutral-dark overflow-hidden">
+          <div className="bg-neutral-dark px-6 py-4 flex justify-between items-center">
+            <div className="flex items-center">
+              <h2 className="font-display text-xl font-semibold">{game?.name || "Crash"}</h2>
+              <span className="ml-3 px-2 py-0.5 bg-primary rounded-full text-xs text-neutral-light">Educational Mode</span>
+            </div>
+          </div>
+          
+          <div className="p-6">
+            {/* Game container */}
+            <div className="flex flex-col lg:flex-row">
+              {/* Game display area */}
+              <div className="flex-grow mb-6 lg:mb-0 lg:mr-6">
+                <div className="bg-primary p-4 rounded-lg">
+                  {/* Multiplier display */}
+                  <div className="text-center mb-8">
+                    <div className="text-sm text-neutral-light mb-2">Current Multiplier</div>
+                    <div 
+                      className={`font-mono text-5xl font-bold ${
+                        gameState === "crashed" ? "text-accent-red" : "text-accent-green"
+                      } ${
+                        gameState === "running" ? "animate-pulse" : ""
+                      }`}
+                    >
+                      {gameState === "waiting" ? "WAITING" : `${currentMultiplier.toFixed(2)}x`}
+                      {gameState === "crashed" && " CRASHED"}
+                    </div>
+                  </div>
+                  
+                  {/* Graph visualization */}
+                  <div className="mb-8 bg-neutral-dark p-4 rounded-lg">
+                    <h3 className="text-sm font-medium text-neutral-light mb-4">Crash History</h3>
+                    <div className="h-60">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart
+                          data={chartData}
+                          margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+                          <XAxis 
+                            dataKey="time" 
+                            stroke="#888" 
+                            fontSize={12}
+                          />
+                          <YAxis 
+                            stroke="#888" 
+                            fontSize={12}
+                            domain={[0, 'dataMax + 1']}
+                            tickFormatter={(value) => `${value.toFixed(1)}x`}
+                          />
+                          <RechartsTooltip
+                            formatter={(value: any) => [`${value.toFixed(2)}x`, 'Multiplier']}
+                            labelFormatter={(label) => `Time: ${label}`}
+                            contentStyle={{
+                              backgroundColor: '#1A1D2C',
+                              borderColor: '#444',
+                              color: '#fff'
+                            }}
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="multiplier"
+                            stroke="#00FF88"
+                            strokeWidth={2}
+                            dot={{ r: 4, strokeWidth: 2 }}
+                            activeDot={{ r: 6, strokeWidth: 2 }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                  
+                  {/* Game controls */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Bet controls */}
+                    <div className="bg-neutral-dark p-4 rounded-lg">
+                      <h3 className="text-sm font-medium text-neutral-light mb-3">Place Your Bet</h3>
+                      
+                      {/* Bet amount */}
+                      <div className="mb-4">
+                        <label className="text-sm text-neutral-light mb-1 block">Bet Amount</label>
+                        <div className="flex bg-black bg-opacity-30 rounded-md overflow-hidden">
+                          <button 
+                            className="px-2 py-1 text-neutral-light hover:bg-neutral-medium"
+                            onClick={() => adjustBet(-10)}
+                            disabled={gameState !== "waiting" || hasBet}
+                          >
+                            -
+                          </button>
+                          <Input 
+                            type="text"
+                            value={betAmount}
+                            onChange={handleBetAmountChange}
+                            className="flex-grow bg-transparent border-none text-center text-white font-mono"
+                            disabled={gameState !== "waiting" || hasBet}
+                          />
+                          <button 
+                            className="px-2 py-1 text-neutral-light hover:bg-neutral-medium"
+                            onClick={() => adjustBet(10)}
+                            disabled={gameState !== "waiting" || hasBet}
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {/* Auto cashout */}
+                      <div className="mb-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="text-sm text-neutral-light">Auto Cashout</label>
+                          <div className="flex items-center space-x-2">
+                            <Switch 
+                              checked={enableAutoCashout} 
+                              onCheckedChange={handleAutoCashoutToggle}
+                              disabled={gameState !== "waiting" || hasBet}
+                            />
+                            <Label className="text-xs text-neutral-light">
+                              {enableAutoCashout ? "On" : "Off"}
+                            </Label>
+                          </div>
+                        </div>
+                        
+                        {enableAutoCashout && (
+                          <>
+                            <Slider
+                              value={[autoCashoutAt]}
+                              min={1.1}
+                              max={10}
+                              step={0.1}
+                              onValueChange={handleAutoCashoutChange}
+                              disabled={gameState !== "waiting" || hasBet || !enableAutoCashout}
+                              className="mb-1"
+                            />
+                            <div className="flex justify-between text-xs text-neutral-light">
+                              <span>1.1x</span>
+                              <span>{autoCashoutAt.toFixed(1)}x</span>
+                              <span>10x</span>
+                            </div>
+                          </>
+                        )}
+                      </div>
