@@ -632,3 +632,126 @@ export default function CrashGame() {
                           </>
                         )}
                       </div>
+
+                                            {/* Action buttons */}
+                      {gameState === "waiting" && (
+                        <Button
+                          onClick={handleBet}
+                          className="w-full bg-accent-green hover:bg-opacity-80 text-black font-medium py-3 rounded-md"
+                          disabled={hasBet || betMutation.isPending}
+                        >
+                          Place Bet
+                        </Button>
+                      )}
+                      
+                      {gameState === "running" && hasBet && !isCashedOut && (
+                        <Button
+                          onClick={handleCashout}
+                          className="w-full bg-accent-red hover:bg-opacity-80 text-white font-medium py-3 rounded-md animate-pulse"
+                          disabled={cashoutMutation.isPending}
+                        >
+                          Cash Out @ {currentMultiplier.toFixed(2)}x
+                        </Button>
+                      )}
+                      
+                      {gameState === "running" && (!hasBet || isCashedOut) && (
+                        <div className="text-center text-neutral-light py-3">
+                          {isCashedOut ? "You cashed out!" : "Waiting for next round..."}
+                        </div>
+                      )}
+                      
+                      {gameState === "crashed" && (
+                        <div className="text-center text-accent-red py-3 font-bold">
+                          Crashed at {crashPoint?.toFixed(2)}x
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Active bets */}
+                    <div className="bg-neutral-dark p-4 rounded-lg">
+                      <h3 className="text-sm font-medium text-neutral-light mb-3">Live Bets</h3>
+                      
+                      <div className="max-h-48 overflow-y-auto">
+                        {activeBets.length > 0 ? (
+                          <table className="w-full text-sm">
+                            <thead className="text-xs text-neutral-light">
+                              <tr>
+                                <th className="text-left pb-2">Player</th>
+                                <th className="text-right pb-2">Bet</th>
+                                <th className="text-right pb-2">Auto</th>
+                                <th className="text-right pb-2">Status</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {activeBets.map((bet, index) => (
+                                <tr key={index} className="border-t border-neutral-medium">
+                                  <td className="py-2">{bet.username}</td>
+                                  <td className="text-right py-2 font-mono">{formatCurrency(bet.bet)}</td>
+                                  <td className="text-right py-2 font-mono">
+                                    {bet.autoCashoutAt ? `${bet.autoCashoutAt.toFixed(2)}x` : '-'}
+                                  </td>
+                                  <td className="text-right py-2">
+                                    {bet.hashedOut ? (
+                                      <Badge className="bg-accent-green text-black">Cashed</Badge>
+                                    ) : (
+                                      <Badge className="bg-accent-purple">Playing</Badge>
+                                    )}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        ) : (
+                          <div className="text-center text-neutral-light py-8">
+                            No active bets
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Game information area */}
+              <div className="w-full lg:w-80 bg-primary rounded-lg p-4">
+                <h3 className="font-display font-semibold mb-3">Game Information</h3>
+                
+                {/* Game Rules */}
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-neutral-light mb-2">How to Play</h4>
+                  <div className="bg-neutral-dark p-3 rounded-md mb-3">
+                    <ul className="text-xs text-gray-400 space-y-2">
+                      <li>• Place your bet before the round starts</li>
+                      <li>• Watch the multiplier grow</li>
+                      <li>• Cash out before the game crashes</li>
+                      <li>• The longer you wait, the higher the multiplier</li>
+                      <li>• But if you wait too long, you lose your bet!</li>
+                    </ul>
+                  </div>
+                </div>
+                
+                {/* Educational information */}
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-neutral-light mb-2">Auto Cashout</h4>
+                  <p className="text-sm text-gray-400 mb-3">
+                    Set an auto cashout value to automatically cash out when the multiplier reaches your target.
+                  </p>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="bg-neutral-dark p-3 rounded-md mb-3 cursor-help">
+                          <h5 className="text-xs font-medium text-neutral-light mb-1">Risk vs. Reward</h5>
+                          <div className="bg-black bg-opacity-30 p-2 rounded font-mono text-xs">
+                            Higher Target = Higher Risk & Higher Potential Payout
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent className="w-80 bg-neutral-dark">
+                        <p className="text-xs">
+                          In Crash games, the expected value is theoretically the same at any cashout point due to the house edge.
+                          However, setting a higher cashout target increases variance - you'll win less frequently but win larger amounts when you do.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
