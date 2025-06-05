@@ -438,3 +438,24 @@ export default function CrashGame() {
         }
       }));
     }
+
+        // Also call the API for the backend to process the cashout
+    cashoutMutation.mutate({
+      currentMultiplier
+    });
+  };
+  
+  // Handle bet amount change
+  const handleBetAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBetAmount(e.target.value);
+  };
+  
+  // Handle auto-cashout change
+  const handleAutoCashoutChange = (value: number[]) => {
+    setAutoCashoutAt(value[0]);
+  };
+  
+  // Handle auto-cashout toggle
+  const handleAutoCashoutToggle = (checked: boolean) => {
+    setEnableAutoCashout(checked);
+  };
