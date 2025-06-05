@@ -75,3 +75,9 @@ export default function CrashGame() {
     rtp: number;
     difficulty: string;
   }
+
+    // Fetch game info
+  const { data: game, isLoading: gameLoading } = useQuery<GameResponse>({
+    queryKey: [`/api/games/${id}`],
+    enabled: !!id
+  });
