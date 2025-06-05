@@ -356,3 +356,70 @@ export default function CrashGame() {
     socket.onclose = () => {
       console.log('WebSocket disconnected');
     };
+
+        // Clean up on unmount
+    return () => {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.close();
+      }
+    };
+  }, [handleWebSocketMessage, toast]);
+
+  // Clean up animation on unmount
+  useEffect(() => {
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, []);
+  
+  // Handle bet button click
+  const handleBet = () => {
+    const bet = parseBetAmount(betAmount);
+    
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to play",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!bet) {
+      toast({
+        title: "Invalid bet",
+        description: "Please enter a valid bet amount",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (user.balance < bet) {
+      toast({
+        title: "Insufficient balance",
+        description: "You don't have enough funds to place this bet",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Send bet to server via WebSocket if connected
+    if (webSocketRef.current && webSocketRef.current.readyState === WebSocket.OPEN) {
+      webSocketRef.current.send(JSON.stringify({
+        type: 'placeBet',
+        data: {
+          bet,
+          autoCashoutAt: enableAutoCashout ? autoCashoutAt : null,
+          userId: user.id
+        }
+      }));
+    }
+    
+    // Also call the API for the backend to process the bet
+    betMutation.mutate({
+      bet,
+      autoCashoutAt: enableAutoCashout ? autoCashoutAt : null
+    });
+  };
