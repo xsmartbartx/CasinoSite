@@ -32,3 +32,12 @@ interface CrashHistoryEntry {
   crashPoint: number;
   timestamp: string;
 }
+
+// Active bet type
+interface ActiveBet {
+  userId: number;
+  username: string;
+  bet: number;
+  autoCashoutAt: number | null;
+  hashedOut: boolean;
+}
