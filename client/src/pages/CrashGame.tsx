@@ -179,3 +179,15 @@ export default function CrashGame() {
       });
     }
   });
+
+    // Start crash animation
+  const startCrashAnimation = () => {
+    // Cancel any existing animation
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+    
+    // Reset state
+    setCurrentMultiplier(1.00);
+    setCrashPoint(null);
+    setIsCashedOut(false);
