@@ -249,3 +249,10 @@ export default function CrashGame() {
             timestamp: new Date().toISOString()
           }
         ].slice(-10)); // Keep last 10 entries
+
+                // Refetch crash state
+        refetchCrashState();
+      }, 5000);
+      
+      return;
+    }
