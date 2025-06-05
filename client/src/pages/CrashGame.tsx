@@ -423,3 +423,18 @@ export default function CrashGame() {
       autoCashoutAt: enableAutoCashout ? autoCashoutAt : null
     });
   };
+
+    // Handle cashout button click
+  const handleCashout = () => {
+    if (!hasBet || isCashedOut) return;
+    
+    // Send cashout to server via WebSocket if connected
+    if (webSocketRef.current && webSocketRef.current.readyState === WebSocket.OPEN) {
+      webSocketRef.current.send(JSON.stringify({
+        type: 'cashout',
+        data: {
+          currentMultiplier,
+          userId: user?.id
+        }
+      }));
+    }
