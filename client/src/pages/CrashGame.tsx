@@ -90,3 +90,9 @@ export default function CrashGame() {
     activeBets: ActiveBet[];
     nextGameHash?: string;
   }
+
+    // Fetch crash state
+  const { data: crashState, isLoading: crashStateLoading, refetch: refetchCrashState } = useQuery<CrashStateResponse>({
+    queryKey: ['/api/crash/state'],
+    refetchInterval: gameState === "waiting" ? 5000 : false // Poll every 5 seconds when waiting
+  });
