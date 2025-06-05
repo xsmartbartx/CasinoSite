@@ -96,3 +96,21 @@ export default function CrashGame() {
     queryKey: ['/api/crash/state'],
     refetchInterval: gameState === "waiting" ? 5000 : false // Poll every 5 seconds when waiting
   });
+
+    // When crash state is loaded, update our local state
+  useEffect(() => {
+    if (crashState) {
+      setCrashHistory(crashState.history || []);
+      setActiveBets(crashState.activeBets || []);
+      
+      // If game state is different, update it
+      if (crashState.gameState !== gameState) {
+        setGameState(crashState.gameState as GameState);
+        
+        // If the game is now running and we weren't running before, start the animation
+        if (crashState.gameState === "running" && gameState !== "running") {
+          startCrashAnimation();
+        }
+      }
+    }
+  }, [crashState, gameState]);
