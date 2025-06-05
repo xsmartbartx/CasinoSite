@@ -41,3 +41,9 @@ interface ActiveBet {
   autoCashoutAt: number | null;
   hashedOut: boolean;
 }
+
+export default function CrashGame() {
+  const { id } = useParams();
+  const { user, updateBalance } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
