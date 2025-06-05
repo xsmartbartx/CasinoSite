@@ -306,3 +306,23 @@ export default function CrashGame() {
             description: `The game crashed at ${data.data.crashPoint.toFixed(2)}x`,
             variant: "destructive",
           });
+
+                    // Cancel animation
+          if (animationFrameRef.current) {
+            cancelAnimationFrame(animationFrameRef.current);
+            animationFrameRef.current = null;
+          }
+          break;
+          
+        case 'waitingForNext':
+          // Waiting for next game
+          setGameState('waiting');
+          break;
+          
+        default:
+          console.log('Unknown message type:', data.type);
+      }
+    } catch (error) {
+      console.error('Error handling WebSocket message:', error);
+    }
+  }, [toast]);
