@@ -147,3 +147,16 @@ export default function CrashGame() {
       });
     }
   });
+
+    // Cashout mutation
+  const cashoutMutation = useMutation({
+    mutationFn: async (params: { currentMultiplier: number }) => {
+      const res = await apiRequest("POST", "/api/play/crash/cashout", params);
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Cashed Out!",
+        description: `Cashed out at ${data.cashoutMultiplier.toFixed(2)}x and won ${formatCurrency(data.payout)}!`,
+        variant: "default",
+      });
