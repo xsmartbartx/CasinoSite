@@ -755,3 +755,39 @@ export default function CrashGame() {
                     </Tooltip>
                   </TooltipProvider>
                 </div>
+
+                                {/* Provably fair explanation */}
+                <div>
+                  <h4 className="text-sm font-medium text-neutral-light mb-2">Provably Fair</h4>
+                  <div className="bg-neutral-dark p-3 rounded-md">
+                    <p className="text-xs text-gray-400 mb-2">
+                      This game uses cryptographic techniques to ensure that results are random and verifiable.
+                    </p>
+                    <div className="bg-black bg-opacity-30 p-2 rounded font-mono text-xs break-all">
+                      Game Hash: {crashState?.nextGameHash ? crashState.nextGameHash.substring(0, 16) + '...' : 'Loading...'}
+                    </div>
+                    <p className="text-xs text-gray-400 mt-2">
+                      Each crash point is determined by a cryptographic hash that can be verified independently.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Game history section */}
+      <section>
+        <div className="bg-secondary rounded-lg border border-neutral-dark overflow-hidden">
+          <div className="bg-neutral-dark px-6 py-4">
+            <h2 className="font-display text-xl font-semibold">Your Game History</h2>
+          </div>
+          <div className="p-6">
+            <GameHistory showTitle={false} />
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
