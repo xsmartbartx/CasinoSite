@@ -377,3 +377,39 @@ export default function DiceGame() {
                     </Tooltip>
                   </TooltipProvider>
                 </div>
+
+                                {/* Multiplier explanation */}
+                <div>
+                  <h4 className="text-sm font-medium text-neutral-light mb-2">Multiplier Explanation</h4>
+                  <div className="bg-neutral-dark p-3 rounded-md">
+                    <p className="text-xs text-gray-400 mb-2">
+                      The multiplier is calculated based on the probability of winning. The lower the chances, the higher the multiplier.
+                    </p>
+                    <div className="text-xs bg-black bg-opacity-30 p-2 rounded font-mono">
+                      multiplier = (1 / probability) * 0.985
+                    </div>
+                    <p className="text-xs text-gray-400 mt-2">
+                      A 1.5% house edge is included in the multiplier calculation.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Game history section */}
+      <section>
+        <div className="bg-secondary rounded-lg border border-neutral-dark overflow-hidden">
+          <div className="bg-neutral-dark px-6 py-4">
+            <h2 className="font-display text-xl font-semibold">Your Game History</h2>
+          </div>
+          <div className="p-6">
+            <GameHistory showTitle={false} />
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
