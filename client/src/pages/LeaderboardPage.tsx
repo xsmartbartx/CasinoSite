@@ -12,3 +12,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Trophy } from "lucide-react";
+
+export default function LeaderboardPage() {
+  const [selectedGame, setSelectedGame] = useState<string>("all");
+  
+  const { data: games, isLoading: isLoadingGames } = useQuery<Game[]>({
+    queryKey: ['/api/games'],
+  });
+  
+  const handleGameChange = (value: string) => {
+    setSelectedGame(value);
+  };
