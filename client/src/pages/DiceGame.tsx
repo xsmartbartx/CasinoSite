@@ -96,3 +96,106 @@ export default function DiceGame() {
       
       // Invalidate game history
       queryClient.invalidateQueries({ queryKey: ['/api/history'] });
+
+            // Show toast for wins
+      if (data.win) {
+        toast({
+          title: "You Won!",
+          description: `Dice roll: ${data.diceRoll}. You won ${formatCurrency(data.payout)}!`,
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "You Lost",
+          description: `Dice roll: ${data.diceRoll}. Better luck next time!`,
+          variant: "destructive",
+        });
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Roll failed",
+        description: error.message || "Could not process your bet",
+        variant: "destructive",
+      });
+    },
+    onSettled: () => {
+      // Stop rolling animation
+      setTimeout(() => {
+        setRolling(false);
+      }, 1000); 
+    }
+  });
+  
+  const handleRoll = () => {
+    const betAmount = parseBetAmount(bet);
+    
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to play",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!betAmount) {
+      toast({
+        title: "Invalid bet",
+        description: "Please enter a valid bet amount",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (user.balance < betAmount) {
+      toast({
+        title: "Insufficient balance",
+        description: "You don't have enough funds to place this bet",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Start rolling animation
+    setRolling(true);
+    setLastWin(null);
+    
+    // Send the roll request
+    rollMutation.mutate({
+      bet: betAmount,
+      targetValue,
+      betType
+    });
+  };
+  
+  const handleBetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBet(e.target.value);
+  };
+  
+  const handleBetTypeChange = (value: string) => {
+    setBetType(value as BetType);
+    
+    // Reset target value to appropriate default
+    if (value === "over") setTargetValue(50);
+    else if (value === "under") setTargetValue(50);
+    else setTargetValue(50);
+  };
+  
+  const handleTargetChange = (value: number[]) => {
+    setTargetValue(value[0]);
+  };
+  
+  const adjustBet = (amount: number) => {
+    const currentBet = parseBetAmount(bet) || 0;
+    const newBet = Math.max(0.01, currentBet + amount);
+    setBet(newBet.toFixed(2));
+  };
+  
+  if (gameLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="bg-secondary rounded-lg border border-neutral-dark animate-pulse h-96"></div>
+      </div>
+    );
+  }
