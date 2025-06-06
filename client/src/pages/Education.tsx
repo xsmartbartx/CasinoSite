@@ -225,3 +225,97 @@ export default function Education() {
       </div>
     );
   }
+
+    // Showing all educational content
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="mb-6">
+        <h1 className="font-display text-3xl font-semibold">Educational Resources</h1>
+        <p className="text-neutral-light mt-2">
+          Learn about probability theory, expected value, and random number generation in casino games.
+        </p>
+      </div>
+      
+      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="mb-6">
+        <TabsList className="bg-neutral-dark">
+          <TabsTrigger value="all">All Topics</TabsTrigger>
+          <TabsTrigger value="probability">Probability</TabsTrigger>
+          <TabsTrigger value="expected_value">Expected Value</TabsTrigger>
+          <TabsTrigger value="rng">Random Number Generation</TabsTrigger>
+        </TabsList>
+      </Tabs>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {contentLoading ? (
+          Array(3).fill(0).map((_, i) => (
+            <Card key={i} className="bg-secondary border-neutral-dark animate-pulse">
+              <CardContent className="p-4">
+                <div className="flex items-center mb-3">
+                  <Skeleton className="w-6 h-6 bg-neutral-dark rounded-full mr-2" />
+                  <Skeleton className="h-5 bg-neutral-dark rounded w-1/2" />
+                </div>
+                <Skeleton className="h-4 bg-neutral-dark rounded w-full mb-2" />
+                <Skeleton className="h-4 bg-neutral-dark rounded w-3/4 mb-4" />
+                <div className="flex justify-between items-center">
+                  <Skeleton className="h-4 bg-neutral-dark rounded w-1/4" />
+                  <Skeleton className="h-4 bg-neutral-dark rounded w-1/4" />
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : filteredContent && filteredContent.length > 0 ? (
+          filteredContent.map((content: any) => (
+            <EducationalCard
+              key={content.id}
+              id={content.id}
+              title={content.title}
+              content={content.content}
+              icon={content.icon}
+              readTime={content.readTime}
+              onClick={handleCardClick}
+            />
+          ))
+        ) : (
+          <div className="col-span-3 text-center py-10">
+            <p className="text-neutral-light">No educational content available for this category.</p>
+          </div>
+        )}
+      </div>
+      
+      <Card className="bg-secondary border-neutral-dark mt-8">
+        <CardContent className="p-6">
+          <h2 className="font-display text-xl font-semibold mb-3">Why Study Casino Mathematics?</h2>
+          <p className="text-gray-400 mb-4">
+            Understanding the mathematics behind casino games helps you make more informed decisions, recognize the house edge, and appreciate the role of probability in gaming outcomes.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-primary p-4 rounded-lg">
+              <h3 className="font-medium text-accent-green mb-2 flex items-center">
+                <i className="fas fa-brain mr-2"></i> Informed Decisions
+              </h3>
+              <p className="text-sm text-gray-400">
+                Knowledge of probability and expected value helps you choose games with better odds and understand risk versus reward.
+              </p>
+            </div>
+            <div className="bg-primary p-4 rounded-lg">
+              <h3 className="font-medium text-accent-green mb-2 flex items-center">
+                <i className="fas fa-shield-alt mr-2"></i> Gambling Responsibility
+              </h3>
+              <p className="text-sm text-gray-400">
+                Understanding the mathematics prevents misconceptions about "due" wins and helps manage expectations.
+              </p>
+            </div>
+            <div className="bg-primary p-4 rounded-lg">
+              <h3 className="font-medium text-accent-green mb-2 flex items-center">
+                <i className="fas fa-graduation-cap mr-2"></i> Practical Math Application
+              </h3>
+              <p className="text-sm text-gray-400">
+                Casino games provide an engaging real-world context for applying mathematical concepts like probability.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
