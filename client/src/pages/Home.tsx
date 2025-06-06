@@ -50,3 +50,55 @@ export default function Home() {
           </div>
         </div>
       )}
+
+            {/* Games Section */}
+      <section className="mb-10">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="font-display text-2xl font-semibold">Casino Games</h2>
+          <Link href="/games">
+            <a className="text-accent-green hover:text-accent-green hover:underline text-sm font-medium flex items-center">
+              View All <i className="fas fa-chevron-right ml-1 text-xs"></i>
+            </a>
+          </Link>
+        </div>
+        
+        {/* Game cards grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {gamesLoading ? (
+            Array(3).fill(0).map((_, i) => (
+              <div key={i} className="bg-secondary rounded-lg overflow-hidden border border-neutral-dark h-80 animate-pulse">
+                <div className="p-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <div className="h-6 bg-neutral-dark rounded w-1/3"></div>
+                    <div className="h-4 bg-neutral-dark rounded w-16"></div>
+                  </div>
+                  <div className="h-40 bg-primary rounded-md mb-4"></div>
+                  <div className="h-4 bg-neutral-dark rounded w-full mb-2"></div>
+                  <div className="h-4 bg-neutral-dark rounded w-3/4 mb-4"></div>
+                  <div className="flex justify-between items-center">
+                    <div className="h-4 bg-neutral-dark rounded w-1/4"></div>
+                    <div className="h-8 bg-neutral-dark rounded w-16"></div>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : games && games.length > 0 ? (
+            games.map(game => (
+              <GameCard 
+                key={game.id}
+                id={game.id}
+                name={game.name}
+                description={game.description}
+                rtp={game.rtp}
+                type={game.type}
+                difficulty={game.difficulty}
+                popular={game.popular}
+              />
+            ))
+          ) : (
+            <div className="col-span-3 text-center py-10">
+              <p className="text-neutral-light">No games available at the moment.</p>
+            </div>
+          )}
+        </div>
+      </section>
