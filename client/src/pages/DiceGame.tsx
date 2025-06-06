@@ -18,3 +18,18 @@ import { apiRequest } from "@/lib/queryClient";
 import { formatCurrency, parseBetAmount, calculateProbability } from "@/lib/gameUtils";
 import { useAuth } from "@/hooks/useAuth";
 import { GameHistory } from "@/components/GameHistory";
+
+type BetType = "over" | "under" | "exact";
+
+export default function DiceGame() {
+  const { id } = useParams();
+  const { user, updateBalance } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  const [bet, setBet] = useState("50.00");
+  const [rolling, setRolling] = useState(false);
+  const [betType, setBetType] = useState<BetType>("over");
+  const [targetValue, setTargetValue] = useState<number>(50);
+  const [lastRoll, setLastRoll] = useState<number | null>(null);
+  const [lastWin, setLastWin] = useState<number | null>(null);
