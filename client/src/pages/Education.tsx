@@ -145,3 +145,83 @@ export default function Education() {
                   </p>
                 </>
               )}
+
+                            {specificContent.category === 'expected_value' && (
+                <>
+                  <h2>Understanding Expected Value</h2>
+                  <p>
+                    Expected value (EV) is a predicted value of a variable, calculated as the sum of all possible values each multiplied by the probability of its occurrence.
+                  </p>
+                  <p>
+                    The formula for expected value is:
+                  </p>
+                  <div className="bg-neutral-dark p-3 rounded-md my-4">
+                    <div className="font-mono text-center">
+                      EV = (Outcome₁ × Probability₁) + (Outcome₂ × Probability₂) + ... + (Outcomeₙ × Probabilityₙ)
+                    </div>
+                  </div>
+                  <h3>Example: Roulette Bet on Red</h3>
+                  <p>
+                    In European roulette, when betting $1 on red:
+                  </p>
+                  <ul>
+                    <li>Probability of winning: 18/37 ≈ 0.4865</li>
+                    <li>Outcome if you win: +$1</li>
+                    <li>Probability of losing: 19/37 ≈ 0.5135</li>
+                    <li>Outcome if you lose: -$1</li>
+                  </ul>
+                  <p>
+                    EV = ($1 × 0.4865) + (-$1 × 0.5135) = $0.4865 - $0.5135 = -$0.027
+                  </p>
+                  <p>
+                    This means that, on average, you will lose about 2.7 cents for every dollar bet on red in European roulette over the long run.
+                  </p>
+                </>
+              )}
+              
+              {specificContent.category === 'rng' && (
+                <>
+                  <h2>How Random Number Generation Works</h2>
+                  <p>
+                    Random Number Generation (RNG) is a computational or physical process that generates a sequence of numbers that cannot be reasonably predicted better than by a random chance.
+                  </p>
+                  <h3>Pseudo-Random Number Generators</h3>
+                  <p>
+                    Most computer programs use pseudo-random number generators (PRNGs), which are algorithms that produce sequences of numbers that approximate the properties of random numbers.
+                  </p>
+                  <div className="bg-neutral-dark p-3 rounded-md my-4">
+                    <div className="font-mono text-sm">
+                      // Example of a simple PRNG in JavaScript <br />
+                      function simpleRNG(seed) &#123; <br />
+                      &nbsp;&nbsp;return (seed * 9301 + 49297) % 233280; <br />
+                      &#125;
+                    </div>
+                  </div>
+                  <h3>True Random Number Generation</h3>
+                  <p>
+                    True random number generators (TRNGs) extract randomness from physical phenomena such as atmospheric noise, radioactive decay, or quantum phenomena.
+                  </p>
+                  <h3>RNG in Casino Games</h3>
+                  <p>
+                    Online casino games use cryptographically secure PRNGs that are regularly tested and certified by independent testing agencies to ensure fairness and unpredictability.
+                  </p>
+                </>
+              )}
+              
+              <div className="mt-8 p-4 bg-primary rounded-lg">
+                <h3 className="text-lg font-medium mb-2">Educational Resources</h3>
+                <p className="text-sm text-neutral-light mb-3">
+                  Want to learn more? Here are some recommended resources:
+                </p>
+                <ul className="list-disc list-inside text-sm text-accent-green space-y-1">
+                  <li><a href="#" className="hover:underline">Khan Academy: Probability and Statistics</a></li>
+                  <li><a href="#" className="hover:underline">Coursera: Game Theory and Decision Making</a></li>
+                  <li><a href="#" className="hover:underline">Book: "The Mathematics of Games and Gambling" by Edward Packel</a></li>
+                </ul>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
