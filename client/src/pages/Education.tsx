@@ -11,3 +11,40 @@ import {
   TabsList, 
   TabsTrigger 
 } from "@/components/ui/tabs";
+
+export default function Education() {
+  const { id } = useParams();
+  const [location, navigate] = useLocation();
+  const [selectedTab, setSelectedTab] = useState("all");
+  
+  // Fetch all educational content
+  const { 
+    data: educationalContent, 
+    isLoading: contentLoading 
+  } = useQuery({
+    queryKey: ['/api/education']
+  });
+  
+  // If an ID is provided, fetch that specific content
+  const { 
+    data: specificContent, 
+    isLoading: specificContentLoading 
+  } = useQuery({
+    queryKey: [`/api/education/${id}`],
+    enabled: !!id
+  });
+  
+  // Filter content by category
+  const filteredContent = selectedTab === "all" 
+    ? educationalContent 
+    : educationalContent?.filter((content: any) => content.category === selectedTab);
+  
+  // Handle educational card click
+  const handleCardClick = (contentId: number) => {
+    navigate(`/education/${contentId}`);
+  };
+  
+  // Handle back button click
+  const handleBack = () => {
+    navigate("/education");
+  };
