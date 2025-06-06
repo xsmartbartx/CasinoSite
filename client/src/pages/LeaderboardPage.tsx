@@ -58,3 +58,46 @@ export default function LeaderboardPage() {
             </Select>
           </div>
         </div>
+                <div className="grid grid-cols-1 gap-8">
+          <Leaderboard 
+            gameId={selectedGame !== "all" ? parseInt(selectedGame) : undefined}
+            showTitle={false}
+            limit={20}
+          />
+          
+          <Card className="bg-secondary/70 border-border">
+            <CardContent className="p-6">
+              <h2 className="text-xl font-display font-semibold mb-4">About Leaderboards</h2>
+              <div className="space-y-4 text-muted-foreground">
+                <p>
+                  Leaderboards show the top performers in our educational casino platform across different games and time periods.
+                </p>
+                <p>
+                  <strong>Time Periods:</strong>
+                  <ul className="list-disc pl-6 mt-1">
+                    <li><strong>Today</strong> - Rankings reset daily at midnight UTC</li>
+                    <li><strong>This Week</strong> - Rankings reset weekly on Monday at midnight UTC</li>
+                    <li><strong>This Month</strong> - Rankings reset monthly on the 1st of each month at midnight UTC</li>
+                    <li><strong>All Time</strong> - Permanent rankings since the platform's inception</li>
+                  </ul>
+                </p>
+                <p>
+                  <strong>Categories:</strong>
+                  <ul className="list-disc pl-6 mt-1">
+                    <li><strong>Biggest Wins</strong> - Players with the highest single payouts</li>
+                    <li><strong>Highest Multipliers</strong> - Players who've hit the largest multipliers</li>
+                    <li><strong>Most Games Played</strong> - Players who've played the most games</li>
+                    <li><strong>Most Wagered</strong> - Players who've wagered the most virtual currency</li>
+                  </ul>
+                </p>
+                <p className="italic">
+                  Remember, EduCasino uses virtual currency for educational purposes only. No real money is involved.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </>
+  );
+}
