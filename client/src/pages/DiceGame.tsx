@@ -329,3 +329,51 @@ export default function DiceGame() {
                   </div>
                 </div>
               </div>
+
+                            {/* Game information area */}
+              <div className="w-full lg:w-80 bg-primary rounded-lg p-4">
+                <h3 className="font-display font-semibold mb-3">Game Information</h3>
+                
+                {/* Dice Rules */}
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-neutral-light mb-2">Game Rules</h4>
+                  <div className="bg-neutral-dark p-3 rounded-md mb-3">
+                    <ul className="text-xs text-gray-400 space-y-2">
+                      <li>• A random number between 1-100 is generated</li>
+                      <li>• <b>Over:</b> You win if the roll is higher than your target</li>
+                      <li>• <b>Under:</b> You win if the roll is lower than your target</li>
+                      <li>• <b>Exact:</b> You win if the roll matches your target exactly</li>
+                    </ul>
+                  </div>
+                </div>
+                
+                {/* Educational information */}
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-neutral-light mb-2">Win Probability</h4>
+                  <p className="text-sm text-gray-400 mb-3">
+                    The probability of winning changes as you adjust your target value.
+                  </p>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="bg-neutral-dark p-3 rounded-md mb-3 cursor-help">
+                          <h5 className="text-xs font-medium text-neutral-light mb-1">Probability Formula</h5>
+                          <div className="bg-black bg-opacity-30 p-2 rounded font-mono text-xs">
+                            {betType === "over" ? `P(win) = (100 - ${target})/100 = ${probability}%` : 
+                             betType === "under" ? `P(win) = ${target}/100 = ${probability}%` : 
+                             `P(win) = 1/100 = 1%`}
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent className="w-80 bg-neutral-dark">
+                        <p className="text-xs">
+                          {betType === "over" 
+                            ? `For "Over ${target}" bets, you win when the dice rolls ${target+1} through 100. That's ${100-target} favorable outcomes out of 100 possible outcomes, giving a probability of ${probability}%.`
+                            : betType === "under"
+                            ? `For "Under ${target}" bets, you win when the dice rolls 1 through ${target-1}. That's ${target-1} favorable outcomes out of 100 possible outcomes, giving a probability of ${probability}%.`
+                            : `For "Exactly ${target}" bets, you win only when the dice rolls exactly ${target}. That's 1 favorable outcome out of 100 possible outcomes, giving a probability of 1%.`}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
