@@ -66,4 +66,33 @@ export default function DiceGame() {
         break;
     }
 
+        // Convert to percentage and round to 2 decimal places
+    probability = Math.round(probability * 10000) / 100;
+    multiplier = Math.round(multiplier * 100) / 100;
     
+    return { probability, multiplier };
+  };
+  
+  const { probability, multiplier } = getProbabilityAndMultiplier();
+  
+  // The target value for the slider
+  const target = targetValue;
+  
+  // Roll mutation
+  const rollMutation = useMutation({
+    mutationFn: async (params: { bet: number; targetValue: number; betType: string }) => {
+      const res = await apiRequest("POST", "/api/play/dice", params);
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      // Update the results from the server response
+      setLastRoll(data.diceRoll);
+      setLastWin(data.payout);
+      
+      // Update user balance
+      if (user) {
+        updateBalance(data.balance);
+      }
+      
+      // Invalidate game history
+      queryClient.invalidateQueries({ queryKey: ['/api/history'] });
