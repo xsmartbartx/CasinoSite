@@ -102,3 +102,60 @@ export default function Home() {
           )}
         </div>
       </section>
+
+       {/* Statistics Section (only shown if user is logged in) */}
+      {user && (
+        <StatisticsSection />
+      )}
+      
+      {/* Educational Resources Section */}
+      <section className="mb-10">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="font-display text-2xl font-semibold">Educational Resources</h2>
+          <Link href="/education">
+            <a className="text-sm text-accent-green hover:text-accent-purple flex items-center">
+              View All Resources <i className="fas fa-arrow-right ml-1"></i>
+            </a>
+          </Link>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {contentLoading ? (
+            Array(3).fill(0).map((_, i) => (
+              <div key={i} className="bg-secondary rounded-lg border border-neutral-dark overflow-hidden animate-pulse">
+                <div className="p-4">
+                  <div className="flex items-center mb-3">
+                    <div className="w-6 h-6 bg-neutral-dark rounded-full mr-2"></div>
+                    <div className="h-5 bg-neutral-dark rounded w-1/2"></div>
+                  </div>
+                  <div className="h-4 bg-neutral-dark rounded w-full mb-2"></div>
+                  <div className="h-4 bg-neutral-dark rounded w-3/4 mb-4"></div>
+                  <div className="flex justify-between items-center">
+                    <div className="h-4 bg-neutral-dark rounded w-1/4"></div>
+                    <div className="h-4 bg-neutral-dark rounded w-1/4"></div>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : educationalContent && educationalContent.length > 0 ? (
+            educationalContent.map(content => (
+              <EducationalCard
+                key={content.id}
+                id={content.id}
+                title={content.title}
+                content={content.content}
+                icon={content.icon}
+                readTime={content.readTime}
+                onClick={handleEducationCardClick}
+              />
+            ))
+          ) : (
+            <div className="col-span-3 text-center py-10">
+              <p className="text-neutral-light">No educational content available at the moment.</p>
+            </div>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
