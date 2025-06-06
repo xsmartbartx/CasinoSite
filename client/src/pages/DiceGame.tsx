@@ -232,3 +232,100 @@ export default function DiceGame() {
                       )}
                     </div>
                   </div>
+
+                                    {/* Betting controls */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    {/* Bet type */}
+                    <div>
+                      <label className="text-sm text-neutral-light mb-1 block">Bet Type</label>
+                      <Select value={betType} onValueChange={handleBetTypeChange} disabled={rolling}>
+                        <SelectTrigger className="bg-neutral-dark border-neutral-medium w-full">
+                          <SelectValue placeholder="Select bet type" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-neutral-dark border-neutral-medium">
+                          <SelectItem value="over">Over {target}</SelectItem>
+                          <SelectItem value="under">Under {target}</SelectItem>
+                          <SelectItem value="exact">Exactly {target}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    {/* Bet amount */}
+                    <div>
+                      <label className="text-sm text-neutral-light mb-1 block">Bet Amount</label>
+                      <div className="flex bg-neutral-dark rounded-md overflow-hidden">
+                        <button 
+                          className="px-2 py-1 text-neutral-light hover:bg-neutral-medium"
+                          onClick={() => adjustBet(-10)}
+                          disabled={rolling}
+                        >
+                          <i className="fas fa-minus"></i>
+                        </button>
+                        <Input 
+                          type="text"
+                          value={bet}
+                          onChange={handleBetChange}
+                          className="flex-grow bg-neutral-dark border-none text-center text-white font-mono"
+                          disabled={rolling}
+                        />
+                        <button 
+                          className="px-2 py-1 text-neutral-light hover:bg-neutral-medium"
+                          onClick={() => adjustBet(10)}
+                          disabled={rolling}
+                        >
+                          <i className="fas fa-plus"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Target value slider */}
+                  <div className="mb-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="text-sm text-neutral-light">Target Value: {target}</label>
+                      <div className="text-xs text-neutral-light">
+                        Win Chance: <span className="text-white font-mono">{probability.toFixed(1)}%</span>
+                      </div>
+                    </div>
+                    <Slider
+                      value={[targetValue]}
+                      min={1}
+                      max={99}
+                      step={1}
+                      onValueChange={handleTargetChange}
+                      disabled={rolling}
+                      className="mb-1"
+                    />
+                    <div className="flex justify-between text-xs text-neutral-light">
+                      <span>1</span>
+                      <span>50</span>
+                      <span>99</span>
+                    </div>
+                  </div>
+                  
+                  {/* Win display and roll button */}
+                  <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div className="bg-neutral-dark rounded-md p-3 text-center w-full md:w-auto">
+                      <div className="text-sm text-neutral-light mb-1">Win Amount</div>
+                      <div className="font-mono text-2xl font-medium text-accent-green">
+                        {lastWin !== null ? formatCurrency(lastWin) : "$0.00"}
+                      </div>
+                    </div>
+                    
+                    <div className="bg-neutral-dark rounded-md p-3 text-center w-full md:w-auto">
+                      <div className="text-sm text-neutral-light mb-1">Multiplier</div>
+                      <div className="font-mono text-lg font-medium text-accent-purple">
+                        {multiplier.toFixed(2)}x
+                      </div>
+                    </div>
+                    
+                    <Button
+                      onClick={handleRoll}
+                      className="bg-accent-green hover:bg-opacity-80 text-black font-medium py-3 px-8 rounded-md w-full md:w-auto"
+                      disabled={rolling}
+                    >
+                      <i className="fas fa-dice mr-2"></i> Roll
+                    </Button>
+                  </div>
+                </div>
+              </div>
