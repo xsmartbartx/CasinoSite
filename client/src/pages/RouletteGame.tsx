@@ -33,3 +33,36 @@ export default function RouletteGame() {
   const { user, updateBalance } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+    const [bet, setBet] = useState("50.00");
+  const [spinning, setSpinning] = useState(false);
+  const [betType, setBetType] = useState<BetType>("color");
+  const [betValue, setBetValue] = useState<string>("red");
+  const [result, setResult] = useState<number | undefined>(undefined);
+  const [lastWin, setLastWin] = useState<number | null>(null);
+  
+  // Bet options
+  const betOptions: BetOption[] = [
+    { 
+      type: "number", 
+      label: "Straight Up (Number 0-36)", 
+      odds: 36,
+      valueOptions: Array.from({ length: 37 }, (_, i) => ({ 
+        value: i.toString(), 
+        label: i.toString() 
+      }))
+    },
+    { 
+      type: "color", 
+      label: "Color", 
+      odds: 2,
+      valueOptions: [
+        { value: "red", label: "Red" },
+        { value: "black", label: "Black" }
+      ]
+    },
+    { type: "even", label: "Even", odds: 2 },
+    { type: "odd", label: "Odd", odds: 2 },
+    { type: "low", label: "Low (1-18)", odds: 2 },
+    { type: "high", label: "High (19-36)", odds: 2 }
+  ];
