@@ -118,3 +118,33 @@ export default function RouletteGame() {
       }, 4000); // Wait for the animation to complete
     }
   });
+
+    const handleSpin = () => {
+    const betAmount = parseBetAmount(bet);
+    
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to play",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!betAmount) {
+      toast({
+        title: "Invalid bet",
+        description: "Please enter a valid bet amount",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (user.balance < betAmount) {
+      toast({
+        title: "Insufficient balance",
+        description: "You don't have enough funds to place this bet",
+        variant: "destructive",
+      });
+      return;
+    }
