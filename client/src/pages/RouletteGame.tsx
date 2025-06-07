@@ -264,3 +264,59 @@ export default function RouletteGame() {
                         </Select>
                       </div>
                     )}
+
+                                        {/* Bet amount */}
+                    <div>
+                      <label className="text-sm text-neutral-light mb-1 block">Bet Amount</label>
+                      <div className="flex bg-neutral-dark rounded-md overflow-hidden">
+                        <button 
+                          className="px-2 py-1 text-neutral-light hover:bg-neutral-medium"
+                          onClick={() => adjustBet(-10)}
+                          disabled={spinning}
+                        >
+                          <i className="fas fa-minus"></i>
+                        </button>
+                        <Input 
+                          type="text"
+                          value={bet}
+                          onChange={handleBetChange}
+                          className="flex-grow bg-neutral-dark border-none text-center text-white font-mono"
+                          disabled={spinning}
+                        />
+                        <button 
+                          className="px-2 py-1 text-neutral-light hover:bg-neutral-medium"
+                          onClick={() => adjustBet(10)}
+                          disabled={spinning}
+                        >
+                          <i className="fas fa-plus"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Win display and spin button */}
+                  <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div className="bg-neutral-dark rounded-md p-3 text-center w-full md:w-auto">
+                      <div className="text-sm text-neutral-light mb-1">Win Amount</div>
+                      <div className="font-mono text-2xl font-medium text-accent-green">
+                        {lastWin !== null ? formatCurrency(lastWin) : "$0.00"}
+                      </div>
+                    </div>
+                    
+                    <div className="bg-neutral-dark rounded-md p-3 text-center w-full md:w-auto">
+                      <div className="text-sm text-neutral-light mb-1">Potential Win</div>
+                      <div className="font-mono text-lg font-medium text-accent-purple">
+                        {formatCurrency((parseBetAmount(bet) || 0) * (selectedBetOption?.odds || 0))}
+                      </div>
+                    </div>
+                    
+                    <Button
+                      onClick={handleSpin}
+                      className="bg-accent-green hover:bg-opacity-80 text-black font-medium py-3 px-8 rounded-md w-full md:w-auto"
+                      disabled={spinning}
+                    >
+                      <i className="fas fa-play mr-2"></i> Spin
+                    </Button>
+                  </div>
+                </div>
+              </div>
