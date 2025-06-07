@@ -371,3 +371,31 @@ export default function RouletteGame() {
                     </Tooltip>
                   </TooltipProvider>
                 </div>
+
+                                {/* Betting strategies */}
+                <div>
+                  <h4 className="text-sm font-medium text-neutral-light mb-2">Betting Strategies</h4>
+                  <p className="text-sm text-gray-400 mb-3">
+                    No betting strategy can overcome the house edge in the long run. Each spin is an independent event with the same probabilities.
+                  </p>
+                  <div className="text-xs text-neutral-light">
+                    <div className="mb-1"><strong>Martingale:</strong> Double your bet after each loss</div>
+                    <div className="mb-1"><strong>D'Alembert:</strong> Increase bet by one unit after loss, decrease by one after win</div>
+                    <div><strong>Fibonacci:</strong> Follow the Fibonacci sequence for bet sizes</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Game History */}
+      {user && (
+        <section className="mb-10">
+          <GameHistory limit={5} />
+        </section>
+      )}
+    </div>
+  );
+}
