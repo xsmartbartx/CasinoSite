@@ -86,3 +86,35 @@ export default function RouletteGame() {
       // Update the results from the server response
       setResult(data.number);
       setLastWin(data.payout);
+
+            // Update user balance
+      if (user) {
+        updateBalance(data.balance);
+      }
+      
+      // Invalidate game history
+      queryClient.invalidateQueries({ queryKey: ['/api/history'] });
+      
+      // Show toast for wins
+      if (data.win) {
+        toast({
+          title: "You Won!",
+          description: `The ball landed on ${data.number} (${data.color}). You won ${formatCurrency(data.payout)}!`,
+          variant: "default",
+        });
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Spin failed",
+        description: error.message || "Could not process your bet",
+        variant: "destructive",
+      });
+    },
+    onSettled: () => {
+      // Stop spinning animation
+      setTimeout(() => {
+        setSpinning(false);
+      }, 4000); // Wait for the animation to complete
+    }
+  });
