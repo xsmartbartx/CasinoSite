@@ -344,3 +344,30 @@ export default function RouletteGame() {
                     </div>
                   </div>
                 </div>
+
+                                {/* Educational information */}
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-neutral-light mb-2">Did You Know?</h4>
+                  <p className="text-sm text-gray-400 mb-3">
+                    European roulette has a house edge of 2.7% due to the zero. This means for every $100 wagered, the expected return is $97.30.
+                  </p>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="bg-neutral-dark p-3 rounded-md mb-3 cursor-help">
+                          <h5 className="text-xs font-medium text-neutral-light mb-1">Probability Formula</h5>
+                          <div className="bg-black bg-opacity-30 p-2 rounded font-mono text-xs">
+                            P(red) = 18/37 = 48.65%
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent className="w-80 bg-neutral-dark">
+                        <p className="text-xs">
+                          In European roulette, there are 18 red numbers, 18 black numbers, and 1 green zero.
+                          Therefore, the probability of hitting red is 18/37 ≈ 48.65%, not 50% as many believe.
+                          This small difference creates the house edge.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
