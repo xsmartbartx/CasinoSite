@@ -320,3 +320,27 @@ export default function RouletteGame() {
                   </div>
                 </div>
               </div>
+
+                            {/* Game information area */}
+              <div className="w-full lg:w-80 bg-primary rounded-lg p-4">
+                <h3 className="font-display font-semibold mb-3">Game Information</h3>
+                
+                {/* Roulette layout mini-display */}
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-neutral-light mb-2">Roulette Layout</h4>
+                  <div className="bg-neutral-dark p-3 rounded-md mb-3">
+                    <div className="grid grid-cols-6 gap-1">
+                      <div className="col-span-1 bg-green-600 text-white text-xs font-mono h-6 flex items-center justify-center rounded">0</div>
+                      {Array.from({ length: 36 }, (_, i) => i + 1).map(num => (
+                        <div 
+                          key={num} 
+                          className={`text-white text-xs font-mono h-6 flex items-center justify-center rounded ${
+                            num % 2 === 0 ? 'bg-black' : 'bg-red-600'
+                          }`}
+                        >
+                          {num}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
