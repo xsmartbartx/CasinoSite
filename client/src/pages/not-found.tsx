@@ -23,3 +23,50 @@ export default function NotFound() {
           It might have been moved or doesn't exist.
         </p>
       </motion.div>
+
+            <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <Card className="w-full max-w-md border-border/40 bg-background/30 backdrop-blur-sm">
+          <CardContent className="pt-6">
+            <div className="flex items-center mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+              <AlertTriangle className="h-6 w-6 text-destructive shrink-0 mr-3" />
+              <p className="text-sm">
+                The requested URL could not be found on this server.
+              </p>
+            </div>
+            
+            <div className="grid gap-2 mt-6">
+              <div className="flex items-center text-muted-foreground">
+                <Search className="h-4 w-4 mr-2" />
+                <span className="text-sm">Try searching for something else</span>
+              </div>
+              <div className="flex items-center text-muted-foreground">
+                <Home className="h-4 w-4 mr-2" />
+                <span className="text-sm">Go back to the homepage</span>
+              </div>
+              <div className="flex items-center text-muted-foreground">
+                <Gamepad2 className="h-4 w-4 mr-2" />
+                <span className="text-sm">Try one of our popular games</span>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="flex gap-2 pt-2 pb-6">
+            <Button variant="outline" asChild className="flex-1">
+              <Link href="/">
+                <ArrowLeft className="mr-2 h-4 w-4" /> Home
+              </Link>
+            </Button>
+            <Button className="flex-1">
+              <Link href="/">
+                Try a Game
+              </Link>
+            </Button>
+          </CardFooter>
+        </Card>
+      </motion.div>
+    </div>
+  );
+}
