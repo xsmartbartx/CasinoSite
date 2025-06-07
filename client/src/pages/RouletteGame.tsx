@@ -168,3 +168,19 @@ export default function RouletteGame() {
       betValue: value 
     });
   };
+
+    const handleBetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBet(e.target.value);
+  };
+  
+  const handleBetTypeChange = (value: string) => {
+    setBetType(value as BetType);
+    
+    // Reset bet value when type changes
+    const option = betOptions.find(opt => opt.type === value);
+    if (option?.valueOptions) {
+      setBetValue(option.valueOptions[0].value);
+    } else {
+      setBetValue(value);
+    }
+  };
