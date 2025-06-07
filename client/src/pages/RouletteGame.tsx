@@ -216,4 +216,51 @@ export default function RouletteGame() {
               {/* Game display area */}
               <div className="flex-grow mb-6 lg:mb-0 lg:mr-6">
                 <div className="bg-primary p-4 rounded-lg"></div>
-                
+                                  {/* Roulette display */}
+                  <div className="flex items-center justify-center mb-6 py-8">
+                    <RouletteWheel 
+                      spinning={spinning}
+                      result={result}
+                      size="lg"
+                    />
+                  </div>
+                  
+                  {/* Betting controls */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    {/* Bet type */}
+                    <div>
+                      <label className="text-sm text-neutral-light mb-1 block">Bet Type</label>
+                      <Select value={betType} onValueChange={handleBetTypeChange} disabled={spinning}>
+                        <SelectTrigger className="bg-neutral-dark border-neutral-medium w-full">
+                          <SelectValue placeholder="Select bet type" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-neutral-dark border-neutral-medium">
+                          {betOptions.map(option => (
+                            <SelectItem key={option.type} value={option.type}>
+                              {option.label} ({option.odds}:1)
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    {/* Bet value (if applicable) */}
+                    {selectedBetOption?.valueOptions && (
+                      <div>
+                        <label className="text-sm text-neutral-light mb-1 block">
+                          {betType === "number" ? "Number" : "Color"}
+                        </label>
+                        <Select value={betValue} onValueChange={setBetValue} disabled={spinning}>
+                          <SelectTrigger className="bg-neutral-dark border-neutral-medium w-full">
+                            <SelectValue placeholder="Select value" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-neutral-dark border-neutral-medium">
+                            {selectedBetOption.valueOptions.map(option => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
