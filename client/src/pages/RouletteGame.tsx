@@ -66,3 +66,23 @@ export default function RouletteGame() {
     { type: "low", label: "Low (1-18)", odds: 2 },
     { type: "high", label: "High (19-36)", odds: 2 }
   ];
+
+    // Fetch game info
+  const { data: game, isLoading: gameLoading } = useQuery({
+    queryKey: [`/api/games/${id}`],
+    enabled: !!id
+  });
+  
+  // Find currently selected bet option
+  const selectedBetOption = betOptions.find(option => option.type === betType);
+  
+  // Spin mutation
+  const spinMutation = useMutation({
+    mutationFn: async (params: { bet: number; betType: string; betValue: any }) => {
+      const res = await apiRequest("POST", "/api/play/roulette", params);
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      // Update the results from the server response
+      setResult(data.number);
+      setLastWin(data.payout);
