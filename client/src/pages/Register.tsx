@@ -36,3 +36,20 @@ export default function Register() {
       confirmPassword: "",
     },
   });
+
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      setLoading(true);
+      await registerUser(values.username, values.password);
+      toast({
+        title: "Registration successful",
+        description: "You can now play casino games!",
+      });
+      navigate("/");
+    } catch (error) {
+      console.error("Registration error:", error);
+      // Error is handled by the useAuth hook
+    } finally {
+      setLoading(false);
+    }
+  }
