@@ -53,3 +53,102 @@ export default function Register() {
       setLoading(false);
     }
   }
+
+    return (
+    <div className="flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md bg-secondary border-neutral-dark">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">Create an Account</CardTitle>
+          <CardDescription className="text-center">
+            Register to track your game statistics and save your progress
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Enter a username" 
+                        {...field} 
+                        className="bg-neutral-dark border-neutral-medium focus:border-accent-green" 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="password" 
+                        placeholder="Create a password" 
+                        {...field} 
+                        className="bg-neutral-dark border-neutral-medium focus:border-accent-green" 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirm Password</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="password" 
+                        placeholder="Confirm your password" 
+                        {...field} 
+                        className="bg-neutral-dark border-neutral-medium focus:border-accent-green" 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button 
+                type="submit" 
+                className="w-full bg-accent-green hover:bg-opacity-80 text-black font-medium"
+                disabled={loading}
+              >
+                {loading ? "Creating Account..." : "Register"}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+        <CardFooter className="flex flex-col space-y-4">
+          <div className="text-sm text-neutral-light text-center">
+            By registering, you agree to our 
+            <Link href="/terms">
+              <a className="text-accent-green hover:underline ml-1">Terms of Service</a>
+            </Link>
+            {" "}and{" "}
+            <Link href="/privacy">
+              <a className="text-accent-green hover:underline">Privacy Policy</a>
+            </Link>
+          </div>
+          <div className="text-center">
+            <span className="text-neutral-light">Already have an account?</span>
+            {" "}
+            <Link href="/login">
+              <a className="text-accent-green hover:underline">Login</a>
+            </Link>
+          </div>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+}
