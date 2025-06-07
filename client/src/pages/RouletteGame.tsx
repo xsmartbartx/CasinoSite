@@ -18,3 +18,18 @@ import { apiRequest } from "@/lib/queryClient";
 import { formatCurrency, parseBetAmount, getRouletteColor } from "@/lib/gameUtils";
 import { useAuth } from "@/hooks/useAuth";
 import { GameHistory } from "@/components/GameHistory";
+
+type BetType = "number" | "color" | "even" | "odd" | "low" | "high";
+
+interface BetOption {
+  type: BetType;
+  label: string;
+  odds: number;
+  valueOptions?: { value: string; label: string }[];
+}
+
+export default function RouletteGame() {
+  const { id } = useParams();
+  const { user, updateBalance } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
