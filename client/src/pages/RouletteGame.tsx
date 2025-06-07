@@ -148,3 +148,23 @@ export default function RouletteGame() {
       });
       return;
     }
+
+        // Handle bet value for different bet types
+    let value = betValue;
+    
+    // For bet types that don't need a specific value (like even/odd)
+    if (!selectedBetOption?.valueOptions) {
+      value = betType;
+    }
+    
+    // Start spinning animation
+    setSpinning(true);
+    setLastWin(null);
+    
+    // Send the spin request
+    spinMutation.mutate({ 
+      bet: betAmount, 
+      betType, 
+      betValue: value 
+    });
+  };
