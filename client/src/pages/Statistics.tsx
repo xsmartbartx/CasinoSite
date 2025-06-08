@@ -90,3 +90,13 @@ export default function Statistics() {
       profit: stat.profit
     }));
   };
+
+    // Prepare data for RTP comparison chart
+  const prepareRTPData = () => {
+    if (!statistics || !statistics.gameStats) return [];
+    
+    return statistics.gameStats.map((stat: any) => ({
+      name: stat.type.charAt(0).toUpperCase() + stat.type.slice(1),
+      rtp: parseFloat(stat.rtp.toFixed(1))
+    }));
+  };
