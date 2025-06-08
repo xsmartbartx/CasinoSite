@@ -179,3 +179,64 @@ export default function Statistics() {
               isLoading={isLoading}
             />
           </div>
+
+                    {/* Additional Statistics */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <Card className="bg-secondary border-neutral-dark">
+              <CardContent className="p-4">
+                <h3 className="font-display font-medium mb-3">Return to Player (RTP)</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Overall RTP</span>
+                    {isLoading ? (
+                      <Skeleton className="h-6 w-20 bg-neutral-dark" />
+                    ) : (
+                      <span className="font-mono text-lg">{statistics?.rtp?.toFixed(1) || 0}%</span>
+                    )}
+                  </div>
+                  
+                  {statistics?.gameStats && statistics.gameStats.map((game: any, index: number) => (
+                    <div key={index} className="flex justify-between items-center">
+                      <span className="text-sm">{game.type.charAt(0).toUpperCase() + game.type.slice(1)}</span>
+                      <span className="font-mono">{game.rtp.toFixed(1)}%</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-secondary border-neutral-dark">
+              <CardContent className="p-4">
+                <h3 className="font-display font-medium mb-3">Performance by Game</h3>
+                <div className="space-y-3">
+                  {isLoading ? (
+                    Array(3).fill(0).map((_, i) => (
+                      <div key={i} className="space-y-1">
+                        <Skeleton className="h-5 w-1/3 bg-neutral-dark" />
+                        <Skeleton className="h-3 w-full bg-neutral-dark" />
+                      </div>
+                    ))
+                  ) : statistics?.gameStats ? (
+                    statistics.gameStats.map((game: any, index: number) => (
+                      <div key={index}>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm">{game.type.charAt(0).toUpperCase() + game.type.slice(1)}</span>
+                          <span className={`text-sm ${game.profit >= 0 ? "text-status-success" : "text-status-error"}`}>
+                            {formatCurrency(game.profit)}
+                          </span>
+                        </div>
+                        <div className="h-2 bg-neutral-dark rounded-full mt-1 overflow-hidden">
+                          <div 
+                            className={`h-full ${game.profit >= 0 ? "bg-status-success" : "bg-status-error"}`}
+                            style={{ width: `${Math.min(100, Math.abs(game.profit / game.totalBet * 100))}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-neutral-light text-sm">No game data available</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
