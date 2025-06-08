@@ -120,3 +120,55 @@ export default function SlotGame() {
       });
       return;
     }
+
+        // Start spinning animation
+    setSpinning(true);
+    setLastWin(null);
+    
+    // Send the spin request
+    spinMutation.mutate(betAmount);
+  };
+  
+  const handleBetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBet(e.target.value);
+  };
+  
+  const adjustBet = (amount: number) => {
+    const currentBet = parseBetAmount(bet) || 0;
+    const newBet = Math.max(0.01, currentBet + amount);
+    setBet(newBet.toFixed(2));
+  };
+  
+  if (gameLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="bg-secondary rounded-lg border border-neutral-dark animate-pulse h-96"></div>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <section className="mb-10">
+        <div className="bg-secondary rounded-lg border border-neutral-dark overflow-hidden">
+          <div className="bg-neutral-dark px-6 py-4 flex justify-between items-center">
+            <div className="flex items-center">
+              <h2 className="font-display text-xl font-semibold">{game?.name || "Slots"}</h2>
+              <span className="ml-3 px-2 py-0.5 bg-primary rounded-full text-xs text-neutral-light">Educational Mode</span>
+            </div>
+          </div>
+          
+          <div className="p-6">
+            {/* Game container */}
+            <div className="flex flex-col lg:flex-row">
+              {/* Game display area */}
+              <div className="flex-grow mb-6 lg:mb-0 lg:mr-6">
+                <div className="bg-primary p-4 rounded-lg">
+                  {/* Slot machine display */}
+                  <SlotMachine 
+                    symbols={symbols}
+                    spinning={spinning}
+                    results={results}
+                    onSpinEnd={() => setSpinning(false)}
+                    className="mb-4"
+                  />
