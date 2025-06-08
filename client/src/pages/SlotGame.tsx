@@ -220,3 +220,54 @@ export default function SlotGame() {
                   </div>
                 </div>
               </div>
+
+                            {/* Game information area */}
+              <div className="w-full lg:w-80 bg-primary rounded-lg p-4">
+                <h3 className="font-display font-semibold mb-3">Game Information</h3>
+                
+                {/* Symbol Paytable */}
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-neutral-light mb-2">Symbol Values</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <i className="fas fa-gem text-accent-green mr-1"></i>
+                        <i className="fas fa-gem text-accent-green mr-1"></i>
+                        <i className="fas fa-gem text-accent-green"></i>
+                      </div>
+                      <span className="font-mono">x10</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <i className="fas fa-crown text-accent-purple mr-1"></i>
+                        <i className="fas fa-crown text-accent-purple mr-1"></i>
+                        <i className="fas fa-crown text-accent-purple"></i>
+                      </div>
+                      <span className="font-mono">x15</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <i className="fas fa-star text-accent-green mr-1"></i>
+                        <i className="fas fa-star text-accent-green mr-1"></i>
+                        <i className="fas fa-star text-accent-green"></i>
+                      </div>
+                      <span className="font-mono">x5</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <i className="fas fa-dice text-white mr-1"></i>
+                        <i className="fas fa-dice text-white mr-1"></i>
+                        <i className="fas fa-dice text-white"></i>
+                      </div>
+                      <span className="font-mono">x3</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <i className="fas fa-money-bill-wave text-accent-green mr-1"></i>
+                        <i className="fas fa-money-bill-wave text-accent-green mr-1"></i>
+                        <i className="fas fa-money-bill-wave text-accent-green"></i>
+                      </div>
+                      <span className="font-mono">x8</span>
+                    </div>
+                  </div>
+                </div>
