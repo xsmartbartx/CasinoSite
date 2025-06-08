@@ -36,3 +36,23 @@ export default function SlotGame() {
     { id: "dice", value: "dice", icon: <i className="fas fa-dice text-white text-4xl"></i> },
     { id: "money", value: "money", icon: <i className="fas fa-money-bill-wave text-accent-green text-4xl"></i> }
   ];
+
+    // Spin mutation
+  const spinMutation = useMutation({
+    mutationFn: async (betAmount: number) => {
+      const res = await apiRequest("POST", "/api/play/slot", { bet: betAmount });
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      // Update the results from the server response
+      setResults({
+        gridSymbols: data.gridSymbols,
+        winningLines: data.winningLines,
+        totalMultiplier: data.totalMultiplier
+      });
+      setLastWin(data.payout);
+      
+      // Update user balance
+      if (user) {
+        updateBalance(data.balance);
+      }
