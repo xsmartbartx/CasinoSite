@@ -134,3 +134,29 @@ export default function Statistics() {
           </SelectContent>
         </Select>
       </div>
+
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+        <TabsList className="bg-neutral-dark">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="charts">Charts</TabsTrigger>
+          <TabsTrigger value="history">History</TabsTrigger>
+        </TabsList>
+      
+        <TabsContent value="overview" className="mt-6">
+          {/* Statistics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <StatisticCard
+              title="Total Wagered"
+              value={statistics ? formatCurrency(statistics.totalWagered) : "$0.00"}
+              subtitle={gameFilter === "all" ? "All Games" : gameFilter.charAt(0).toUpperCase() + gameFilter.slice(1)}
+              change={statistics ? { value: 12.5, isPositive: true } : undefined}
+              isLoading={isLoading}
+            />
+            
+            <StatisticCard
+              title="Total Won"
+              value={statistics ? formatCurrency(statistics.totalWon) : "$0.00"}
+              subtitle={gameFilter === "all" ? "All Games" : gameFilter.charAt(0).toUpperCase() + gameFilter.slice(1)}
+              change={statistics ? { value: 8.3, isPositive: true } : undefined}
+              isLoading={isLoading}
+            />
