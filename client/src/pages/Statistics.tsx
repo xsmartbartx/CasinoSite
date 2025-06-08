@@ -78,3 +78,15 @@ export default function Statistics() {
     queryKey: ['/api/statistics', { game: gameFilter, time: timeFilter }],
     enabled: !!user
   });
+
+    // Generate demo data for charts if needed
+  const prepareChartData = () => {
+    if (!statistics || !statistics.gameStats) return [];
+    
+    return statistics.gameStats.map((stat: any) => ({
+      name: stat.type.charAt(0).toUpperCase() + stat.type.slice(1),
+      total: stat.totalBet,
+      won: stat.totalPayout,
+      profit: stat.profit
+    }));
+  };
