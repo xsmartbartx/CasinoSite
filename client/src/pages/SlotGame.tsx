@@ -69,3 +69,24 @@ export default function SlotGame() {
         });
       }
       
+            // For multiple winning lines, show a special message
+      if (data.winningLines && data.winningLines.length > 1) {
+        toast({
+          title: "Multiple Winning Lines!",
+          description: `You hit ${data.winningLines.length} winning combinations!`,
+          variant: "default",
+        });
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Spin failed",
+        description: error.message || "Could not process your bet",
+        variant: "destructive",
+      });
+    },
+    onSettled: () => {
+      // Stop spinning animation is now handled by the SlotMachine component
+      // when it finishes displaying the results
+    }
+  });
