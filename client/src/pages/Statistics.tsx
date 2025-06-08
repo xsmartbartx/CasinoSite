@@ -240,3 +240,40 @@ export default function Statistics() {
               </CardContent>
             </Card>
           </div>
+
+                    {/* Game History */}
+          <GameHistory limit={5} showTitle={true} />
+        </TabsContent>
+        
+        <TabsContent value="charts" className="mt-6">
+          <div className="grid grid-cols-1 gap-6 mb-8">
+            <Card className="bg-secondary border-neutral-dark">
+              <CardContent className="p-4">
+                <h3 className="font-display font-medium mb-3">Wagered vs Won by Game</h3>
+                <div className="h-80">
+                  {isLoading ? (
+                    <div className="h-full w-full flex items-center justify-center">
+                      <div className="text-neutral-light">Loading chart data...</div>
+                    </div>
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={prepareChartData()}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                        <XAxis dataKey="name" tick={{ fill: '#777' }} />
+                        <YAxis tick={{ fill: '#777' }} />
+                        <Tooltip
+                          contentStyle={{ backgroundColor: '#1A1D2C', borderColor: '#333' }}
+                          formatter={(value: any) => [`$${value.toFixed(2)}`, '']}
+                        />
+                        <Legend />
+                        <Bar dataKey="total" name="Wagered" fill="hsl(var(--chart-1))" />
+                        <Bar dataKey="won" name="Won" fill="hsl(var(--chart-2))" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
