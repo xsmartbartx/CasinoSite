@@ -277,3 +277,33 @@ export default function Statistics() {
                 </div>
               </CardContent>
             </Card>
+
+                        <Card className="bg-secondary border-neutral-dark">
+              <CardContent className="p-4">
+                <h3 className="font-display font-medium mb-3">Return to Player (RTP) by Game</h3>
+                <div className="h-80">
+                  {isLoading ? (
+                    <div className="h-full w-full flex items-center justify-center">
+                      <div className="text-neutral-light">Loading chart data...</div>
+                    </div>
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={prepareRTPData()}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                        <XAxis dataKey="name" tick={{ fill: '#777' }} />
+                        <YAxis tick={{ fill: '#777' }} domain={[0, 100]} />
+                        <Tooltip
+                          contentStyle={{ backgroundColor: '#1A1D2C', borderColor: '#333' }}
+                          formatter={(value: any) => [`${value}%`, 'RTP']}
+                        />
+                        <Bar dataKey="rtp" name="RTP %" fill="hsl(var(--chart-3))" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
