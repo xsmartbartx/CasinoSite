@@ -395,3 +395,51 @@ export default function SlotGame() {
                     </Tooltip>
                   </TooltipProvider>
                 </div>
+
+                                {/* Security information */}
+                <div>
+                  <h4 className="text-sm font-medium text-neutral-light mb-2">
+                    <span className="flex items-center gap-1">
+                      <i className="fas fa-shield-alt text-accent-green"></i> Security Features
+                    </span>
+                  </h4>
+                  <div className="bg-neutral-dark p-3 rounded-md">
+                    <p className="text-xs text-gray-400 mb-2">
+                      This game uses cryptographic randomness to ensure fair outcomes:
+                    </p>
+                    <ul className="text-xs text-gray-400 list-disc pl-4 space-y-1">
+                      <li>Cryptographically secure random number generation (CSPRNG)</li>
+                      <li>Uniform distribution for truly fair outcomes</li>
+                      <li>Tampering resistance through algorithmic fairness</li>
+                    </ul>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="bg-black bg-opacity-30 p-2 rounded font-mono text-xs mt-2 cursor-help">
+                            <span className="text-accent-green">crypto.randomBytes()</span> &gt; Math.random()
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent className="w-80 bg-neutral-dark">
+                          <p className="text-xs">
+                            Unlike standard Math.random() which uses a predictable algorithm, our games use Node.js crypto.randomBytes() which produces high-quality randomness from your operating system's entropy sources. This makes outcomes truly unpredictable and fair.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Game History */}
+      {user && (
+        <section className="mb-10">
+          <GameHistory limit={5} />
+        </section>
+      )}
+    </div>
+  );
+}
