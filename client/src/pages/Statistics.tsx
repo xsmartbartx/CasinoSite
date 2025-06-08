@@ -100,3 +100,37 @@ export default function Statistics() {
       rtp: parseFloat(stat.rtp.toFixed(1))
     }));
   };
+
+    return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="mb-6">
+        <h1 className="font-display text-3xl font-semibold">Your Statistics</h1>
+        <p className="text-neutral-light mt-2">
+          Track your gaming results and understand the mathematics behind your gameplay.
+        </p>
+      </div>
+      
+      <div className="flex justify-end items-center mb-6 space-x-2">
+        <Select value={gameFilter} onValueChange={setGameFilter}>
+          <SelectTrigger className="bg-neutral-dark text-white text-sm rounded-md border-none w-32">
+            <SelectValue placeholder="All Games" />
+          </SelectTrigger>
+          <SelectContent className="bg-neutral-dark border-neutral-medium">
+            <SelectItem value="all">All Games</SelectItem>
+            <SelectItem value="slot">Slots</SelectItem>
+            <SelectItem value="roulette">Roulette</SelectItem>
+            <SelectItem value="dice">Dice</SelectItem>
+          </SelectContent>
+        </Select>
+        
+        <Select value={timeFilter} onValueChange={setTimeFilter}>
+          <SelectTrigger className="bg-neutral-dark text-white text-sm rounded-md border-none w-36">
+            <SelectValue placeholder="Last 7 Days" />
+          </SelectTrigger>
+          <SelectContent className="bg-neutral-dark border-neutral-medium">
+            <SelectItem value="7days">Last 7 Days</SelectItem>
+            <SelectItem value="30days">Last 30 Days</SelectItem>
+            <SelectItem value="alltime">All Time</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
