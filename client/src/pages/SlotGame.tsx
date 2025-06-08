@@ -271,3 +271,101 @@ export default function SlotGame() {
                     </div>
                   </div>
                 </div>
+
+                                {/* Win Patterns */}
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-neutral-light mb-2">Win Patterns</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <div className="text-xs text-neutral-light mb-1">Horizontal Lines (x1)</div>
+                      <div className="grid grid-cols-3 gap-1 mb-1">
+                        <div className="bg-blue-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-blue-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-blue-500 bg-opacity-50 h-5 rounded"></div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-1 mb-1">
+                        <div className="bg-green-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-green-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-green-500 bg-opacity-50 h-5 rounded"></div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-1">
+                        <div className="bg-red-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-red-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-red-500 bg-opacity-50 h-5 rounded"></div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="text-xs text-neutral-light mb-1">Vertical Lines (x1)</div>
+                      <div className="grid grid-cols-3 gap-1">
+                        <div className="bg-yellow-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-purple-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-pink-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-yellow-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-purple-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-pink-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-yellow-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-purple-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="bg-pink-500 bg-opacity-50 h-5 rounded"></div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="text-xs text-neutral-light mb-1">Diagonal Lines (x1.5)</div>
+                      <div className="grid grid-cols-3 gap-1 mb-1">
+                        <div className="bg-orange-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-orange-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-orange-500 bg-opacity-50 h-5 rounded"></div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-1">
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-cyan-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-cyan-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-cyan-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="text-xs text-neutral-light mb-1">V-Shapes (x2)</div>
+                      <div className="grid grid-cols-3 gap-1 mb-1">
+                        <div className="bg-indigo-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-indigo-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-indigo-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-1">
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-amber-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-amber-500 bg-opacity-50 h-5 rounded"></div>
+                        <div className="h-5"></div>
+                        <div className="bg-amber-500 bg-opacity-50 h-5 rounded"></div>
+                      </div>
+                    </div>
+                    
+                    <div className="text-xs text-neutral-light">
+                      <p>• Three matching symbols in a line = Full win</p>
+                      <p>• Two matching high-value symbols in a line = Half win</p>
+                      <p>• Multiple winning lines combine their values!</p>
+                    </div>
+                  </div>
+                </div>
