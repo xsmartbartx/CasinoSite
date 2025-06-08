@@ -67,3 +67,14 @@ function StatisticCard({ title, value, subtitle, change, isLoading }: StatisticC
     </Card>
   );
 }
+
+export default function Statistics() {
+  const { user } = useAuth();
+  const [gameFilter, setGameFilter] = useState("all");
+  const [timeFilter, setTimeFilter] = useState("7days");
+  const [activeTab, setActiveTab] = useState("overview");
+  
+  const { data: statistics, isLoading } = useQuery({
+    queryKey: ['/api/statistics', { game: gameFilter, time: timeFilter }],
+    enabled: !!user
+  });
