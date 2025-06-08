@@ -28,3 +28,14 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+
+interface StatisticCardProps {
+  title: string;
+  value: string | number | React.ReactNode;
+  subtitle?: string;
+  change?: {
+    value: number;
+    isPositive: boolean;
+  };
+  isLoading?: boolean;
+}
