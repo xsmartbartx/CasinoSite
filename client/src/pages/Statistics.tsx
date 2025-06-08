@@ -307,3 +307,24 @@ export default function Statistics() {
               </CardContent>
             </Card>
           </div>
+
+                    <Card className="bg-secondary border-neutral-dark mb-8">
+            <CardContent className="p-4">
+              <h3 className="font-display font-medium mb-2">Understanding These Statistics</h3>
+              <div className="text-sm text-gray-400 space-y-2">
+                <p>
+                  <strong>Return to Player (RTP):</strong> This is the percentage of all wagers that are paid back to players over time. 
+                  For example, an RTP of 96% means that for every $100 wagered, on average $96 will be returned to players.
+                </p>
+                <p>
+                  <strong>House Edge:</strong> The mathematical advantage that the casino has over you as a player. 
+                  It's calculated as 100% - RTP. For example, if the RTP is 96%, the house edge is 4%.
+                </p>
+                <p>
+                  <strong>Variance/Volatility:</strong> This describes how your results will vary from the expected RTP in the short term. 
+                  High volatility games have more extreme wins and losses, while low volatility games have more consistent results.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
