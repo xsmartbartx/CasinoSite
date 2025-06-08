@@ -172,3 +172,51 @@ export default function SlotGame() {
                     onSpinEnd={() => setSpinning(false)}
                     className="mb-4"
                   />
+
+                                    {/* Win display */}
+                  <div className="bg-neutral-dark rounded-md p-3 mb-4 text-center">
+                    <div className="text-sm text-neutral-light mb-1">Win Amount</div>
+                    <div className="font-mono text-2xl font-medium text-accent-green">
+                      {lastWin !== null ? formatCurrency(lastWin) : "$0.00"}
+                    </div>
+                  </div>
+                  
+                  {/* Control buttons */}
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center">
+                      <label className="text-sm text-neutral-light mr-2">Bet:</label>
+                      <div className="flex bg-neutral-dark rounded-md overflow-hidden">
+                        <button 
+                          className="px-2 py-1 text-neutral-light hover:bg-neutral-medium"
+                          onClick={() => adjustBet(-10)}
+                          disabled={spinning}
+                        >
+                          <i className="fas fa-minus"></i>
+                        </button>
+                        <Input 
+                          type="text"
+                          value={bet}
+                          onChange={handleBetChange}
+                          className="w-16 bg-neutral-dark border-none text-center text-white font-mono"
+                          disabled={spinning}
+                        />
+                        <button 
+                          className="px-2 py-1 text-neutral-light hover:bg-neutral-medium"
+                          onClick={() => adjustBet(10)}
+                          disabled={spinning}
+                        >
+                          <i className="fas fa-plus"></i>
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <Button
+                      onClick={handleSpin}
+                      className="bg-accent-green hover:bg-opacity-80 text-black font-medium py-2 px-8 rounded-md"
+                      disabled={spinning}
+                    >
+                      <i className="fas fa-play mr-2"></i> Spin
+                    </Button>
+                  </div>
+                </div>
+              </div>
