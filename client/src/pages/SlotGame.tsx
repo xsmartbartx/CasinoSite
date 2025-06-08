@@ -56,3 +56,16 @@ export default function SlotGame() {
       if (user) {
         updateBalance(data.balance);
       }
+
+            // Invalidate game history
+      queryClient.invalidateQueries({ queryKey: ['/api/history'] });
+      
+      // Show toast for big wins
+      if (data.payout > parseFloat(bet) * 5) {
+        toast({
+          title: "Big Win!",
+          description: `You won ${formatCurrency(data.payout)}!`,
+          variant: "default",
+        });
+      }
+      
