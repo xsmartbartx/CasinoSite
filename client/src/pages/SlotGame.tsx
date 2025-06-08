@@ -369,3 +369,29 @@ export default function SlotGame() {
                     </div>
                   </div>
                 </div>
+
+                                {/* Educational information */}
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-neutral-light mb-2">Did You Know?</h4>
+                  <p className="text-sm text-gray-400 mb-3">
+                    Each symbol appears with different probability. The RTP (Return to Player) of this game is {game?.rtp || 96.5}%.
+                  </p>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="bg-neutral-dark p-3 rounded-md mb-3 cursor-help">
+                          <h5 className="text-xs font-medium text-neutral-light mb-1">Probability Formula</h5>
+                          <div className="bg-black bg-opacity-30 p-2 rounded font-mono text-xs">
+                            P(win) = (winning combinations) / (total combinations)
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent className="w-80 bg-neutral-dark">
+                        <p className="text-xs">
+                          For a slot machine with 5 symbols on each of 3 reels, there are 5³ = 125 possible combinations.
+                          The probability of hitting 3 identical symbols is (5 × 1 × 1) / 125 = 5/125 = 4%.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
