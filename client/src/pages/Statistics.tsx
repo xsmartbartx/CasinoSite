@@ -328,3 +328,11 @@ export default function Statistics() {
             </CardContent>
           </Card>
         </TabsContent>
+
+                <TabsContent value="history" className="mt-6">
+          <GameHistory limit={10} showPagination={true} />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
