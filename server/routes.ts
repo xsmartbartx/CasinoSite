@@ -294,3 +294,28 @@ function generateCrashPoint(): number {
   
   return crashPoint;
 }
+
+// Generate a verifiable crash point using a seed and hash
+// This is more advanced and allows verifying past crashes
+function generateVerifiableCrashPoint(seed: string, salt: string): number {
+  // Create a hash using seed and salt
+  const hash = crypto
+    .createHmac('sha256', salt)
+    .update(seed)
+    .digest('hex');
+    
+  // Convert first 8 chars of hash to a number between 0-1
+  const hashFloat = parseInt(hash.slice(0, 8), 16) / 0xffffffff;
+  
+  // Same formula as above but using the hash-derived value
+  let crashPoint: number;
+  
+  if (hashFloat < 0.01) {
+    crashPoint = 1.00;
+  } else {
+    crashPoint = Math.floor((0.97 * 100 / (1 - hashFloat)) * 100) / 100;
+    crashPoint = Math.min(crashPoint, 1000);
+  }
+  
+  return crashPoint;
+}
