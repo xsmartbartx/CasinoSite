@@ -148,3 +148,28 @@ function generateSlotResult() {
       
       totalMultiplier += lineMultiplier;
     }
+        // Check for 2 of a kind (partial win)
+    else if ((lineSymbols[0] === lineSymbols[1] || lineSymbols[1] === lineSymbols[2] || lineSymbols[0] === lineSymbols[2])) {
+      // Only award partial wins for high-value symbols (gem, crown, money)
+      const hasHighValueSymbol = lineSymbols.some(s => ["gem", "crown", "money"].includes(s));
+      
+      if (hasHighValueSymbol) {
+        // Half multiplier for 2 of a kind
+        const lineMultiplier = pattern.multiplier * 0.5;
+        
+        winningLines.push({
+          ...pattern,
+          multiplier: lineMultiplier
+        });
+        
+        totalMultiplier += lineMultiplier;
+      }
+    }
+  }
+  
+  return {
+    gridSymbols: grid,
+    winningLines,
+    totalMultiplier
+  };
+}
