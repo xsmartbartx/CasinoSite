@@ -27,3 +27,16 @@ function secureRandom(min: number, max: number): number {
   
   let randomNum;
   let randomBytes;
+
+    // Rejection sampling to ensure uniform distribution
+  do {
+    randomBytes = crypto.randomBytes(bytesNeeded);
+    randomNum = 0;
+    
+    for (let i = 0; i < bytesNeeded; i++) {
+      randomNum = (randomNum << 8) | randomBytes[i];
+    }
+  } while (randomNum >= cutoff);
+  
+  return min + (randomNum % range);
+}
