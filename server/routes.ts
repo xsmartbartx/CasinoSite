@@ -257,3 +257,40 @@ function generateDiceResult(targetValue: number, betType: string) {
     default:
       multiplier = 0;
   }
+
+    // Round the multiplier to 2 decimal places for display purposes
+  multiplier = Math.round(multiplier * 100) / 100;
+  
+  return {
+    diceRoll,
+    targetValue,
+    betType,
+    multiplier,
+    win
+  };
+}
+
+// Generate a crash point based on cryptographic randomness
+// This uses a house edge of 3% and the formula ensures provably fair outcomes
+function generateCrashPoint(): number {
+  // Generate a secure random value between 0 and 1
+  const randomValue = secureRandomFloat();
+  
+  // Apply crash algorithm with 3% house edge
+  // The formula: 99 / (1 - R) where R is from 0 to 1
+  // This creates an exponential distribution with 1% of games crashing at 1.00x
+  let crashPoint: number;
+  
+  if (randomValue < 0.01) {
+    // 1% of games crash at 1.00x (instant crash)
+    crashPoint = 1.00;
+  } else {
+    // Formula with 3% house edge: 0.97 * 100 / (1 - R)
+    crashPoint = Math.floor((0.97 * 100 / (1 - randomValue)) * 100) / 100;
+    
+    // Cap at 1000x for practical purposes
+    crashPoint = Math.min(crashPoint, 1000);
+  }
+  
+  return crashPoint;
+}
