@@ -113,3 +113,11 @@ const winningPatterns: WinLine[] = [
   { positions: [0, 4, 2], multiplier: 2, color: "border-indigo-500", name: "V-Shape Top" },
   { positions: [6, 4, 8], multiplier: 2, color: "border-amber-500", name: "V-Shape Bottom" },
 ];
+
+function generateSlotResult() {
+  // Generate a 3x3 grid of symbols
+  const grid: string[][] = [
+    [getWeightedRandomSymbol(), getWeightedRandomSymbol(), getWeightedRandomSymbol()],
+    [getWeightedRandomSymbol(), getWeightedRandomSymbol(), getWeightedRandomSymbol()],
+    [getWeightedRandomSymbol(), getWeightedRandomSymbol(), getWeightedRandomSymbol()]
+  ];
