@@ -83,3 +83,12 @@ function getWeightedRandomSymbol(): string {
     // Fallback (should never happen)
   return symbols[secureRandom(0, symbols.length)];
 }
+
+// Symbol multiplier values
+const symbolMultipliers = {
+  "gem": 10,
+  "crown": 15,
+  "star": 5,
+  "dice": 3,
+  "money": 8
+};
