@@ -65,3 +65,17 @@ function getWeightedRandomSymbol(): string {
     "dice": 3,    // very common, low payout
     "money": 8    // moderately common, good payout
   };
+
+    // Calculate total weight
+  const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
+  
+  // Generate a cryptographically secure random number between 0 and total weight
+  let random = secureRandomFloat() * totalWeight;
+  
+  // Find the symbol based on weight distribution
+  for (const symbol of symbols) {
+    random -= weights[symbol as keyof typeof weights];
+    if (random <= 0) {
+      return symbol;
+    }
+  }
