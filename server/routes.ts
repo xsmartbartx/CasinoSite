@@ -366,3 +366,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Server error" });
     }
   };
+
+    // Auth routes
+  app.post('/api/auth/register', async (req, res) => {
+    try {
+      const validatedData = insertUserSchema.parse(req.body);
+      
+      const existingUser = await storage.getUserByUsername(validatedData.username);
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+      
+      // Hash password
+      const hashedPassword = crypto
+        .createHash('sha256')
+        .update(validatedData.password)
+        .digest('hex');
+      
+      const user = await storage.createUser({
+        username: validatedData.username,
+        password: hashedPassword
+      });
+      
+      // Exclude password from response
+      const { password, ...userWithoutPassword } = user;
+      
+      // Set session
+      req.session.userId = user.id;
+      
+      res.status(201).json(userWithoutPassword);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.message });
+      }
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  app.post('/api/auth/login', async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ message: "Username and password are required" });
+      }
+      
+      const user = await storage.getUserByUsername(username);
+      if (!user) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
