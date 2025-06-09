@@ -173,3 +173,50 @@ function generateSlotResult() {
     totalMultiplier
   };
 }
+
+function generateRouletteResult(betType: string, betValue: any) {
+  // Using cryptographically secure RNG for roulette (0-36)
+  const number = secureRandom(0, 37); 
+  const color = number === 0 ? 'green' : (number % 2 === 0 ? 'black' : 'red');
+  const isEven = number !== 0 && number % 2 === 0;
+  const isLow = number >= 1 && number <= 18;
+  
+  let win = false;
+  let multiplier = 0;
+  
+  switch (betType) {
+    case 'number':
+      win = number === parseInt(betValue);
+      multiplier = win ? 36 : 0;
+      break;
+    case 'color':
+      win = color === betValue;
+      multiplier = win ? 2 : 0;
+      break;
+    case 'even':
+      win = isEven;
+      multiplier = win ? 2 : 0;
+      break;
+    case 'odd':
+      win = !isEven && number !== 0;
+      multiplier = win ? 2 : 0;
+      break;
+    case 'low':
+      win = isLow;
+      multiplier = win ? 2 : 0;
+      break;
+    case 'high':
+      win = number > 18 && number <= 36;
+      multiplier = win ? 2 : 0;
+      break;
+    default:
+      multiplier = 0;
+  }
+  
+  return {
+    number,
+    color,
+    multiplier,
+    win
+  };
+}
