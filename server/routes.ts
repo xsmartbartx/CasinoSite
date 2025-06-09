@@ -121,3 +121,30 @@ function generateSlotResult() {
     [getWeightedRandomSymbol(), getWeightedRandomSymbol(), getWeightedRandomSymbol()],
     [getWeightedRandomSymbol(), getWeightedRandomSymbol(), getWeightedRandomSymbol()]
   ];
+
+    // Convert 2D grid to 1D array for easier pattern matching
+  const flatGrid: string[] = grid.flat();
+  
+  // Find winning lines
+  const winningLines: WinLine[] = [];
+  let totalMultiplier = 0;
+  
+  for (const pattern of winningPatterns) {
+    // Extract symbols for this pattern
+    const lineSymbols = pattern.positions.map(pos => flatGrid[pos]);
+    
+    // Check if all symbols in line are the same (3 of a kind)
+    if (lineSymbols[0] === lineSymbols[1] && lineSymbols[1] === lineSymbols[2]) {
+      const symbolType = lineSymbols[0];
+      const symbolMultiplier = symbolMultipliers[symbolType as keyof typeof symbolMultipliers];
+      
+      // Calculate total multiplier for this line: base pattern multiplier * symbol value
+      const lineMultiplier = pattern.multiplier * symbolMultiplier;
+      
+      winningLines.push({
+        ...pattern,
+        multiplier: lineMultiplier
+      });
+      
+      totalMultiplier += lineMultiplier;
+    }
