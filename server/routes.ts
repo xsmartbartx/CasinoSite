@@ -467,3 +467,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
+
+    // Game routes
+  app.get('/api/games', async (req, res) => {
+    try {
+      const games = await storage.getAllGames();
+      res.status(200).json(games);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  app.get('/api/games/:id', async (req, res) => {
+    try {
+      const gameId = parseInt(req.params.id);
+      if (isNaN(gameId)) {
+        return res.status(400).json({ message: "Invalid game ID" });
+      }
+      
+      const game = await storage.getGame(gameId);
+      if (!game) {
+        return res.status(404).json({ message: "Game not found" });
+      }
+      
+      res.status(200).json(game);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
