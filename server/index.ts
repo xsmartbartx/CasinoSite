@@ -36,3 +36,14 @@ app.use((req, res, next) => {
 
   next();
 });
+
+(async () => {
+  // Seed the database with initial data
+  if (storage.seedInitialData) {
+    try {
+      await storage.seedInitialData();
+      log("Database seeded with initial data");
+    } catch (error) {
+      console.error("Error seeding database:", error);
+    }
+  }
