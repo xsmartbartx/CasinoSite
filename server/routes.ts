@@ -79,3 +79,7 @@ function getWeightedRandomSymbol(): string {
       return symbol;
     }
   }
+
+    // Fallback (should never happen)
+  return symbols[secureRandom(0, symbols.length)];
+}
