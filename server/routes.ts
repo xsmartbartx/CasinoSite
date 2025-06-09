@@ -220,3 +220,40 @@ function generateRouletteResult(betType: string, betValue: any) {
     win
   };
 }
+
+function generateDiceResult(targetValue: number, betType: string) {
+  // Generate a random number between 1-100
+  const diceRoll = secureRandom(1, 101); // 1-100 inclusive
+  
+  let win = false;
+  let multiplier = 0;
+  
+  switch (betType) {
+    case 'over':
+      win = diceRoll > targetValue;
+      // Calculate multiplier based on probability
+      // As target increases, probability of winning decreases, so multiplier increases
+      if (win) {
+        // Calculate fair multiplier with 1.5% house edge
+        // For "over" bets: 100/(100-target) * 0.985
+        multiplier = (100 / (100 - targetValue)) * 0.985;
+      }
+      break;
+    case 'under':
+      win = diceRoll < targetValue;
+      // Calculate multiplier based on probability
+      // As target decreases, probability of winning decreases, so multiplier increases
+      if (win) {
+        // Calculate fair multiplier with 1.5% house edge
+        // For "under" bets: 100/target * 0.985
+        multiplier = (100 / targetValue) * 0.985;
+      }
+      break;
+    case 'exact':
+      win = diceRoll === targetValue;
+      // Exact matches have 1/100 probability
+      multiplier = win ? 98.5 : 0; // 100 * 0.985 (1.5% house edge)
+      break;
+    default:
+      multiplier = 0;
+  }
