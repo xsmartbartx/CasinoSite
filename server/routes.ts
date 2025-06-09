@@ -16,3 +16,14 @@ interface WinLine {
   color?: string; // Optional color for visual representation
   name: string; // Name of the winning pattern
 }
+
+// Cryptographically secure random number generator
+function secureRandom(min: number, max: number): number {
+  // Ensures a secure, fair distribution of random numbers
+  const range = max - min;
+  const bytesNeeded = Math.ceil(Math.log2(range) / 8);
+  const maxNum = Math.pow(256, bytesNeeded);
+  const cutoff = maxNum - (maxNum % range);
+  
+  let randomNum;
+  let randomBytes;
