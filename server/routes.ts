@@ -52,3 +52,16 @@ function secureRandomFloat(): number {
   // Divide by maximum 32-bit unsigned int to get value between 0 and 1
   return randomInt / 0xFFFFFFFF;
 }
+
+// Helper to get weighted random symbols with different probabilities using cryptographically secure RNG
+function getWeightedRandomSymbol(): string {
+  const symbols = ["gem", "crown", "star", "dice", "money"];
+  // Define weights (probability distribution) for each symbol
+  // Higher value = lower probability
+  const weights = {
+    "gem": 15,    // rare, high payout
+    "crown": 10,  // rare, highest payout
+    "star": 5,    // common, medium payout
+    "dice": 3,    // very common, low payout
+    "money": 8    // moderately common, good payout
+  };
