@@ -319,3 +319,19 @@ function generateVerifiableCrashPoint(seed: string, salt: string): number {
   
   return crashPoint;
 }
+
+export async function registerRoutes(app: Express): Promise<Server> {
+  const SessionStore = MemoryStore(session);
+  
+  // Setup session middleware
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET || 'educasino-secret',
+      resave: false,
+      saveUninitialized: false,
+      cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }, // 24 hours
+      store: new SessionStore({
+        checkPeriod: 86400000 // prune expired entries every 24h
+      })
+    })
+  );
