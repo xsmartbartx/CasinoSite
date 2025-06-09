@@ -92,3 +92,24 @@ const symbolMultipliers = {
   "dice": 3,
   "money": 8
 };
+
+// Define all possible winning line patterns on a 3x3 grid
+const winningPatterns: WinLine[] = [
+  // Horizontal lines
+  { positions: [0, 1, 2], multiplier: 1, color: "border-blue-500", name: "Top Row" },
+  { positions: [3, 4, 5], multiplier: 1, color: "border-green-500", name: "Middle Row" },
+  { positions: [6, 7, 8], multiplier: 1, color: "border-red-500", name: "Bottom Row" },
+  
+  // Vertical lines
+  { positions: [0, 3, 6], multiplier: 1, color: "border-yellow-500", name: "Left Column" },
+  { positions: [1, 4, 7], multiplier: 1, color: "border-purple-500", name: "Middle Column" },
+  { positions: [2, 5, 8], multiplier: 1, color: "border-pink-500", name: "Right Column" },
+  
+  // Diagonal lines
+  { positions: [0, 4, 8], multiplier: 1.5, color: "border-orange-500", name: "Diagonal \\" },
+  { positions: [2, 4, 6], multiplier: 1.5, color: "border-cyan-500", name: "Diagonal /" },
+  
+  // V-shapes
+  { positions: [0, 4, 2], multiplier: 2, color: "border-indigo-500", name: "V-Shape Top" },
+  { positions: [6, 4, 8], multiplier: 2, color: "border-amber-500", name: "V-Shape Bottom" },
+];
