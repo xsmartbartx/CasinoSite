@@ -415,3 +415,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
+
+            // Hash password for comparison
+      const hashedPassword = crypto
+        .createHash('sha256')
+        .update(password)
+        .digest('hex');
+      
+      if (user.password !== hashedPassword) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+      
+      // Set session
+      req.session.userId = user.id;
+      
+      // Exclude password from response
+      const { password: _, ...userWithoutPassword } = user;
+      
+      res.status(200).json(userWithoutPassword);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
