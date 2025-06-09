@@ -7,3 +7,12 @@ import crypto from "crypto";
 import session from "express-session";
 import MemoryStore from "memorystore";
 import { WebSocketServer, WebSocket } from "ws";
+
+// Game algorithms
+// Defines a winning line pattern for 3x3 slot grid
+interface WinLine {
+  positions: number[]; // Array of positions (0-8) that form a winning line
+  multiplier: number; // Multiplier for this winning line
+  color?: string; // Optional color for visual representation
+  name: string; // Name of the winning pattern
+}
