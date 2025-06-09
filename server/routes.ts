@@ -40,3 +40,15 @@ function secureRandom(min: number, max: number): number {
   
   return min + (randomNum % range);
 }
+
+// Get a secure random float between 0 and 1
+function secureRandomFloat(): number {
+  // Generate 4 bytes (32 bits) of randomness
+  const randomBytes = crypto.randomBytes(4);
+  
+  // Convert to a 32-bit unsigned integer
+  const randomInt = randomBytes.readUInt32BE(0);
+  
+  // Divide by maximum 32-bit unsigned int to get value between 0 and 1
+  return randomInt / 0xFFFFFFFF;
+}
