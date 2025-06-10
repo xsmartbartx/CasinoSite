@@ -1703,3 +1703,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
+
+    // Reset user password
+  app.post('/api/admin/users/:id/reset-password', adminMiddleware, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      
+      if (!userId || isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      // Get user to verify it exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
