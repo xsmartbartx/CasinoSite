@@ -1199,3 +1199,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const cashoutUser = await storage.getUser(cashoutUserId);
             if (cashoutUser) {
               await storage.updateUserBalance(cashoutUserId, payout - userBet.bet);
+
+                          // Create game history entry
+              const games = await storage.getAllGames();
+              const crashGame = games.find(g => g.type === 'crash');
+              
+              if (crashGame) {
+                await storage.createGameHistory({
+                  userId: cashoutUserId,
+                  gameId: crashGame.id,
+                  bet: userBet.bet,
+                  multiplier: currentMultiplier,
+                  payout,
+                  result: 'win',
+                  details: JSON.stringify({
+                    cashoutAt: currentMultiplier,
+                    originalBet: userBet.bet
+                  })
+                });
+              }
+            }
+            
+            
