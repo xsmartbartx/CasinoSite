@@ -801,3 +801,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!crashGame) {
         return res.status(404).json({ message: "Crash game not found" });
       }
+
+
+      // Deduct bet from user balance
+      // In a real implementation, this would be handled when the round starts
+      await storage.updateUserBalance(userId, -bet);
+      
+      // In a real implementation, this bet would be saved to a database and
+      // associated with the current game round
+      
+      res.status(200).json({
+        message: "Bet placed successfully",
+        bet,
+        autoCashoutAt: autoCashoutAt || null,
+        balance: user.balance - bet
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
