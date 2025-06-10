@@ -949,3 +949,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     currentGameSeed: crypto.randomBytes(16).toString('hex'),
     nextGameHash: '',
   };
+
+    // Initialize the next game hash
+  const serverSalt = process.env.CRASH_SALT || 'educasino-crash-salt';
+  crashGameState.nextGameHash = crypto.createHash('sha256')
+    .update(crashGameState.currentGameSeed + '|next')
+    .digest('hex');
+  
+  // Handle WebSocket connections
+  wss.on('connection', (ws: WebSocket) => {
+    console.log('Client connected to WebSocket');
+    
+    // Cast the WebSocket to our custom interface
+    const client = ws as ConnectedClient;
+    
+    // Send current game state to new client
+    ws.send(JSON.stringify({
+      type: 'gameState',
+      data: crashGameState
+    }));
