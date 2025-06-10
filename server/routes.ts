@@ -735,3 +735,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
+
+    // Crash game routes
+  
+  // Get the current crash state and history
+  app.get('/api/crash/state', async (req, res) => {
+    try {
+      // In a real implementation, this would come from a persistent store
+      // or a shared memory cache across server instances
+      
+      // Generate 10 previous crash points for the history graph
+      const crashHistory = Array.from({ length: 10 }, () => {
+        return {
+          crashPoint: generateCrashPoint(),
+          timestamp: new Date(Date.now() - Math.floor(Math.random() * 3600000)).toISOString() // Random time in the last hour
+        };
+      }).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      
+      // For educational purposes, include a verifiable crash seed for the current round
+      const currentGameSeed = crypto.randomBytes(16).toString('hex');
+      const serverSalt = process.env.CRASH_SALT || 'educasino-crash-salt';
+      
+      // Calculate the next crash point using the verifiable method
+      const nextCrashPoint = generateVerifiableCrashPoint(currentGameSeed, serverSalt);
+      
+      res.status(200).json({
+        gameState: 'waiting', // 'waiting', 'running', or 'crashed'
+        history: crashHistory,
+        // Include these for verifiable fairness
+        currentGameSeed, 
+        // Don't expose the server salt, as it's used to generate the crash point
+        nextGameHash: crypto.createHash('sha256').update(currentGameSeed + '|next').digest('hex'),
+        // Include current active bets (would come from database in real implementation)
+        activeBets: []
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
