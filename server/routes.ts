@@ -1108,3 +1108,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }));
               return;
             }
+
+                        // Validate bet data
+            const { bet, autoCashoutAt, userId } = data.data;
+            if (!bet || !userId) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'Invalid bet data' }
+              }));
+              return;
+            }
+            
+            // Check if user already has a bet
+            const existingBetIndex = crashGameState.activeBets.findIndex(b => b.userId === userId);
+            if (existingBetIndex >= 0) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'You already have an active bet' }
+              }));
+              return;
+            }
