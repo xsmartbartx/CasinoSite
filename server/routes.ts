@@ -515,3 +515,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (user.balance < bet) {
         return res.status(400).json({ message: "Insufficient balance" });
       }
+
+            // Get slot game ID
+      const games = await storage.getAllGames();
+      const slotGame = games.find(g => g.type === 'slot');
+      
+      if (!slotGame) {
+        return res.status(404).json({ message: "Slot game not found" });
+      }
+      
+      // Generate result
+      const result = generateSlotResult();
+      const payout = bet * result.totalMultiplier;
+      
+      // Update user balance
+      await storage.updateUserBalance(userId, payout - bet);
