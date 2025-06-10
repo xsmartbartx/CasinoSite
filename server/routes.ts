@@ -1034,3 +1034,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }));
               return;
             }
+
+                        // Validate message data
+            const { content, messageUserId, messageUsername } = data.data;
+            if (!content || !messageUserId || !messageUsername) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'Invalid message data' }
+              }));
+              return;
+            }
+            
+            // Create chat message in database
+            const chatMessage = await storage.createChatMessage({
+              userId: messageUserId,
+              username: messageUsername,
+              content,
+              room: client.room
+            });
