@@ -1147,3 +1147,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
               autoCashoutAt,
               hashedOut: false
             });
+            
+                        // Broadcast updated active bets to all clients
+            wss.clients.forEach((client) => {
+              if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({
+                  type: 'activeBetsUpdate',
+                  data: {
+                    activeBets: crashGameState.activeBets
+                  }
+                }));
+              }
+            });
+            break;
+            
+          case 'cashout':
+            if (crashGameState.gameState !== 'running') {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'Cannot cash out when game is not running' }
+              }));
+              return;
+            }
