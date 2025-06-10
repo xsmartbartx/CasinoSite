@@ -1579,3 +1579,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
           maxWin: req.body.maxWin === undefined ? 10000 : req.body.maxWin
         });
       } else {
+                // Update existing settings
+        gameSettings = await storage.updateGameSettings(gameSettings.id, {
+          isEnabled: req.body.isEnabled,
+          houseEdge: req.body.houseEdge,
+          minBet: req.body.minBet,
+          maxBet: req.body.maxBet,
+          maxWin: req.body.maxWin
+        });
+      }
+      
+      res.status(200).json({
+        ...gameSettings,
+        message: "Game settings updated successfully"
+      });
+    } catch (error) {
+      console.error("Update game settings error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
