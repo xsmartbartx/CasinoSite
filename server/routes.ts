@@ -1189,3 +1189,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }));
               return;
             }
+
+                        // Mark as cashed out and calculate winnings
+            crashGameState.activeBets[betIndex].hashedOut = true;
+            const userBet = crashGameState.activeBets[betIndex];
+            const payout = userBet.bet * currentMultiplier;
+            
+            // Update user balance in database
+            const cashoutUser = await storage.getUser(cashoutUserId);
+            if (cashoutUser) {
+              await storage.updateUserBalance(cashoutUserId, payout - userBet.bet);
