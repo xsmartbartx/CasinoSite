@@ -635,3 +635,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (user.balance < bet) {
         return res.status(400).json({ message: "Insufficient balance" });
       }
+
+            // Get dice game ID
+      const games = await storage.getAllGames();
+      const diceGame = games.find(g => g.type === 'dice');
+      
+      if (!diceGame) {
+        return res.status(404).json({ message: "Dice game not found" });
+      }
+      
+      // Generate result
+      const result = generateDiceResult(targetValue, betType);
+      const payout = bet * result.multiplier;
+      
+      // Update user balance
+      await storage.updateUserBalance(userId, payout - bet);
+      
+      // Record game history
+      await storage.createGameHistory({
+        userId,
+        gameId: diceGame.id,
+        bet,
+        multiplier: result.multiplier,
+        payout,
+        result: result.win ? "win" : "loss",
+        details: JSON.stringify(result)
+      });
+      
+      res.status(200).json({
+        ...result,
+        bet,
+        payout,
+        balance: (user.balance + payout - bet)
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
