@@ -1069,3 +1069,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }));
               return;
             }
+
+                        // Validate moderation data
+            const { messageId, action } = data.data;
+            if (!messageId || !action) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'Invalid moderation data' }
+              }));
+              return;
+            }
+            
+            // Apply moderation action
+            let moderatedMessage;
+            if (action === 'delete') {
+              moderatedMessage = await storage.moderateChatMessage(messageId, true, true);
+            } else if (action === 'flag') {
+              moderatedMessage = await storage.moderateChatMessage(messageId, false, true);
+            }
+            
+            // If successful, broadcast moderation action to room
+            if (moderatedMessage && client.room) {
+              broadcastToRoom(client.room, {
+                type: 'messageModerated',
+                data: {
+                  messageId,
+                  action,
+                  message: moderatedMessage
+                }
+              });
+            }
+            break;
+          case 'placeBet':
+            if (crashGameState.gameState !== 'waiting') {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'Cannot place bet when game is in progress' }
+              }));
+              return;
+            }
