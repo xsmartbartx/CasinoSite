@@ -1402,3 +1402,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
     });
+
+        // Broadcast crash to all clients
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify({
+          type: 'gameCrash',
+          data: {
+            crashPoint: crashGameState.crashPoint,
+            history: crashGameState.history,
+            activeBets: crashGameState.activeBets
+          }
+        }));
+      }
+    });
+    
+    // Generate new crash point and reset for next round
+    setTimeout(() => {
+      // Prepare for next round
+      crashGameState.gameState = 'waiting';
+      crashGameState.crashPoint = generateCrashPoint();
+      crashGameState.activeBets = [];
+      crashGameState.currentGameSeed = crypto.randomBytes(16).toString('hex');
+      crashGameState.nextGameHash = crypto.createHash('sha256')
+        .update(crashGameState.currentGameSeed + '|next')
+        .digest('hex');
+      
+      // Broadcast waiting state to all clients
+      wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({
+            type: 'waitingForNext',
+            data: {
+              nextGameIn: 5000 // 5 seconds until next game
+            }
+          }));
+        }
+      });
