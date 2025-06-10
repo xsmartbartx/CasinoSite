@@ -1270,3 +1270,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       connectedClients.delete(ws);
     });
   });
+
+    // Start the crash game simulation
+  let gameInterval: NodeJS.Timeout | null = null;
+  
+  // Function to start a new game round
+  function startCrashGame() {
+    if (crashGameState.gameState !== 'waiting') return;
+    
+    // Update game state
+    crashGameState.gameState = 'running';
+    crashGameState.currentMultiplier = 1.00;
+    crashGameState.startTime = Date.now();
+    
+    // Broadcast game start to all clients
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify({
+          type: 'gameStart',
+          data: {
+            startTime: crashGameState.startTime
+          }
+        }));
+      }
+    });
