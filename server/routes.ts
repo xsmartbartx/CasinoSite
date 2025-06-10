@@ -1220,4 +1220,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }
             }
             
+                        // Send cashout confirmation to the user
+            ws.send(JSON.stringify({
+              type: 'cashoutSuccess',
+              data: {
+                payout,
+                multiplier: currentMultiplier
+              }
+            }));
             
+            // Broadcast updated active bets to all clients
+            wss.clients.forEach((client) => {
+              if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({
+                  type: 'activeBetsUpdate',
+                  data: {
+                    activeBets: crashGameState.activeBets
+                  }
+                }));
+              }
+            });
+            break;
+        }
+      } catch (error) {
+        console.error('Error processing WebSocket message:', error);
+        ws.send(JSON.stringify({
+          type: 'error',
+          data: { message: 'Invalid message format' }
+        }));
+      }
+    });
