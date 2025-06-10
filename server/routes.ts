@@ -836,3 +836,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
+
+            // In a real implementation, we would:
+      // 1. Verify the user has an active bet in the current round
+      // 2. Verify the current multiplier is valid
+      // 3. Get the original bet amount
+      
+      // For this example, we'll simulate a bet of 50 units
+      const simulatedBet = 50;
+      const payout = simulatedBet * currentMultiplier;
+      
+      // Get crash game ID
+      const games = await storage.getAllGames();
+      const crashGame = games.find(g => g.type === 'crash');
+      
+      if (!crashGame) {
+        return res.status(404).json({ message: "Crash game not found" });
+      }
