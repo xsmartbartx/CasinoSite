@@ -1517,3 +1517,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
+
+            // Exclude password from response
+      const { password, ...userWithoutPassword } = user;
+      
+      res.status(200).json({
+        ...userWithoutPassword,
+        message: `User status updated to ${isActive ? 'active' : 'inactive'}`
+      });
+    } catch (error) {
+      console.error("Update user status error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  app.get('/api/admin/games', adminMiddleware, async (req, res) => {
+    try {
+      const games = await storage.getAllGames();
+      
+      // For each game, fetch its settings
+      const gamesWithSettings = await Promise.all(games.map(async (game) => {
+        const settings = await storage.getGameSettings(game.id);
+        return {
+          ...game,
+          settings: settings || {
+            minBet: 1,
+            maxBet: 1000,
+            maxWin: 10000,
+            houseEdge: 0.03,
+            isEnabled: true
+          }
+        };
+      }));
+      
+      res.status(200).json(gamesWithSettings);
+    } catch (error) {
+      console.error("Admin games route error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  app.post('/api/admin/games/:id/settings', adminMiddleware, async (req, res) => {
+    try {
+      const gameId = parseInt(req.params.id);
+      
+      if (!gameId || isNaN(gameId)) {
+        return res.status(400).json({ message: "Invalid game ID" });
+      }
+      
+      // Get existing settings or create new ones
+      let gameSettings = await storage.getGameSettings(gameId);
+      
+      if (!gameSettings) {
+        // Create new settings
+        gameSettings = await storage.createGameSettings({
+          gameId,
+          isEnabled: req.body.isEnabled === undefined ? true : req.body.isEnabled,
+          houseEdge: req.body.houseEdge === undefined ? 0.03 : req.body.houseEdge,
+          minBet: req.body.minBet === undefined ? 1 : req.body.minBet,
+          maxBet: req.body.maxBet === undefined ? 1000 : req.body.maxBet,
+          maxWin: req.body.maxWin === undefined ? 10000 : req.body.maxWin
+        });
+      } else {
