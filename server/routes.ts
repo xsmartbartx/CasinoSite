@@ -1307,3 +1307,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
         endCrashGame();
         return;
       }
+
+            // Auto cashout for players who set an auto cashout point
+      crashGameState.activeBets.forEach(async (bet, index) => {
+        if (!bet.hashedOut && bet.autoCashoutAt !== null && crashGameState.currentMultiplier >= bet.autoCashoutAt) {
+          // Mark as cashed out
+          crashGameState.activeBets[index].hashedOut = true;
+          
+          // Calculate payout
+          const payout = bet.bet * bet.autoCashoutAt;
+          
+          // Update user balance
+          await storage.updateUserBalance(bet.userId, payout);
+          
+          // Create game history entry
+          const games = await storage.getAllGames();
+          const crashGame = games.find(g => g.type === 'crash');
+          
+          if (crashGame) {
+            await storage.createGameHistory({
+              userId: bet.userId,
+              gameId: crashGame.id,
+              bet: bet.bet,
+              multiplier: bet.autoCashoutAt,
+              payout,
+              result: 'win',
+              details: JSON.stringify({
+                cashoutAt: bet.autoCashoutAt,
+                originalBet: bet.bet,
+                autoCashout: true
+              })
+            });
+          }
+        }
+      });
