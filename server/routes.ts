@@ -1598,3 +1598,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
+
+    // Update game settings with advanced options
+  app.patch('/api/admin/games/:id/settings', adminMiddleware, async (req, res) => {
+    try {
+      const gameId = parseInt(req.params.id);
+      
+      if (!gameId || isNaN(gameId)) {
+        return res.status(400).json({ message: "Invalid game ID" });
+      }
+      
+      // Validate the game exists
+      const game = await storage.getGame(gameId);
+      if (!game) {
+        return res.status(404).json({ message: "Game not found" });
+      }
+      
+      // Check if settings exist - if not, create them
+      const existingSettings = await storage.getGameSettings(gameId);
+      let updatedSettings;
+      
+      if (existingSettings) {
+        // Update with all provided settings
+        updatedSettings = await storage.updateGameSettings(existingSettings.id, req.body);
+      } else {
+        // Create new settings with all provided fields
+        updatedSettings = await storage.createGameSettings({
+          gameId,
+          ...req.body
+        });
+      }
+      
+      res.status(200).json({
+        ...updatedSettings,
+        message: "Game settings updated successfully"
+      });
+    } catch (error) {
+      console.error("Error updating advanced game settings:", error);
+      res.status(500).json({ message: "Failed to update game settings" });
+    }
+  });
+  
+  app.get('/api/admin/analytics', adminMiddleware, async (req, res) => {
+    try {
+      const analytics = await storage.getLatestAnalytics();
