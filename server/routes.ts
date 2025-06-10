@@ -1743,3 +1743,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
+
+    // Leaderboard API Routes
+  app.get('/api/leaderboard', async (req, res) => {
+    try {
+      const period = req.query.period as string || 'all';
+      const gameId = req.query.gameId ? parseInt(req.query.gameId as string) : undefined;
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+      
+      const leaderboard = await storage.getLeaderboard(period, gameId, limit);
+      
+      res.status(200).json(leaderboard);
+    } catch (error) {
+      console.error("Error getting leaderboard:", error);
+      res.status(500).json({ message: "Failed to get leaderboard" });
+    }
+  });
+
+  // Get leaderboard for a specific game
+  app.get('/api/games/:gameId/leaderboard', async (req, res) => {
+    try {
+      const gameId = parseInt(req.params.gameId);
+      const period = req.query.period as string || 'all';
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+      
+      if (!gameId || isNaN(gameId)) {
+        return res.status(400).json({ message: "Invalid game ID" });
+      }
