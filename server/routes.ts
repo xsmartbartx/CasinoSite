@@ -1642,3 +1642,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admin/analytics', adminMiddleware, async (req, res) => {
     try {
       const analytics = await storage.getLatestAnalytics();
+
+          // If no analytics exist, create a snapshot
+      if (!analytics) {
+        const newAnalytics = await storage.createAnalyticsSnapshot();
+        res.status(200).json(newAnalytics);
+      } else {
+        res.status(200).json(analytics);
+      }
+    } catch (error) {
+      console.error("Admin analytics route error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  app.get('/api/admin/statistics/global', adminMiddleware, async (req, res) => {
+    try {
+      const statistics = await storage.getGlobalStatistics();
+      res.status(200).json(statistics);
+    } catch (error) {
+      console.error("Global statistics route error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  // Get all transaction history for a user
+  app.get('/api/admin/users/:id/transactions', adminMiddleware, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
+      const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
+      
+      if (!userId || isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      // Get user to verify it exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Get all game history for the user
+      const transactions = await storage.getGameHistory(userId, limit, offset);
+      
+      // Include game details for each transaction
+      const enhancedTransactions = await Promise.all(
+        transactions.map(async (transaction) => {
+          const game = await storage.getGame(transaction.gameId);
+          return { 
+            ...transaction, 
+            game: game ? { name: game.name, type: game.type } : null 
+          };
+        })
+      );
+      
+      res.status(200).json(enhancedTransactions);
+    } catch (error) {
+      console.error("Admin user transactions route error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
