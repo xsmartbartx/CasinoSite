@@ -1128,3 +1128,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }));
               return;
             }
+
+                        // Get user
+            const playerUser = await storage.getUser(userId);
+            if (!playerUser) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'User not found' }
+              }));
+              return;
+            }
+            
+            // Add bet to active bets
+            crashGameState.activeBets.push({
+              userId,
+              username: playerUser.username,
+              bet,
+              autoCashoutAt,
+              hashedOut: false
+            });
