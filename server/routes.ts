@@ -1356,3 +1356,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }, 100); // Update 10 times per second
   }
+
+    // Function to end the current game round
+  function endCrashGame() {
+    if (gameInterval) {
+      clearInterval(gameInterval);
+      gameInterval = null;
+    }
+    
+    // Update game state
+    crashGameState.gameState = 'crashed';
+    
+    // Add to history and maintain only the last 10 entries
+    crashGameState.history.push({
+      crashPoint: crashGameState.crashPoint,
+      timestamp: new Date().toISOString()
+    });
+    if (crashGameState.history.length > 10) {
+      crashGameState.history.shift();
+    }
+    
+    // Process lost bets for players who didn't cash out
+    const gamesPromise = storage.getAllGames();
+    
+    // Record loss for players who didn't cash out
+    crashGameState.activeBets.forEach(async (bet) => {
+      if (!bet.hashedOut) {
+        // Create game history entry for loss
+        const games = await gamesPromise;
+        const crashGame = games.find(g => g.type === 'crash');
+        
+        if (crashGame) {
+          await storage.createGameHistory({
+            userId: bet.userId,
+            gameId: crashGame.id,
+            bet: bet.bet,
+            multiplier: 0,
+            payout: 0,
+            result: 'loss',
+            details: JSON.stringify({
+              crashPoint: crashGameState.crashPoint,
+              originalBet: bet.bet
+            })
+          });
+        }
+      }
+    });
