@@ -1439,3 +1439,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }));
         }
       });
+
+            // Start next game after 5 seconds
+      setTimeout(startCrashGame, 5000);
+    }, 2000);
+  }
+  
+  // Start the first game after 5 seconds
+  setTimeout(startCrashGame, 5000);
+
+  // Admin routes - protected by admin middleware
+  app.get('/api/admin/users', adminMiddleware, async (req, res) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
+      const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
+      
+      const users = await storage.getAllUsers(limit, offset);
+      
+      // Exclude passwords from response
+      const usersWithoutPassword = users.map(user => {
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+      });
+      
+      res.status(200).json(usersWithoutPassword);
+    } catch (error) {
+      console.error("Admin users route error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  app.post('/api/admin/users/:id/role', adminMiddleware, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { role } = req.body;
+      
+      if (!userId || isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      if (!role || !['user', 'admin', 'superadmin'].includes(role)) {
+        return res.status(400).json({ message: "Invalid role" });
+      }
+      
+      const user = await storage.updateUserRole(userId, role);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Exclude password from response
+      const { password, ...userWithoutPassword } = user;
+      
+      res.status(200).json({ 
+        ...userWithoutPassword,
+        message: `User role updated to ${role}`
+      });
+    } catch (error) {
+      console.error("Update user role error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  app.post('/api/admin/users/:id/status', adminMiddleware, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { isActive } = req.body;
+      
+      if (!userId || isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      if (typeof isActive !== 'boolean') {
+        return res.status(400).json({ message: "isActive must be a boolean" });
+      }
+      
+      const user = await storage.updateUserStatus(userId, isActive);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
