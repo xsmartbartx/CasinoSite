@@ -1341,3 +1341,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
       });
+
+            // Broadcast current multiplier to all clients
+      wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({
+            type: 'multiplierUpdate',
+            data: {
+              multiplier: crashGameState.currentMultiplier,
+              activeBets: crashGameState.activeBets
+            }
+          }));
+        }
+      });
+    }, 100); // Update 10 times per second
+  }
