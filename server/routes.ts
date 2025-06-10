@@ -1012,3 +1012,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 recentMessages
               }
             }));
+
+                        // Notify room of new user if they're authenticated
+            if (chatUserId && chatUsername) {
+              broadcastToRoom(room, {
+                type: 'systemMessage',
+                data: {
+                  message: `${chatUsername} has joined the room`,
+                  timestamp: new Date().toISOString()
+                }
+              });
+            }
+            break;
+            
+          case 'chatMessage':
+            // Check if client has joined a room
+            if (!client.room) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'You must join a room before sending messages' }
+              }));
+              return;
+            }
