@@ -820,3 +820,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
+
+    // Cash out from the current crash game
+  app.post('/api/play/crash/cashout', authMiddleware, async (req, res) => {
+    try {
+      const { currentMultiplier } = req.body;
+      
+      if (!currentMultiplier || typeof currentMultiplier !== 'number' || currentMultiplier < 1) {
+        return res.status(400).json({ message: "Valid multiplier is required" });
+      }
+      
+      const userId = req.session.userId as number;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
