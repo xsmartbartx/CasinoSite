@@ -530,3 +530,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Update user balance
       await storage.updateUserBalance(userId, payout - bet);
+
+            // Record game history
+      await storage.createGameHistory({
+        userId,
+        gameId: slotGame.id,
+        bet,
+        multiplier: result.totalMultiplier,
+        payout,
+        result: payout > 0 ? "win" : "loss",
+        details: JSON.stringify(result)
+      });
+      
+      res.status(200).json({
+        ...result,
+        bet,
+        payout,
+        balance: (user.balance + payout - bet)
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  app.post('/api/play/roulette', authMiddleware, async (req, res) => {
+    try {
+      const { bet, betType, betValue } = req.body;
+      
+      if (!bet || typeof bet !== 'number' || bet <= 0) {
+        return res.status(400).json({ message: "Valid bet amount is required" });
+      }
+      
+      if (!betType || !betValue) {
+        return res.status(400).json({ message: "Bet type and value are required" });
+      }
+      
+      const userId = req.session.userId as number;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      if (user.balance < bet) {
+        return res.status(400).json({ message: "Insufficient balance" });
+      }
