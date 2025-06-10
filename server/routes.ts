@@ -1294,3 +1294,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }));
       }
     });
+
+        // Start multiplier increasing
+    gameInterval = setInterval(() => {
+      // Calculate current multiplier based on elapsed time
+      // This creates an exponential growth curve
+      const elapsed = (Date.now() - crashGameState.startTime) / 1000;
+      crashGameState.currentMultiplier = Math.floor(Math.pow(Math.E, 0.05 * elapsed) * 100) / 100;
+      
+      // Check if we've reached the crash point
+      if (crashGameState.currentMultiplier >= crashGameState.crashPoint) {
+        endCrashGame();
+        return;
+      }
