@@ -1052,3 +1052,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
               content,
               room: client.room
             });
+
+                        // Broadcast message to all clients in the room
+            broadcastToRoom(client.room, {
+              type: 'newChatMessage',
+              data: chatMessage
+            });
+            break;
+            
+          case 'moderateMessage':
+            // Check if user is admin
+            if (!client.isAdmin) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'Unauthorized: Admin privileges required' }
+              }));
+              return;
+            }
