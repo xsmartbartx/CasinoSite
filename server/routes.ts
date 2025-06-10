@@ -1169,3 +1169,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }));
               return;
             }
+
+                        // Validate cashout data
+            const { currentMultiplier, userId: cashoutUserId } = data.data;
+            if (!cashoutUserId) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'Invalid cashout data' }
+              }));
+              return;
+            }
+            
+            // Find user's bet
+            const betIndex = crashGameState.activeBets.findIndex(b => b.userId === cashoutUserId && !b.hashedOut);
+            if (betIndex < 0) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'No active bet found or already cashed out' }
+              }));
+              return;
+            }
