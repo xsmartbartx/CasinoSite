@@ -894,3 +894,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     room?: string;
     isAdmin?: boolean;
   }
+
+    // Map to store connected clients
+  const connectedClients = new Map<WebSocket, ConnectedClient>();
+  
+  // Helper function to broadcast to a specific room
+  const broadcastToRoom = (room: string, message: any) => {
+    const messageStr = JSON.stringify(message);
+    connectedClients.forEach((client) => {
+      if (client.room === room && client.readyState === WebSocket.OPEN) {
+        client.send(messageStr);
+      }
+    });
+  };
