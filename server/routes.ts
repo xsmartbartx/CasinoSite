@@ -696,3 +696,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
+
+    // Statistics routes
+  app.get('/api/statistics', authMiddleware, async (req, res) => {
+    try {
+      const userId = req.session.userId as number;
+      const statistics = await storage.getUserStatistics(userId);
+      res.status(200).json(statistics);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
