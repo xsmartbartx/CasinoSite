@@ -880,3 +880,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
+
+    // Create HTTP server to allow direct WebSocket access
+  const httpServer = createServer(app);
+  
+  // Create WebSocket server on a specific path for Crash game
+  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  
+  // Track connected clients and their assigned rooms
+  interface ConnectedClient extends WebSocket {
+    userId?: number;
+    username?: string;
+    room?: string;
+    isAdmin?: boolean;
+  }
