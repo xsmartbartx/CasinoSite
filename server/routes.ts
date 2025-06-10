@@ -707,3 +707,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
+
+    // Educational content routes
+  app.get('/api/education', async (req, res) => {
+    try {
+      const content = await storage.getAllEducationalContent();
+      res.status(200).json(content);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  app.get('/api/education/:id', async (req, res) => {
+    try {
+      const contentId = parseInt(req.params.id);
+      if (isNaN(contentId)) {
+        return res.status(400).json({ message: "Invalid content ID" });
+      }
+      
+      const content = await storage.getEducationalContent(contentId);
+      if (!content) {
+        return res.status(404).json({ message: "Content not found" });
+      }
+      
+      res.status(200).json(content);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
