@@ -672,3 +672,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
+
+    // Game history routes
+  app.get('/api/history', authMiddleware, async (req, res) => {
+    try {
+      const userId = req.session.userId as number;
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+      const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
+      
+      const history = await storage.getGameHistory(userId, limit, offset);
+      
+      // Enrich with game information
+      const enrichedHistory = await Promise.all(history.map(async (h) => {
+        const game = await storage.getGame(h.gameId);
+        return {
+          ...h,
+          game: game ? { name: game.name, type: game.type } : undefined
+        };
+      }));
+      
+      res.status(200).json(enrichedHistory);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
