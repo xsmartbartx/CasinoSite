@@ -1250,3 +1250,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }));
       }
     });
+
+        // Handle client disconnect
+    ws.on('close', () => {
+      console.log('Client disconnected from WebSocket');
+      
+      // Notify room of user disconnect if they were in a room
+      if (client.room && client.username) {
+        broadcastToRoom(client.room, {
+          type: 'systemMessage',
+          data: {
+            message: `${client.username} has left the room`,
+            timestamp: new Date().toISOString()
+          }
+        });
+      }
+      
+      // Remove client from our map
+      connectedClients.delete(ws);
+    });
+  });
