@@ -989,3 +989,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }));
               return;
             }
+
+                        // Set client properties
+            client.room = room;
+            if (chatUserId) client.userId = chatUserId;
+            if (chatUsername) client.username = chatUsername;
+            
+            // If user is authenticated, check if they're an admin
+            if (chatUserId) {
+              const user = await storage.getUser(chatUserId);
+              client.isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
+            }
+            
+            // Get recent messages for the room
+            const recentMessages = await storage.getChatMessages(room, 50);
+            
+            // Send welcome message and recent chat history
+            ws.send(JSON.stringify({
+              type: 'roomJoined',
+              data: {
+                room,
+                recentMessages
+              }
+            }));
