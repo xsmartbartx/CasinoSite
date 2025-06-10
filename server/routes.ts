@@ -907,3 +907,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     });
   };
+
+    // Define types for crash game
+  interface CrashActiveBet {
+    userId: number;
+    username: string;
+    bet: number;
+    autoCashoutAt: number | null;
+    hashedOut: boolean;
+  }
+  
+  interface CrashHistoryEntry {
+    crashPoint: number;
+    timestamp: string;
+  }
+  
+  interface CrashGameState {
+    gameState: 'waiting' | 'running' | 'crashed';
+    currentMultiplier: number;
+    startTime: number;
+    crashPoint: number;
+    history: CrashHistoryEntry[];
+    activeBets: CrashActiveBet[];
+    currentGameSeed: string;
+    nextGameHash: string;
+  }
