@@ -575,3 +575,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (user.balance < bet) {
         return res.status(400).json({ message: "Insufficient balance" });
       }
+
+            // Get roulette game ID
+      const games = await storage.getAllGames();
+      const rouletteGame = games.find(g => g.type === 'roulette');
+      
+      if (!rouletteGame) {
+        return res.status(404).json({ message: "Roulette game not found" });
+      }
+      
+      // Generate result
+      const result = generateRouletteResult(betType, betValue);
+      const payout = bet * result.multiplier;
+      
+      // Update user balance
+      await storage.updateUserBalance(userId, payout - bet);
+      
+      // Record game history
+      await storage.createGameHistory({
+        userId,
+        gameId: rouletteGame.id,
+        bet,
+        multiplier: result.multiplier,
+        payout,
+        result: result.win ? "win" : "loss",
+        details: JSON.stringify(result)
+      });
