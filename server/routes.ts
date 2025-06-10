@@ -773,3 +773,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
+
+    // Place a bet in the crash game
+  app.post('/api/play/crash/bet', authMiddleware, async (req, res) => {
+    try {
+      const { bet, autoCashoutAt } = req.body;
+      
+      if (!bet || typeof bet !== 'number' || bet <= 0) {
+        return res.status(400).json({ message: "Valid bet amount is required" });
+      }
+      
+      const userId = req.session.userId as number;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      if (user.balance < bet) {
+        return res.status(400).json({ message: "Insufficient balance" });
+      }
+      
+      // Get crash game ID
+      const games = await storage.getAllGames();
+      const crashGame = games.find(g => g.type === 'crash');
+      
+      if (!crashGame) {
+        return res.status(404).json({ message: "Crash game not found" });
+      }
