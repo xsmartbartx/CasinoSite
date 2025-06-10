@@ -1718,3 +1718,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
+
+            // Generate a random temporary password
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let tempPassword = '';
+      for (let i = 0; i < 10; i++) {
+        tempPassword += characters.charAt(Math.floor(secureRandom(0, characters.length)));
+      }
+      
+      // Update the user's password
+      const updatedUser = await storage.resetUserPassword(userId, tempPassword);
+      
+      if (!updatedUser) {
+        return res.status(500).json({ message: "Failed to reset password" });
+      }
+      
+      res.status(200).json({ 
+        message: "Password reset successful", 
+        userId: userId, 
+        tempPassword: tempPassword // In a real-world app, this should be sent via email instead
+      });
+    } catch (error) {
+      console.error("Admin reset password route error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
