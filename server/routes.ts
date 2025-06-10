@@ -1785,3 +1785,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to get game leaderboard" });
     }
   });
+
+    // Get user's rank on leaderboard
+  app.get('/api/users/:userId/rank', authMiddleware, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const period = req.query.period as string || 'all';
+      const gameId = req.query.gameId ? parseInt(req.query.gameId as string) : undefined;
+      
+      if (!userId || isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      const rank = await storage.getUserRank(userId, period, gameId);
+      
+      res.status(200).json({ rank });
+    } catch (error) {
+      console.error("Error getting user rank:", error);
+      res.status(500).json({ message: "Failed to get user rank" });
+    }
+  });
+  
+  return httpServer;
+}
