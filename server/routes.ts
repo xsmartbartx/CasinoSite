@@ -932,3 +932,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     currentGameSeed: string;
     nextGameHash: string;
   }
+
+    // Store active game state
+  let crashGameState: CrashGameState = {
+    gameState: 'waiting', // waiting, running, crashed
+    currentMultiplier: 1.00,
+    startTime: Date.now(),
+    crashPoint: generateCrashPoint(),
+    history: Array.from({ length: 10 }, () => {
+      return {
+        crashPoint: generateCrashPoint(),
+        timestamp: new Date(Date.now() - Math.floor(Math.random() * 3600000)).toISOString()
+      };
+    }).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()),
+    activeBets: [],
+    currentGameSeed: crypto.randomBytes(16).toString('hex'),
+    nextGameHash: '',
+  };
