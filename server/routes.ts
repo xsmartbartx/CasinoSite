@@ -1770,3 +1770,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!gameId || isNaN(gameId)) {
         return res.status(400).json({ message: "Invalid game ID" });
       }
+
+            // Check if game exists
+      const game = await storage.getGame(gameId);
+      if (!game) {
+        return res.status(404).json({ message: "Game not found" });
+      }
+      
+      const leaderboard = await storage.getLeaderboard(period, gameId, limit);
+      
+      res.status(200).json(leaderboard);
+    } catch (error) {
+      console.error("Error getting game leaderboard:", error);
+      res.status(500).json({ message: "Failed to get game leaderboard" });
+    }
+  });
