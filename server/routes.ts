@@ -968,3 +968,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       type: 'gameState',
       data: crashGameState
     }));
+
+        // Store the client in our connected clients map
+    connectedClients.set(ws, client);
+    
+    // Handle messages from client
+    ws.on('message', async (message) => {
+      try {
+        const data = JSON.parse(message.toString());
+        
+        // Handle different message types
+        switch(data.type) {
+          case 'joinRoom':
+            // Handle joining chat room
+            const { room, userId: chatUserId, username: chatUsername } = data.data;
+            if (!room) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                data: { message: 'Room name is required' }
+              }));
+              return;
+            }
