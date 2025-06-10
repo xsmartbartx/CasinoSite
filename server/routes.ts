@@ -853,3 +853,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!crashGame) {
         return res.status(404).json({ message: "Crash game not found" });
       }
+
+            // Update user balance with winnings
+      await storage.updateUserBalance(userId, payout);
+      
+      // Record game history
+      await storage.createGameHistory({
+        userId,
+        gameId: crashGame.id,
+        bet: simulatedBet,
+        multiplier: currentMultiplier,
+        payout,
+        result: "win",
+        details: JSON.stringify({
+          cashoutMultiplier: currentMultiplier
+        })
+      });
+      
+      res.status(200).json({
+        message: "Cashed out successfully",
+        cashoutMultiplier: currentMultiplier,
+        payout,
+        balance: user.balance + payout
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
