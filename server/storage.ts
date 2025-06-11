@@ -1323,3 +1323,24 @@ export class PgStorage implements IStorage {
         )
       )
       .limit(1);
+
+          // Set the score based on category
+    let score = 0;
+    switch(category) {
+      case "biggest_win":
+        score = payout;
+        break;
+      case "highest_multiplier":
+        score = multiplier;
+        break;
+      case "total_games":
+        score = 1; // Will be added to existing score
+        break;
+      case "total_wagered":
+        score = bet;
+        break;
+    }
+    
+    if (existingEntry.length > 0) {
+      // Update existing entry
+      const entry = existingEntry[0];
