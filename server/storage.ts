@@ -1027,3 +1027,23 @@ export class PgStorage implements IStorage {
     
     const totalUsers = parseInt(String(usersResult[0]?.count) || '0');
     const activeUsers = parseInt(String(usersResult[0]?.activeCount) || '0');
+
+        // Game stats
+    const gameStats = await this.db.execute(sql`
+      SELECT 
+        g.type, 
+        SUM(gh.bet) as "totalBet", 
+        SUM(gh.payout) as "totalPayout",
+        SUM(gh.bet) - SUM(gh.payout) as "profit",
+        CASE 
+          WHEN SUM(gh.bet) > 0 THEN (SUM(gh.payout) / SUM(gh.bet)) * 100 
+          ELSE 0 
+        END as "rtp",
+        COUNT(*) as "count"
+      FROM 
+        game_history gh
+      JOIN 
+        games g ON gh.game_id = g.id
+      GROUP BY 
+        g.type
+    `);
