@@ -1098,3 +1098,20 @@ export class PgStorage implements IStorage {
       FROM game_history
       WHERE created_at >= ${oneDayAgo.toISOString()}
     `);
+
+        // Type-safe conversion
+    const dailyActiveUsersValue = dailyUsers && dailyUsers[0] && 
+      typeof dailyUsers[0].dailyActiveUsers === 'string' ? 
+      parseInt(dailyUsers[0].dailyActiveUsers) : 0;
+    
+    // Count new users in the last day
+    const lastDay = new Date();
+    lastDay.setDate(lastDay.getDate() - 1);
+    
+    const newUsersResult = await this.db.select({
+      count: sql`count(*)`
+    })
+    .from(users)
+    .where(gte(users.createdAt, lastDay));
+    
+    const newUsers = parseInt(String(newUsersResult[0]?.count) || '0');
