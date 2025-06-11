@@ -337,3 +337,108 @@ export class MemStorage implements IStorage {
   async getGlobalStatistics(): Promise<any> {
     const allHistory = Array.from(this.gameHistories.values());
     const allUsers = Array.from(this.users.values());
+
+        // General platform stats
+    const totalUsers = allUsers.length;
+    const activeUsers = allUsers.filter(u => u.isActive !== false).length; // If isActive is undefined, consider it true
+    const totalWagered = allHistory.reduce((sum, h) => sum + h.bet, 0);
+    const totalWon = allHistory.reduce((sum, h) => sum + h.payout, 0);
+    const platformProfit = totalWagered - totalWon;
+    const overallRtp = totalWagered > 0 ? (totalWon / totalWagered) * 100 : 0;
+    const totalGamesPlayed = allHistory.length;
+    
+    // Game-specific stats
+    const gameTypes = Array.from(new Set(this.games.values().map(g => g.type)));
+    const gameStats = gameTypes.map(type => {
+      const gameHistories = allHistory.filter(h => {
+        const game = this.games.get(h.gameId);
+        return game && game.type === type;
+      });
+      
+      const totalBet = gameHistories.reduce((sum, h) => sum + h.bet, 0);
+      const totalPayout = gameHistories.reduce((sum, h) => sum + h.payout, 0);
+      const profit = totalBet - totalPayout;
+      const gameRtp = totalBet > 0 ? (totalPayout / totalBet) * 100 : 0;
+      const count = gameHistories.length;
+      
+      return {
+        type,
+        totalBet,
+        totalPayout,
+        profit,
+        rtp: gameRtp,
+        count
+      };
+    });
+    
+    return {
+      totalUsers,
+      activeUsers,
+      totalWagered,
+      totalWon,
+      platformProfit,
+      overallRtp,
+      totalGamesPlayed,
+      gameStats
+    };
+  }
+  
+  async getGameSettings(gameId: number): Promise<GameSettings | undefined> {
+    // Since MemStorage doesn't persistently store game settings,
+    // we'll return a default settings object
+    return {
+      id: 1,
+      gameId,
+      houseEdge: 0.03,
+      minBet: 1,
+      maxBet: 1000,
+      maxWin: 10000,
+      isEnabled: true,
+      config: null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
+  
+  async createGameSettings(settings: InsertGameSettings): Promise<GameSettings> {
+    // For MemStorage, just return a mock settings object
+    return {
+      id: 1,
+      ...settings,
+      minBet: settings.minBet ?? 1,
+      maxBet: settings.maxBet ?? 1000,
+      houseEdge: settings.houseEdge ?? 0.03,
+      maxWin: settings.maxWin ?? 10000,
+      isEnabled: settings.isEnabled ?? true,
+      config: settings.config ?? null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
+  
+  async updateGameSettings(id: number, settings: Partial<InsertGameSettings>): Promise<GameSettings | undefined> {
+    // For MemStorage, return an updated mock settings object
+    return {
+      id,
+      gameId: settings.gameId || 1,
+      houseEdge: settings.houseEdge ?? 0.03,
+      minBet: settings.minBet ?? 1,
+      maxBet: settings.maxBet ?? 1000,
+      maxWin: settings.maxWin ?? 10000,
+      isEnabled: settings.isEnabled ?? true,
+      config: settings.config ?? null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
+  
+  async getLatestAnalytics(): Promise<Analytics | undefined> {
+    // For MemStorage, create a mock analytics snapshot
+    return this.createAnalyticsSnapshot();
+  }
+  
+  async createAnalyticsSnapshot(): Promise<Analytics> {
+    // Generate snapshot based on current state
+    const stats = await this.getGlobalStatistics();
+    const dailyActiveUsers = Math.floor(stats.activeUsers * 0.6); // Simulate daily active users
+    const newUsersToday = Math.floor(Math.random() * 15); // Simulate new user signups
