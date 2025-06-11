@@ -457,3 +457,32 @@ export class MemStorage implements IStorage {
       nextMonth: stats.platformProfit * 30 * 1.1,
       growth: 0.1 + (Math.random() * 0.15)
     };
+
+        // Risk metrics based on current platform state
+    const riskMetrics = {
+      largeWinRisk: 0.01 + (Math.random() * 0.03),
+      payoutRatio: stats.totalWon / stats.totalWagered,
+      volatilityIndex: 0.2 + (Math.random() * 0.4),
+      highRiskUsers: Math.floor(stats.activeUsers * 0.03),
+      potentialLiability: stats.totalWagered * 0.8
+    };
+    
+    return {
+      id: 1,
+      totalUsers: stats.totalUsers,
+      activeUsers: stats.activeUsers,
+      newUsers: newUsersToday,
+      totalBets: stats.totalGamesPlayed,
+      totalWagered: stats.totalWagered,
+      totalPayout: stats.totalWon,
+      houseProfit: stats.platformProfit,
+      gameBreakdown: JSON.stringify(stats.gameStats),
+      userActivity: JSON.stringify(hourlyActivity),
+      financialProjections: JSON.stringify(projections),
+      riskMetrics: JSON.stringify(riskMetrics),
+      createdAt: new Date(),
+      date: new Date()
+    };
+  }
+  
+  async getDailyAnalytics(startDate: Date, endDate: Date): Promise<Analytics[]> {
