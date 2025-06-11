@@ -12,3 +12,16 @@ import {
 import { eq, and, desc, sql, gte, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+
+export interface IStorage {
+  // User methods
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  updateUserBalance(id: number, amount: number): Promise<User | undefined>;
+  
+  // Admin User methods
+  getAllUsers(limit?: number, offset?: number): Promise<User[]>;
+  updateUserRole(id: number, role: string): Promise<User | undefined>;
+  updateUserStatus(id: number, isActive: boolean): Promise<User | undefined>;
+  resetUserPassword(id: number, newPassword: string): Promise<User | undefined>;
