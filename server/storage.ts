@@ -62,3 +62,17 @@ export interface IStorage {
   getChatMessages(room: string, limit?: number, offset?: number): Promise<ChatMessage[]>;
   createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
   moderateChatMessage(id: number, isDeleted?: boolean, isModerated?: boolean): Promise<ChatMessage | undefined>;
+
+    // Leaderboard methods
+  getLeaderboard(period: string, category: string, gameId?: number, limit?: number): Promise<Leaderboard[]>;
+  updateLeaderboard(
+    userId: number, 
+    username: string,
+    gameId: number | null, 
+    bet: number, 
+    multiplier: number,
+    payout: number,
+    period: string
+  ): Promise<void>;
+  getUserRank(userId: number, period: string, category: string, gameId?: number): Promise<number>;
+}
