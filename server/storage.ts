@@ -1047,3 +1047,54 @@ export class PgStorage implements IStorage {
       GROUP BY 
         g.type
     `);
+
+        // Calculate totals
+    const totalStats = await this.db.execute(sql`
+      SELECT 
+        SUM(bet) as "totalWagered",
+        SUM(payout) as "totalWon",
+        COUNT(*) as "totalGamesPlayed"
+      FROM 
+        game_history
+    `);
+    
+    const totalWagered = parseFloat(String(totalStats[0]?.totalWagered || '0'));
+    const totalWon = parseFloat(String(totalStats[0]?.totalWon || '0'));
+    const platformProfit = totalWagered - totalWon;
+    const overallRtp = totalWagered > 0 ? (totalWon / totalWagered) * 100 : 0;
+    const totalGamesPlayed = parseInt(String(totalStats[0]?.totalGamesPlayed || '0'));
+    
+    return {
+      totalUsers,
+      activeUsers,
+      totalWagered,
+      totalWon,
+      platformProfit,
+      overallRtp,
+      totalGamesPlayed,
+      gameStats
+    };
+  }
+  
+  async getLatestAnalytics(): Promise<Analytics | undefined> {
+    const result = await this.db.select()
+      .from(analytics)
+      .orderBy(desc(analytics.date))
+      .limit(1);
+    
+    return result[0];
+  }
+  
+  async createAnalyticsSnapshot(): Promise<Analytics> {
+    // Generate snapshot based on current statistics
+    const stats = await this.getGlobalStatistics();
+    
+    // Get daily active users (simplified approach)
+    const oneDayAgo = new Date();
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+    
+    const dailyUsers = await this.db.execute(sql`
+      SELECT COUNT(DISTINCT user_id) as "dailyActiveUsers"
+      FROM game_history
+      WHERE created_at >= ${oneDayAgo.toISOString()}
+    `);
