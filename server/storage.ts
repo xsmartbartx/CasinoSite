@@ -660,3 +660,42 @@ export class MemStorage implements IStorage {
       };
       this.leaderboards.set(id, newEntry);
     }
+
+        // Update ranks for this category/period/game combination
+    await this.updateLeaderboardRanks(category, period, gameId);
+  }
+  
+  private async updateLeaderboardRanks(
+    category: "biggest_win" | "highest_multiplier" | "total_games" | "total_wagered",
+    period: "daily" | "weekly" | "monthly" | "all_time",
+    gameId: number | null
+  ): Promise<void> {
+    // Get all entries for this category/period/game combination
+    let entries = Array.from(this.leaderboards.values())
+      .filter(entry => 
+        entry.category === category && 
+        entry.period === period &&
+        (gameId === null || entry.gameId === gameId)
+      )
+      .sort((a, b) => Number(b.score) - Number(a.score));
+    
+    // Update ranks
+    entries.forEach((entry, index) => {
+      const updatedEntry = { ...entry, rank: index + 1 };
+      this.leaderboards.set(entry.id, updatedEntry);
+    });
+  }
+  
+  async getUserRank(
+    userId: number,
+    period: "daily" | "weekly" | "monthly" | "all_time",
+    category: "biggest_win" | "highest_multiplier" | "total_games" | "total_wagered",
+    gameId?: number
+  ): Promise<number> {
+    // Get leaderboard filtered by period, category and optionally gameId
+    let leaderboard = Array.from(this.leaderboards.values())
+      .filter(entry => entry.period === period && entry.category === category);
+      
+    if (gameId !== undefined) {
+      leaderboard = leaderboard.filter(entry => entry.gameId === gameId);
+    }
