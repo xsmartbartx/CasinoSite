@@ -1136,3 +1136,35 @@ export class PgStorage implements IStorage {
       highRiskUsers: Math.floor(stats.activeUsers * 0.03),
       potentialLiability: stats.totalWagered * 0.8
     };
+
+        // Create a valid analytics record
+    const result = await this.db.insert(analytics)
+      .values({
+        totalBets: stats.totalGamesPlayed,
+        totalWagered: stats.totalWagered,
+        totalPayout: stats.totalWon,
+        houseProfit: stats.platformProfit,
+        gameBreakdown: JSON.stringify(stats.gameStats),
+        activeUsers: stats.activeUsers,
+        newUsers: newUsers,
+        userActivity: JSON.stringify(hourlyActivity),
+        financialProjections: JSON.stringify(projections),
+        riskMetrics: JSON.stringify(riskMetrics),
+        date: new Date()
+      })
+      .returning();
+    
+    return result[0];
+  }
+  
+  async getDailyAnalytics(startDate: Date, endDate: Date): Promise<Analytics[]> {
+    return this.db.select()
+      .from(analytics)
+      .where(
+        and(
+          gte(analytics.date, startDate),
+          lte(analytics.date, endDate)
+        )
+      )
+      .orderBy(analytics.date);
+  }
