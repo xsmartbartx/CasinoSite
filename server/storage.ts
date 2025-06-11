@@ -898,3 +898,44 @@ export class PgStorage implements IStorage {
     const history = await this.db.select()
       .from(gameHistory)
       .where(eq(gameHistory.userId, userId));
+
+          // Calculate basic stats
+    const totalWagered = history.reduce((sum, h) => sum + h.bet, 0);
+    const totalWon = history.reduce((sum, h) => sum + h.payout, 0);
+    const profitLoss = totalWon - totalWagered;
+    const rtp = totalWagered > 0 ? (totalWon / totalWagered) * 100 : 0;
+    const gamesPlayed = history.length;
+    const avgBet = gamesPlayed > 0 ? totalWagered / gamesPlayed : 0;
+    
+    // Get game types with a join query
+    const gameStats = await this.db.execute(sql`
+      SELECT 
+        g.type, 
+        SUM(gh.bet) as "totalBet", 
+        SUM(gh.payout) as "totalPayout",
+        SUM(gh.payout) - SUM(gh.bet) as "profit",
+        CASE 
+          WHEN SUM(gh.bet) > 0 THEN (SUM(gh.payout) / SUM(gh.bet)) * 100 
+          ELSE 0 
+        END as "rtp",
+        COUNT(*) as "count"
+      FROM 
+        game_history gh
+      JOIN 
+        games g ON gh.game_id = g.id
+      WHERE 
+        gh.user_id = ${userId}
+      GROUP BY 
+        g.type
+    `);
+    
+    return {
+      totalWagered,
+      totalWon,
+      profitLoss,
+      rtp,
+      gamesPlayed,
+      avgBet,
+      gameStats: gameStats
+    };
+  }
