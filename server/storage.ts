@@ -1380,3 +1380,21 @@ export class PgStorage implements IStorage {
           updatedAt: new Date()
         });
     }
+
+        // Update the ranks for this category/period/game combination
+    await this.updateLeaderboardRanks(category, period, gameId);
+  }
+  
+  private async updateLeaderboardRanks(
+    category: "biggest_win" | "highest_multiplier" | "total_games" | "total_wagered",
+    period: "daily" | "weekly" | "monthly" | "all_time",
+    gameId: number | null
+  ): Promise<void> {
+    // Get all entries for this category/period/game combination
+    const gameIdParam = gameId === null ? undefined : gameId;
+    const entries = await this.getLeaderboard(period, category, gameIdParam, 1000);
+    
+    // Update ranks for each entry
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      const rank = i + 1;
