@@ -76,3 +76,18 @@ export interface IStorage {
   ): Promise<void>;
   getUserRank(userId: number, period: string, category: string, gameId?: number): Promise<number>;
 }
+
+export class MemStorage implements IStorage {
+  private users: Map<number, User>;
+  private games: Map<number, Game>;
+  private gameHistories: Map<number, GameHistory>;
+  private educationalContents: Map<number, EducationalContent>;
+  private chatMessages: Map<number, ChatMessage>;
+  private leaderboards: Map<number, Leaderboard>;
+  
+  private userIdCounter: number;
+  private gameIdCounter: number;
+  private gameHistoryIdCounter: number;
+  private educationalContentIdCounter: number;
+  private chatMessageIdCounter: number;
+  private leaderboardIdCounter: number;
