@@ -25,3 +25,10 @@ export interface IStorage {
   updateUserRole(id: number, role: string): Promise<User | undefined>;
   updateUserStatus(id: number, isActive: boolean): Promise<User | undefined>;
   resetUserPassword(id: number, newPassword: string): Promise<User | undefined>;
+
+    // Game methods
+  getAllGames(): Promise<Game[]>;
+  getGame(id: number): Promise<Game | undefined>;
+  getGamesByType(type: string): Promise<Game[]>;
+  createGame(game: InsertGame): Promise<Game>;
+  updateGame(id: number, game: Partial<InsertGame>): Promise<Game | undefined>;
