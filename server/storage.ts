@@ -37,3 +37,14 @@ export interface IStorage {
   getGameSettings(gameId: number): Promise<GameSettings | undefined>;
   createGameSettings(settings: InsertGameSettings): Promise<GameSettings>;
   updateGameSettings(id: number, settings: Partial<InsertGameSettings>): Promise<GameSettings | undefined>;
+
+    // Game history methods
+  getGameHistory(userId: number, limit?: number, offset?: number): Promise<GameHistory[]>;
+  getGameHistoryByGame(userId: number, gameId: number, limit?: number, offset?: number): Promise<GameHistory[]>;
+  createGameHistory(history: InsertGameHistory): Promise<GameHistory>;
+  
+  // Educational content methods
+  getAllEducationalContent(): Promise<EducationalContent[]>;
+  getEducationalContent(id: number): Promise<EducationalContent | undefined>;
+  getEducationalContentByCategory(category: string): Promise<EducationalContent[]>;
+  createEducationalContent(content: InsertEducationalContent): Promise<EducationalContent>;
