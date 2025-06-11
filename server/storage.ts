@@ -1344,3 +1344,39 @@ export class PgStorage implements IStorage {
     if (existingEntry.length > 0) {
       // Update existing entry
       const entry = existingEntry[0];
+
+            // Update the entry based on category
+      await this.db.update(leaderboards)
+        .set({
+          username, // Update username in case it changed
+          // Update metrics based on category
+          highestMultiplier: Math.max(entry.highestMultiplier || 0, multiplier),
+          biggestWin: Math.max(entry.biggestWin || 0, payout),
+          totalWagered: (entry.totalWagered || 0) + bet,
+          totalGames: (entry.totalGames || 0) + 1,
+          // Set score based on category
+          score: category === "biggest_win" ? Math.max(entry.score, score) : 
+                 category === "highest_multiplier" ? Math.max(entry.score, score) :
+                 entry.score + score, // For total_games and total_wagered, add to existing score
+          updatedAt: new Date()
+        })
+        .where(eq(leaderboards.id, entry.id));
+      
+    } else {
+      // Create new entry
+      await this.db.insert(leaderboards)
+        .values({
+          userId,
+          username,
+          gameId,
+          category,
+          score,
+          highestMultiplier: multiplier,
+          biggestWin: payout,
+          totalWagered: bet,
+          totalGames: 1,
+          period,
+          rank: null,
+          updatedAt: new Date()
+        });
+    }
