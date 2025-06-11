@@ -1398,3 +1398,21 @@ export class PgStorage implements IStorage {
     for (let i = 0; i < entries.length; i++) {
       const entry = entries[i];
       const rank = i + 1;
+
+            // Only update if rank has changed
+      if (entry.rank !== rank) {
+        await this.db.update(leaderboards)
+          .set({ rank })
+          .where(eq(leaderboards.id, entry.id));
+      }
+    }
+  }
+  
+  async getUserRank(
+    userId: number,
+    period: "daily" | "weekly" | "monthly" | "all_time",
+    category: "biggest_win" | "highest_multiplier" | "total_games" | "total_wagered",
+    gameId?: number
+  ): Promise<number> {
+    // Get full leaderboard to calculate rank
+    const leaderboard = await this.getLeaderboard(period, category, gameId, 1000);
