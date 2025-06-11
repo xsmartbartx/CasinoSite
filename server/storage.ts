@@ -939,3 +939,91 @@ export class PgStorage implements IStorage {
       gameStats: gameStats
     };
   }
+
+    // Method to seed the database with initial data
+  async getAllUsers(limit = 50, offset = 0): Promise<User[]> {
+    return this.db.select()
+      .from(users)
+      .orderBy(desc(users.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
+  
+  async updateUserRole(id: number, role: string): Promise<User | undefined> {
+    // Validate role
+    if (!['user', 'admin', 'superadmin'].includes(role)) {
+      throw new Error("Invalid role");
+    }
+    
+    const typedRole = role as 'user' | 'admin' | 'superadmin';
+    
+    const result = await this.db.update(users)
+      .set({ role: typedRole })
+      .where(eq(users.id, id))
+      .returning();
+    
+    return result[0];
+  }
+  
+  async updateUserStatus(id: number, isActive: boolean): Promise<User | undefined> {
+    const result = await this.db.update(users)
+      .set({ isActive })
+      .where(eq(users.id, id))
+      .returning();
+    
+    return result[0];
+  }
+  
+  async resetUserPassword(id: number, newPassword: string): Promise<User | undefined> {
+    const result = await this.db.update(users)
+      .set({ password: newPassword })
+      .where(eq(users.id, id))
+      .returning();
+    
+    return result[0];
+  }
+  
+  async updateGame(id: number, game: Partial<InsertGame>): Promise<Game | undefined> {
+    const result = await this.db.update(games)
+      .set(game)
+      .where(eq(games.id, id))
+      .returning();
+    
+    return result[0];
+  }
+  
+  async getGameSettings(gameId: number): Promise<GameSettings | undefined> {
+    const result = await this.db.select()
+      .from(gameSettings)
+      .where(eq(gameSettings.gameId, gameId))
+      .limit(1);
+    
+    return result[0];
+  }
+  
+  async createGameSettings(settings: InsertGameSettings): Promise<GameSettings> {
+    const result = await this.db.insert(gameSettings)
+      .values(settings)
+      .returning();
+    
+    return result[0];
+  }
+  
+  async updateGameSettings(id: number, settings: Partial<InsertGameSettings>): Promise<GameSettings | undefined> {
+    const result = await this.db.update(gameSettings)
+      .set(settings)
+      .where(eq(gameSettings.id, id))
+      .returning();
+    
+    return result[0];
+  }
+  
+  async getGlobalStatistics(): Promise<any> {
+    // General platform stats
+    const usersResult = await this.db.select({ 
+      count: sql`count(*)`,
+      activeCount: sql`count(*) filter (where is_active = true)` 
+    }).from(users);
+    
+    const totalUsers = parseInt(String(usersResult[0]?.count) || '0');
+    const activeUsers = parseInt(String(usersResult[0]?.activeCount) || '0');
