@@ -442,3 +442,18 @@ export class MemStorage implements IStorage {
     const stats = await this.getGlobalStatistics();
     const dailyActiveUsers = Math.floor(stats.activeUsers * 0.6); // Simulate daily active users
     const newUsersToday = Math.floor(Math.random() * 15); // Simulate new user signups
+
+        // Create simulated hourly user activity data for heatmap
+    const hourlyActivity = Array.from({length: 24}, (_, hour) => {
+      // More users during peak hours (simulated pattern)
+      const baseUsers = hour >= 8 && hour <= 23 ? 10 + Math.floor(Math.random() * 30) : 2 + Math.floor(Math.random() * 8);
+      return { hour, count: baseUsers };
+    });
+    
+    // Create financial projections (simple linear projection for demo)
+    const projections = {
+      nextDay: stats.platformProfit * 1.02,
+      nextWeek: stats.platformProfit * 7 * 1.05,
+      nextMonth: stats.platformProfit * 30 * 1.1,
+      growth: 0.1 + (Math.random() * 0.15)
+    };
