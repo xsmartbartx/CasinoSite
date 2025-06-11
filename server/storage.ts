@@ -32,3 +32,8 @@ export interface IStorage {
   getGamesByType(type: string): Promise<Game[]>;
   createGame(game: InsertGame): Promise<Game>;
   updateGame(id: number, game: Partial<InsertGame>): Promise<Game | undefined>;
+
+    // Game settings methods
+  getGameSettings(gameId: number): Promise<GameSettings | undefined>;
+  createGameSettings(settings: InsertGameSettings): Promise<GameSettings>;
+  updateGameSettings(id: number, settings: Partial<InsertGameSettings>): Promise<GameSettings | undefined>;
