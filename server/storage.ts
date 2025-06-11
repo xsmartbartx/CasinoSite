@@ -486,3 +486,20 @@ export class MemStorage implements IStorage {
   }
   
   async getDailyAnalytics(startDate: Date, endDate: Date): Promise<Analytics[]> {
+        // Generate a mock analytics snapshot for memory storage
+    const snapshot = await this.createAnalyticsSnapshot();
+    return [snapshot];
+  }
+  
+  async updateGame(id: number, game: Partial<InsertGame>): Promise<Game | undefined> {
+    const existingGame = await this.getGame(id);
+    if (!existingGame) return undefined;
+    
+    const updatedGame: Game = {
+      ...existingGame,
+      ...game
+    };
+    
+    this.games.set(id, updatedGame);
+    return updatedGame;
+  }
