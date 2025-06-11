@@ -699,3 +699,42 @@ export class MemStorage implements IStorage {
     if (gameId !== undefined) {
       leaderboard = leaderboard.filter(entry => entry.gameId === gameId);
     }
+
+        // Sort by score (highest first)
+    leaderboard.sort((a, b) => Number(b.score) - Number(a.score));
+    
+    // Find user's position
+    const position = leaderboard.findIndex(entry => entry.userId === userId);
+    
+    // Position + 1 = rank (1-based indexing), or -1 if not found
+    return position >= 0 ? position + 1 : -1;
+  }
+  
+  private initializeDefaultData() {
+    // Default games
+    this.createGame({
+      name: "Slots",
+      description: "Learn about probability distributions and random number generation.",
+      rtp: 96.5,
+      type: "slot",
+      popular: true,
+      difficulty: "intermediate"
+    });
+    
+    this.createGame({
+      name: "Roulette",
+      description: "Explore probability, expected value, and betting strategies.",
+      rtp: 97.3,
+      type: "roulette",
+      popular: false,
+      difficulty: "educational"
+    });
+    
+    this.createGame({
+      name: "Dice",
+      description: "Understand fundamental probability with dice combinations.",
+      rtp: 98.5,
+      type: "dice",
+      popular: false,
+      difficulty: "beginner"
+    });
