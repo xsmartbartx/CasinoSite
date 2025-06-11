@@ -91,3 +91,18 @@ export class MemStorage implements IStorage {
   private educationalContentIdCounter: number;
   private chatMessageIdCounter: number;
   private leaderboardIdCounter: number;
+
+    constructor() {
+    this.users = new Map();
+    this.games = new Map();
+    this.gameHistories = new Map();
+    this.educationalContents = new Map();
+    this.chatMessages = new Map();
+    this.leaderboards = new Map();
+    
+    this.userIdCounter = 1;
+    this.gameIdCounter = 1;
+    this.gameHistoryIdCounter = 1;
+    this.educationalContentIdCounter = 1;
+    this.chatMessageIdCounter = 1;
+    this.leaderboardIdCounter = 1;
