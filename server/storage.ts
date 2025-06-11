@@ -1168,3 +1168,28 @@ export class PgStorage implements IStorage {
       )
       .orderBy(analytics.date);
   }
+
+    // Generate hourly activity data for heatmap visualization
+  private async generateHourlyActivityData(): Promise<any[]> {
+    // In a production environment, we would query the database to get actual hourly data
+    // For this demo, we'll generate simulated data with a realistic pattern
+    const now = new Date();
+    const currentHour = now.getHours();
+    
+    return Array.from({length: 24}, (_, hour) => {
+      // Create a realistic pattern: low activity at night, peaks in evening
+      let baseActivity;
+      
+      if (hour >= 0 && hour < 6) {
+        // Night hours: low activity
+        baseActivity = 5 + Math.floor(Math.random() * 10);
+      } else if (hour >= 6 && hour < 12) {
+        // Morning hours: medium activity
+        baseActivity = 15 + Math.floor(Math.random() * 15);
+      } else if (hour >= 12 && hour < 18) {
+        // Afternoon hours: high activity
+        baseActivity = 30 + Math.floor(Math.random() * 20);
+      } else {
+        // Evening hours: peak activity
+        baseActivity = 40 + Math.floor(Math.random() * 25);
+      }
