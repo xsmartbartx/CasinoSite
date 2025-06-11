@@ -542,3 +542,18 @@ export class MemStorage implements IStorage {
     this.chatMessages.set(id, updatedMessage);
     return updatedMessage;
   }
+
+    // Leaderboard methods
+  async getLeaderboard(
+    period: "daily" | "weekly" | "monthly" | "all_time",
+    category: "biggest_win" | "highest_multiplier" | "total_games" | "total_wagered",
+    gameId?: number,
+    limit = 10
+  ): Promise<Leaderboard[]> {
+    let leaderboardData = Array.from(this.leaderboards.values())
+      .filter(entry => entry.period === period && entry.category === category);
+      
+    // Apply game filter if specified
+    if (gameId !== undefined) {
+      leaderboardData = leaderboardData.filter(entry => entry.gameId === gameId);
+    }
