@@ -294,3 +294,46 @@ export class MemStorage implements IStorage {
     const rtp = totalWagered > 0 ? (totalWon / totalWagered) * 100 : 0;
     const gamesPlayed = history.length;
     const avgBet = gamesPlayed > 0 ? totalWagered / gamesPlayed : 0;
+
+        // Game-specific stats
+    const gameTypes = Array.from(new Set(history.map(h => {
+      const game = this.games.get(h.gameId);
+      return game ? game.type : null;
+    }).filter(Boolean)));
+    
+    const gameStats = gameTypes.map(type => {
+      const gameHistories = history.filter(h => {
+        const game = this.games.get(h.gameId);
+        return game && game.type === type;
+      });
+      
+      const totalBet = gameHistories.reduce((sum, h) => sum + h.bet, 0);
+      const totalPayout = gameHistories.reduce((sum, h) => sum + h.payout, 0);
+      const profit = totalPayout - totalBet;
+      const gameRtp = totalBet > 0 ? (totalPayout / totalBet) * 100 : 0;
+      const count = gameHistories.length;
+      
+      return {
+        type,
+        totalBet,
+        totalPayout,
+        profit,
+        rtp: gameRtp,
+        count
+      };
+    });
+    
+    return {
+      totalWagered,
+      totalWon,
+      profitLoss,
+      rtp,
+      gamesPlayed,
+      avgBet,
+      gameStats
+    };
+  }
+  
+  async getGlobalStatistics(): Promise<any> {
+    const allHistory = Array.from(this.gameHistories.values());
+    const allUsers = Array.from(this.users.values());
