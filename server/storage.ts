@@ -503,3 +503,42 @@ export class MemStorage implements IStorage {
     this.games.set(id, updatedGame);
     return updatedGame;
   }
+
+    // Chat methods
+  async getChatMessages(room: string, limit = 50, offset = 0): Promise<ChatMessage[]> {
+    const messages = Array.from(this.chatMessages.values())
+      .filter(msg => msg.room === room && !msg.isDeleted)
+      .sort((a, b) => {
+        if (!a.createdAt || !b.createdAt) return 0;
+        return b.createdAt.getTime() - a.createdAt.getTime();
+      });
+    
+    return messages.slice(offset, offset + limit);
+  }
+  
+  async createChatMessage(message: InsertChatMessage): Promise<ChatMessage> {
+    const id = this.chatMessageIdCounter++;
+    const createdAt = new Date();
+    const chatMessage: ChatMessage = {
+      ...message,
+      id,
+      isDeleted: false,
+      isModerated: false,
+      createdAt
+    };
+    this.chatMessages.set(id, chatMessage);
+    return chatMessage;
+  }
+  
+  async moderateChatMessage(id: number, isDeleted = false, isModerated = true): Promise<ChatMessage | undefined> {
+    const message = this.chatMessages.get(id);
+    if (!message) return undefined;
+    
+    const updatedMessage: ChatMessage = {
+      ...message,
+      isDeleted,
+      isModerated
+    };
+    this.chatMessages.set(id, updatedMessage);
+    return updatedMessage;
+  }
