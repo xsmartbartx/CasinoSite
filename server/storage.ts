@@ -48,3 +48,17 @@ export interface IStorage {
   getEducationalContent(id: number): Promise<EducationalContent | undefined>;
   getEducationalContentByCategory(category: string): Promise<EducationalContent[]>;
   createEducationalContent(content: InsertEducationalContent): Promise<EducationalContent>;
+
+    // Analytics methods
+  getLatestAnalytics(): Promise<Analytics | undefined>;
+  getDailyAnalytics(startDate: Date, endDate: Date): Promise<Analytics[]>;
+  createAnalyticsSnapshot(): Promise<Analytics>;
+  
+  // Statistics methods
+  getUserStatistics(userId: number): Promise<any>;
+  getGlobalStatistics(): Promise<any>;
+  
+  // Chat methods
+  getChatMessages(room: string, limit?: number, offset?: number): Promise<ChatMessage[]>;
+  createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
+  moderateChatMessage(id: number, isDeleted?: boolean, isModerated?: boolean): Promise<ChatMessage | undefined>;
