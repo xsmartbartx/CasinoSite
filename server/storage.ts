@@ -1416,3 +1416,53 @@ export class PgStorage implements IStorage {
   ): Promise<number> {
     // Get full leaderboard to calculate rank
     const leaderboard = await this.getLeaderboard(period, category, gameId, 1000);
+
+        // Find user's position
+    const userIndex = leaderboard.findIndex(entry => entry.userId === userId);
+    
+    // Return user's rank (1-based) or -1 if not found
+    return userIndex >= 0 ? userIndex + 1 : -1;
+  }
+  
+  // Method to seed the database with initial data
+  async seedInitialData(): Promise<void> {
+    // Check if games already exist
+    const existingGames = await this.getAllGames();
+    if (existingGames.length === 0) {
+      // Create default games
+      await this.createGame({
+        name: "Slots",
+        description: "Learn about probability distributions and random number generation.",
+        rtp: 96.5,
+        type: "slot",
+        popular: true,
+        difficulty: "intermediate"
+      });
+      
+      await this.createGame({
+        name: "Roulette",
+        description: "Explore probability, expected value, and betting strategies.",
+        rtp: 97.3,
+        type: "roulette",
+        popular: false,
+        difficulty: "educational"
+      });
+      
+      await this.createGame({
+        name: "Dice",
+        description: "Understand fundamental probability with dice combinations.",
+        rtp: 98.5,
+        type: "dice",
+        popular: false,
+        difficulty: "beginner"
+      });
+      
+      await this.createGame({
+        name: "Crash",
+        description: "Test your risk management skills in this thrilling multiplier game with realtime decisions.",
+        rtp: 97.0,
+        type: "crash",
+        popular: true,
+        difficulty: "intermediate"
+      });
+    }
