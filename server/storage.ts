@@ -1292,3 +1292,34 @@ export class PgStorage implements IStorage {
     await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "highest_multiplier", period);
     await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "total_games", period);
     await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "total_wagered", period);
+
+        // Update all time leaderboard too
+    if (period !== "all_time") {
+      await this.updateLeaderboard(userId, username, gameId, bet, multiplier, payout, "all_time");
+    }
+  }
+  
+  private async updateLeaderboardCategory(
+    userId: number, 
+    username: string,
+    gameId: number | null, 
+    bet: number, 
+    multiplier: number,
+    payout: number,
+    category: "biggest_win" | "highest_multiplier" | "total_games" | "total_wagered",
+    period: "daily" | "weekly" | "monthly" | "all_time"
+  ): Promise<void> {
+    // Try to find existing entry
+    const existingEntry = await this.db.select()
+      .from(leaderboards)
+      .where(
+        and(
+          eq(leaderboards.userId, userId),
+          eq(leaderboards.period, period),
+          eq(leaderboards.category, category),
+          gameId !== null 
+            ? eq(leaderboards.gameId, gameId)
+            : sql`leaderboards.game_id IS NULL`
+        )
+      )
+      .limit(1);
