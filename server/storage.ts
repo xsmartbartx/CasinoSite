@@ -1242,3 +1242,53 @@ export class PgStorage implements IStorage {
       .returning();
     return result[0];
   }
+
+    // Leaderboard methods
+  async getLeaderboard(
+    period: "daily" | "weekly" | "monthly" | "all_time",
+    category: "biggest_win" | "highest_multiplier" | "total_games" | "total_wagered",
+    gameId?: number,
+    limit = 10
+  ): Promise<Leaderboard[]> {
+    let query = this.db.select()
+      .from(leaderboards)
+      .where(
+        and(
+          eq(leaderboards.period, period),
+          eq(leaderboards.category, category)
+        )
+      )
+      .orderBy(desc(leaderboards.score))
+      .limit(limit);
+    
+    if (gameId !== undefined) {
+      query = this.db.select()
+        .from(leaderboards)
+        .where(
+          and(
+            eq(leaderboards.period, period),
+            eq(leaderboards.category, category),
+            eq(leaderboards.gameId, gameId)
+          )
+        )
+        .orderBy(desc(leaderboards.score))
+        .limit(limit);
+    }
+    
+    return query;
+  }
+  
+  async updateLeaderboard(
+    userId: number, 
+    username: string,
+    gameId: number | null, 
+    bet: number, 
+    multiplier: number,
+    payout: number,
+    period: "daily" | "weekly" | "monthly" | "all_time"
+  ): Promise<void> {
+    // Update each category
+    await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "biggest_win", period);
+    await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "highest_multiplier", period);
+    await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "total_games", period);
+    await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "total_wagered", period);
