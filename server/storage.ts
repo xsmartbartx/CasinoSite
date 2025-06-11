@@ -641,3 +641,22 @@ export class MemStorage implements IStorage {
       };
       this.leaderboards.set(existingEntry.id, updatedEntry);
     } else {
+              // Create new entry
+      const id = this.leaderboardIdCounter++;
+      const newEntry: Leaderboard = {
+        id,
+        userId,
+        username,
+        gameId,
+        category,
+        score,
+        highestMultiplier: multiplier,
+        biggestWin: payout,
+        totalWagered: bet,
+        totalGames: 1,
+        period,
+        rank: null,
+        updatedAt: new Date()
+      };
+      this.leaderboards.set(id, newEntry);
+    }
