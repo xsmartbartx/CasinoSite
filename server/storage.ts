@@ -1193,3 +1193,52 @@ export class PgStorage implements IStorage {
         // Evening hours: peak activity
         baseActivity = 40 + Math.floor(Math.random() * 25);
       }
+
+            // Add recency effect - hours closer to current hour have more accurate data
+      const recencyFactor = 1 - (Math.abs(currentHour - hour) / 24);
+      const finalActivity = Math.round(baseActivity * (0.8 + (recencyFactor * 0.4)));
+      
+      return {
+        hour,
+        count: finalActivity,
+        // Optionally add more metrics like new users, conversion rate, etc.
+      };
+    });
+  }
+  
+  // Chat methods
+  async getChatMessages(room: string, limit = 50, offset = 0): Promise<ChatMessage[]> {
+    return this.db.select()
+      .from(chatMessages)
+      .where(
+        and(
+          eq(chatMessages.room, room),
+          eq(chatMessages.isDeleted, false)
+        )
+      )
+      .orderBy(desc(chatMessages.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
+  
+  async createChatMessage(message: InsertChatMessage): Promise<ChatMessage> {
+    const result = await this.db.insert(chatMessages)
+      .values({
+        ...message,
+        isDeleted: false,
+        isModerated: false
+      })
+      .returning();
+    return result[0];
+  }
+  
+  async moderateChatMessage(id: number, isDeleted = false, isModerated = true): Promise<ChatMessage | undefined> {
+    const result = await this.db.update(chatMessages)
+      .set({
+        isDeleted,
+        isModerated
+      })
+      .where(eq(chatMessages.id, id))
+      .returning();
+    return result[0];
+  }
