@@ -557,3 +557,24 @@ export class MemStorage implements IStorage {
     if (gameId !== undefined) {
       leaderboardData = leaderboardData.filter(entry => entry.gameId === gameId);
     }
+
+        // Sort by score in descending order
+    return leaderboardData
+      .sort((a, b) => Number(b.score) - Number(a.score))
+      .slice(0, limit);
+  }
+  
+  async updateLeaderboard(
+    userId: number, 
+    username: string,
+    gameId: number | null, 
+    bet: number, 
+    multiplier: number,
+    payout: number,
+    period: "daily" | "weekly" | "monthly" | "all_time"
+  ): Promise<void> {
+    // Update each category
+    await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "biggest_win", period);
+    await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "highest_multiplier", period);
+    await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "total_games", period);
+    await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "total_wagered", period);
