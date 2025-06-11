@@ -1466,3 +1466,53 @@ export class PgStorage implements IStorage {
         difficulty: "intermediate"
       });
     }
+
+        // Check if educational content already exists
+    const existingContent = await this.getAllEducationalContent();
+    if (existingContent.length === 0) {
+      // Create default educational content
+      await this.createEducationalContent({
+        title: "Probability Basics",
+        content: "Learn the fundamental concepts of probability theory that underlie all casino games.",
+        category: "probability",
+        readTime: 5,
+        icon: "fa-calculator"
+      });
+      
+      await this.createEducationalContent({
+        title: "Expected Value",
+        content: "Understand how to calculate the average outcome of a random variable over many trials.",
+        category: "expected_value",
+        readTime: 8,
+        icon: "fa-chart-line"
+      });
+      
+      await this.createEducationalContent({
+        title: "Random Number Generation",
+        content: "Explore how computers generate random numbers and why true randomness matters in games.",
+        category: "rng",
+        readTime: 10,
+        icon: "fa-random"
+      });
+      
+      await this.createEducationalContent({
+        title: "Verifiable Randomness",
+        content: "Learn how cryptographic techniques can be used to create provably fair and verifiable random results in games.",
+        category: "provable_fairness",
+        readTime: 7,
+        icon: "fa-shield-alt"
+      });
+      
+      await this.createEducationalContent({
+        title: "Risk Management",
+        content: "Understand how to manage risk in games of chance, particularly those with multipliers like Crash.",
+        category: "strategy",
+        readTime: 5,
+        icon: "fa-chart-bar"
+      });
+    }
+  }
+}
+
+// Initialize storage
+export const storage = new PgStorage();
