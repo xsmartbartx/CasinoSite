@@ -578,3 +578,66 @@ export class MemStorage implements IStorage {
     await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "highest_multiplier", period);
     await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "total_games", period);
     await this.updateLeaderboardCategory(userId, username, gameId, bet, multiplier, payout, "total_wagered", period);
+
+        // Update all time leaderboard too
+    if (period !== "all_time") {
+      await this.updateLeaderboard(userId, username, gameId, bet, multiplier, payout, "all_time");
+    }
+  }
+  
+  private async updateLeaderboardCategory(
+    userId: number, 
+    username: string,
+    gameId: number | null, 
+    bet: number, 
+    multiplier: number,
+    payout: number,
+    category: "biggest_win" | "highest_multiplier" | "total_games" | "total_wagered",
+    period: "daily" | "weekly" | "monthly" | "all_time"
+  ): Promise<void> {
+    // Find existing entry for this user/game/period/category combination
+    const existingEntryArray = Array.from(this.leaderboards.values())
+      .filter(entry => 
+        entry.userId === userId && 
+        entry.period === period && 
+        entry.gameId === gameId &&
+        entry.category === category
+      );
+    
+    let existingEntry = existingEntryArray.length > 0 ? existingEntryArray[0] : null;
+    
+    // Set the score based on category
+    let score = 0;
+    switch(category) {
+      case "biggest_win":
+        score = payout;
+        break;
+      case "highest_multiplier":
+        score = multiplier;
+        break;
+      case "total_games":
+        score = 1; // Will be added to existing score
+        break;
+      case "total_wagered":
+        score = bet;
+        break;
+    }
+    
+    if (existingEntry) {
+      // Update existing entry
+      const updatedEntry: Leaderboard = {
+        ...existingEntry,
+        username, // Update username in case it changed
+        // Update metrics based on category
+        highestMultiplier: Math.max(existingEntry.highestMultiplier || 0, multiplier),
+        biggestWin: Math.max(existingEntry.biggestWin || 0, payout),
+        totalWagered: (existingEntry.totalWagered || 0) + bet,
+        totalGames: (existingEntry.totalGames || 0) + 1,
+        // Set score based on category
+        score: category === "biggest_win" ? Math.max(existingEntry.score, score) : 
+               category === "highest_multiplier" ? Math.max(existingEntry.score, score) :
+               existingEntry.score + score, // For total_games and total_wagered, add to existing score
+        updatedAt: new Date()
+      };
+      this.leaderboards.set(existingEntry.id, updatedEntry);
+    } else {
