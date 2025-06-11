@@ -738,3 +738,30 @@ export class MemStorage implements IStorage {
       popular: false,
       difficulty: "beginner"
     });
+
+        // Default educational content
+    this.createEducationalContent({
+      title: "Probability Basics",
+      content: "Learn the fundamental concepts of probability theory that underlie all casino games.",
+      category: "probability",
+      readTime: 5,
+      icon: "fa-calculator"
+    });
+    
+    this.createEducationalContent({
+      title: "Expected Value",
+      content: "Understand how to calculate the average outcome of a random variable over many trials.",
+      category: "expected_value",
+      readTime: 8,
+      icon: "fa-chart-line"
+    });
+    
+    this.createEducationalContent({
+      title: "Random Number Generation",
+      content: "Explore how computers generate random numbers and why true randomness matters in games.",
+      category: "rng",
+      readTime: 10,
+      icon: "fa-random"
+    });
+  }
+}
