@@ -163,3 +163,9 @@ export const insertAnalyticsSchema = createInsertSchema(analytics).pick({
   financialProjections: true,
   riskMetrics: true,
 });
+
+export type GameSettings = typeof gameSettings.$inferSelect;
+export type InsertGameSettings = z.infer<typeof insertGameSettingsSchema>;
+
+export type Analytics = typeof analytics.$inferSelect;
+export type InsertAnalytics = z.infer<typeof insertAnalyticsSchema>;
