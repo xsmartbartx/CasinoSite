@@ -25,3 +25,14 @@ export const insertUserSchema = createInsertSchema(users).pick({
   role: true,
   isActive: true,
 });
+
+// Games table
+export const games = pgTable("games", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  rtp: doublePrecision("rtp").notNull(),
+  type: text("type").notNull(), // "slot", "roulette", "dice"
+  popular: boolean("popular").default(false),
+  difficulty: text("difficulty").default("intermediate"), // "beginner", "intermediate", "advanced"
+});
