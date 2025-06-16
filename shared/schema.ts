@@ -219,3 +219,16 @@ export const leaderboards = pgTable("leaderboards", {
   rank: integer("rank"), // Current rank in this category
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+export const insertLeaderboardSchema = createInsertSchema(leaderboards).pick({
+  userId: true,
+  username: true,
+  gameId: true,
+  category: true,
+  score: true,
+  highestMultiplier: true,
+  biggestWin: true,
+  totalWagered: true,
+  totalGames: true,
+  period: true,
+});
