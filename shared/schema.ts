@@ -203,3 +203,19 @@ export const leaderboardPeriods = pgEnum("leaderboard_period", [
   "monthly", 
   "all_time"
 ]);
+
+export const leaderboards = pgTable("leaderboards", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  username: text("username").notNull(), // Store username for display
+  gameId: integer("game_id").references(() => games.id),
+  category: leaderboardCategories("category").notNull(), // Competition category
+  score: doublePrecision("score").notNull(), // Current score in this category
+  highestMultiplier: doublePrecision("highest_multiplier").default(0), // Highest multiplier achieved
+  biggestWin: doublePrecision("biggest_win").default(0), // Biggest single win
+  totalWagered: doublePrecision("total_wagered").default(0), // Total amount wagered
+  totalGames: integer("total_games").default(0).notNull(), // Total games played
+  period: leaderboardPeriods("period").notNull(), // Time period
+  rank: integer("rank"), // Current rank in this category
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
