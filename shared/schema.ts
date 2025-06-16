@@ -127,3 +127,6 @@ export const insertGameSettingsSchema = createInsertSchema(gameSettings).pick({
   isEnabled: true,
   config: true,
 });
+
+export type EducationalContent = typeof educationalContent.$inferSelect;
+export type InsertEducationalContent = z.infer<typeof insertEducationalContentSchema>;
