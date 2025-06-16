@@ -87,3 +87,13 @@ export const insertEducationalContentSchema = createInsertSchema(educationalCont
   readTime: true,
   icon: true,
 });
+
+// Types
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+
+export type Game = typeof games.$inferSelect;
+export type InsertGame = z.infer<typeof insertGameSchema>;
+
+export type GameHistory = typeof gameHistory.$inferSelect;
+export type InsertGameHistory = z.infer<typeof insertGameHistorySchema>;
