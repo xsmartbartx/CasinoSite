@@ -117,3 +117,13 @@ export const gameSettings = pgTable("game_settings", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+export const insertGameSettingsSchema = createInsertSchema(gameSettings).pick({
+  gameId: true,
+  minBet: true,
+  maxBet: true,
+  houseEdge: true,
+  maxWin: true,
+  isEnabled: true,
+  config: true,
+});
