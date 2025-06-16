@@ -58,3 +58,13 @@ export const gameHistory = pgTable("game_history", {
   details: text("details"), // JSON string with game-specific details
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const insertGameHistorySchema = createInsertSchema(gameHistory).pick({
+  userId: true,
+  gameId: true,
+  bet: true,
+  multiplier: true,
+  payout: true,
+  result: true,
+  details: true,
+});
