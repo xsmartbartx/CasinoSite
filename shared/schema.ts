@@ -188,3 +188,18 @@ export const insertChatMessageSchema = createInsertSchema(chatMessages).pick({
   room: true,
   content: true,
 });
+
+// Leaderboards
+export const leaderboardCategories = pgEnum("leaderboard_category", [
+  "biggest_win", 
+  "highest_multiplier", 
+  "total_games", 
+  "total_wagered"
+]);
+
+export const leaderboardPeriods = pgEnum("leaderboard_period", [
+  "daily", 
+  "weekly", 
+  "monthly", 
+  "all_time"
+]);
