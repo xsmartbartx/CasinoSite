@@ -232,3 +232,9 @@ export const insertLeaderboardSchema = createInsertSchema(leaderboards).pick({
   totalGames: true,
   period: true,
 });
+
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
+
+export type Leaderboard = typeof leaderboards.$inferSelect;
+export type InsertLeaderboard = z.infer<typeof insertLeaderboardSchema>;
