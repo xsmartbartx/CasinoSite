@@ -79,3 +79,11 @@ export const educationalContent = pgTable("educational_content", {
   icon: text("icon").notNull(), // Font Awesome icon class
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const insertEducationalContentSchema = createInsertSchema(educationalContent).pick({
+  title: true,
+  content: true,
+  category: true,
+  readTime: true,
+  icon: true,
+});
