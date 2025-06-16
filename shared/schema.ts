@@ -68,3 +68,14 @@ export const insertGameHistorySchema = createInsertSchema(gameHistory).pick({
   result: true,
   details: true,
 });
+
+// Educational content
+export const educationalContent = pgTable("educational_content", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  category: text("category").notNull(), // "probability", "expected_value", "rng", etc.
+  readTime: integer("read_time").notNull(), // in minutes
+  icon: text("icon").notNull(), // Font Awesome icon class
+  createdAt: timestamp("created_at").defaultNow(),
+});
