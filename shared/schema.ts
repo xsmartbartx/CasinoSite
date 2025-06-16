@@ -97,3 +97,23 @@ export type InsertGame = z.infer<typeof insertGameSchema>;
 
 export type GameHistory = typeof gameHistory.$inferSelect;
 export type InsertGameHistory = z.infer<typeof insertGameHistorySchema>;
+
+// Game settings for admin control
+export const gameSettings = pgTable("game_settings", {
+  id: serial("id").primaryKey(),
+  gameId: integer("game_id").notNull().references(() => games.id),
+  minBet: doublePrecision("min_bet").notNull().default(1),
+  maxBet: doublePrecision("max_bet").notNull().default(1000),
+  houseEdge: doublePrecision("house_edge").notNull().default(0.05),
+  maxWin: doublePrecision("max_win").notNull().default(10000),
+  isEnabled: boolean("is_enabled").notNull().default(true),
+  // Advanced game-specific settings stored as JSON
+  // Examples:
+  // - Slot: symbolFrequencies, payoutMultipliers
+  // - Roulette: betTypeLimits
+  // - Dice: probabilityRanges, targetValues
+  // - Crash: crashPointDistribution, waitTimes, speedParameters
+  config: text("config"), // JSON string with game-specific advanced settings
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
