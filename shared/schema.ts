@@ -45,3 +45,16 @@ export const insertGameSchema = createInsertSchema(games).pick({
   popular: true,
   difficulty: true,
 });
+
+// Game history table
+export const gameHistory = pgTable("game_history", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  gameId: integer("game_id").notNull().references(() => games.id),
+  bet: doublePrecision("bet").notNull(),
+  multiplier: doublePrecision("multiplier").notNull(),
+  payout: doublePrecision("payout").notNull(),
+  result: text("result").notNull(), // "win", "loss"
+  details: text("details"), // JSON string with game-specific details
+  createdAt: timestamp("created_at").defaultNow(),
+});
