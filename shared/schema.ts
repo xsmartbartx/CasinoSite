@@ -36,3 +36,12 @@ export const games = pgTable("games", {
   popular: boolean("popular").default(false),
   difficulty: text("difficulty").default("intermediate"), // "beginner", "intermediate", "advanced"
 });
+
+export const insertGameSchema = createInsertSchema(games).pick({
+  name: true,
+  description: true,
+  rtp: true,
+  type: true,
+  popular: true,
+  difficulty: true,
+});
