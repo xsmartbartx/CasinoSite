@@ -148,3 +148,18 @@ export const analytics = pgTable("analytics", {
   riskMetrics: text("risk_metrics"), // JSON with risk analysis data
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const insertAnalyticsSchema = createInsertSchema(analytics).pick({
+  date: true,
+  totalUsers: true,
+  activeUsers: true,
+  newUsers: true,
+  totalBets: true,
+  totalWagered: true,
+  totalPayout: true,
+  houseProfit: true,
+  gameBreakdown: true,
+  userActivity: true,
+  financialProjections: true,
+  riskMetrics: true,
+});
