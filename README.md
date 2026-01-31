@@ -45,3 +45,95 @@ CasinoSite/
 ├── LICENSE # GPL-3.0 license
 ├── package.json # Root tooling (if applicable)
 └── README.md # Project documentation
+
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+Make sure you have installed:
+
+- **Node.js** (v14 or newer)
+- **npm** or **yarn**
+- (Optional) **Docker**
+- (Optional) Database (MongoDB / PostgreSQL, depending on backend)
+
+---
+
+## 🛠 Installation
+
+### Clone the repository
+
+```bash
+git clone https://github.com/xsmartbartx/CasinoSite.git
+cd CasinoSite
+
+**Install frontend dependencies**
+cd client
+npm install
+# or
+yarn install
+
+**Install backend dependencies (if applicable)**
+cd server
+npm install
+# or
+yarn install
+
+**▶️ Running the Project**
+Start the frontend
+cd client
+npm start
+# or
+yarn start
+
+The application will typically be available at:
+
+http://localhost:3000
+
+Start the backend (if present)
+cd server
+npm run dev
+# or
+yarn dev
+
+✨ Features (Current / Planned)
+
+Modular frontend architecture
+
+Casino-style UI
+
+API-driven backend (planned / optional)
+
+Authentication & session handling (planned)
+
+Wallet / balance logic (planned)
+
+Game modules (planned)
+
+🧠 Development Notes
+
+The project is intentionally modular to allow independent evolution of frontend and backend
+
+Naming and structure follow common industry conventions
+
+Suitable for CI/CD integration and containerization
+
+🤝 Contributing
+
+Contributions are welcome.
+
+Fork the repository
+
+Create a feature branch
+
+git checkout -b feature/your-feature
+
+
+Commit changes
+
+Push and open a Pull Request
+
+Keep commits small and descriptive.
