@@ -1,10 +1,10 @@
 # 🎰 CasinoSite
 
-**CasinoSite** is a GPL-3.0 licensed web application project designed as an online casino platform.  
+**CasinoSite** is a Apache 2.0 licensed web application project designed as an online casino platform.  
 The repository is structured for scalability and further expansion, with a clear separation between frontend and backend responsibilities.
 
 > Status: **Work in progress**  
-> License: **GNU General Public License v3.0**
+> License: **Apache License 2.0**
 
 ---
 
