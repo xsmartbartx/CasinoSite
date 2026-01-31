@@ -70,17 +70,23 @@ Make sure you have installed:
 git clone https://github.com/xsmartbartx/CasinoSite.git
 cd CasinoSite
 
+---
+
 **Install frontend dependencies**
 cd client
 npm install
 # or
 yarn install
 
+---
+
 **Install backend dependencies (if applicable)**
 cd server
 npm install
 # or
 yarn install
+
+---
 
 **▶️ Running the Project**
 Start the frontend
@@ -89,15 +95,21 @@ npm start
 # or
 yarn start
 
+---
+
 The application will typically be available at:
 
 http://localhost:3000
+
+---
 
 Start the backend (if present)
 cd server
 npm run dev
 # or
 yarn dev
+
+---
 
 ✨ Features (Current / Planned)
 
@@ -113,6 +125,8 @@ Wallet / balance logic (planned)
 
 Game modules (planned)
 
+---
+
 🧠 Development Notes
 
 The project is intentionally modular to allow independent evolution of frontend and backend
@@ -120,6 +134,8 @@ The project is intentionally modular to allow independent evolution of frontend 
 Naming and structure follow common industry conventions
 
 Suitable for CI/CD integration and containerization
+
+---
 
 🤝 Contributing
 
